@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+	<String Id="LANG" Overridable="yes">1033</String>
+    <String Id="ProductName" Overridable="yes">UnofficialDDNS</String>
+    <String Id="Keywords" Overridable="yes">DDNS</String>
+    <String Id="Description" Overridable="yes">UnofficialDDNS</String>
+    <String Id="Comments" Overridable="yes">A dynamic DNS service for regular registrars without native DDNS options.</String>
+    <String Id="WelcomeDlgTitle_OSError">{\WixUI_Font_Bigger}ERROR: Unsupported OS</String>
+    <String Id="WelcomeDlgDescription_OSError">[ProductName] requires at least Windows Vista SP2 or Server 2008 SP2. Supported operating systems are:&#13;&#10;&#13;&#10;        &#8226; Windows Vista&#13;&#10;        &#8226; Windows 7&#13;&#10;        &#8226; Windows 8&#13;&#10;        &#8226; Windows Server 2008&#13;&#10;        &#8226; Windows Server 2008 R2&#13;&#10;        &#8226; Windows Server 2012</String>
+    <String Id="WelcomeDlgTitle_NETError">{\WixUI_Font_Bigger}ERROR: .NET Framework 4.5 Not Installed</String>
+    <String Id="WelcomeDlgDescription_NETError">[ProductName] uses the .NET Framework version 4.5, install it and re-run this installer. You can type the following in a browser. Sorry, no links :(&#13;&#10;&#13;&#10;http://microsoft.com/download/details.aspx?id=30653</String>
+</WixLocalization>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+    <?define MajorVersion="1" ?>
+    <?define MinorVersion="0" ?>
+    <?define BuildVersion="0" ?>
+    <?define VersionNumber="$(var.MajorVersion).$(var.MinorVersion).$(var.BuildVersion)" ?>
+    <?define UpgradeCode="44bb546a-51c5-460e-bedc-29087856fa14" ?> <!-- Do not change, this is permanent. -->
+</Include>

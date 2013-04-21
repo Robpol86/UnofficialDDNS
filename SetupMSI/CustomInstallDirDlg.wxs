@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  <copyright file="CustomWelcomeDlg.wxs" company="Robpol86">
+    Copyright (c) 2013, Robpol86
+    This software is made available under the terms of the MIT License that can
+    be found in the LICENSE.rtf file.
+     
+    Based on WelcomeDlg.wxs from Outercurve Foundation. Their copyright: 
+        Copyright (c) 2004, Outercurve Foundation.
+        This software is released under Microsoft Reciprocal License (MS-RL).
+        The license and further copyright text can be found in the file
+        WIXUILICENSE.TXT at the root directory of the distribution.
+  </copyright>
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <UI>
+            <Dialog Id="CustomInstallDirDlg" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">
+                <!-- Bitmaps/Lines/Headings -->
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallDirDlgBannerBitmap)" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallDirDlgTitle)" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallDirDlgDescription)" />
+                
+                <!-- Folder -->
+                <Control Id="FolderLabel" Type="Text" X="20" Y="60" Width="290" Height="30" NoPrefix="yes" Text="!(loc.InstallDirDlgFolderLabel)" />
+                <Control Id="Folder" Type="PathEdit" X="20" Y="100" Width="252" Height="15" Property="WIXUI_INSTALLDIR" Indirect="yes">
+                    <Condition Action="show">WixAppFolder = "WixPerMachineFolder"</Condition>
+                    <Condition Action="hide">WixAppFolder = "WixPerUserFolder"</Condition>
+                </Control>
+                <Control Id="FolderRO" Type="Edit" X="20" Y="100" Width="252" Height="15" Property="WixPerUserFolder" Disabled="yes">
+                    <Condition Action="hide">WixAppFolder = "WixPerMachineFolder"</Condition>
+                    <Condition Action="show">WixAppFolder = "WixPerUserFolder"</Condition>
+                </Control>
+                <Control Id="ChangeFolder" Type="PushButton" X="284" Y="99" Width="56" Height="17" Text="!(loc.InstallDirDlgChange)">
+                    <Condition Action="enable">WixAppFolder = "WixPerMachineFolder"</Condition>
+                    <Condition Action="disable">WixAppFolder = "WixPerUserFolder"</Condition>
+                </Control>
+
+                <!-- Everyone/JustMe -->
+                <Control Id="BothScopes" Type="RadioButtonGroup" X="20" Y="155" Width="330" Height="65" Property="WixAppFolder" Hidden="yes">
+                    <RadioButtonGroup Property="WixAppFolder">
+                        <RadioButton Value="WixPerMachineFolder" X="0" Y="0" Width="295" Height="16" Text="!(loc.InstallScopeDlgPerMachine)" />
+                        <RadioButton Value="WixPerUserFolder" X="0" Y="17" Width="295" Height="16" Text="!(loc.InstallScopeDlgPerUser)" />
+                    </RadioButtonGroup>
+                    <!-- <Condition Action="show">Privileged AND (!(wix.WixUISupportPerUser) AND !(wix.WixUISupportPerMachine))</Condition> -->
+                </Control>
+
+                <!-- Buttons -->
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+                </Control>
+                
+                
+            </Dialog>
+        </UI>
+    </Fragment>
+</Wix>
