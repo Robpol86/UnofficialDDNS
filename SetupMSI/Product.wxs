@@ -47,11 +47,11 @@
 		<ComponentGroup Id="ProductComponents" Directory="INSTALLDIR">
 			<Component Id="ProductComponent">
                 <File Id="UnofficialDDNSExe" Name="UnofficialDDNS.exe"
-                      Source="../UnofficialDDNS/bin/Debug/UnofficialDDNS.exe" KeyPath="yes" />
+                      Source="..\UnofficialDDNS\bin\$(var.Configuration)\UnofficialDDNS.exe" KeyPath="yes" />
             </Component>
             <Component Id="JSONnetDll">
                 <File Id="NewtonsoftJsonDll" Name="Newtonsoft.Json.dll"
-                      Source="../UnofficialDDNS/bin/Debug/Newtonsoft.Json.dll" KeyPath="yes" />
+                      Source="..\UnofficialDDNS\bin\$(var.Configuration)\Newtonsoft.Json.dll" KeyPath="yes" />
 			</Component>
 		</ComponentGroup>
 	</Fragment>

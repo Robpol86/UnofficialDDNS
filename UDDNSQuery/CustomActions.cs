@@ -3,9 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Deployment.WindowsInstaller;
+using System.Threading;
+using System.IO;
 
 namespace UDDNSQuery {
     public class CustomActions {
+        [CustomAction]
+        public static ActionResult BrowseDirectoryButton( Session oSession ) {
+            Thread oThread = new Thread( (ThreadStart) delegate {
+                using ( var oDialog = new System.Windows.Forms.FolderBrowserDialog() ) {
+                    oDialog.ShowNewFolderButton = true;
+                    oDialog.SelectedPath = oSession["INSTALLDIR"];
+                    while ( !Directory.Exists( oDialog.SelectedPath ) ) {
+                        try {
+                            oDialog.SelectedPath = Path.GetDirectoryName( oDialog.SelectedPath );
+                        } catch ( System.ArgumentException ) {
+                            oDialog.SelectedPath = null;
+                            break;
+                        }
+                    }
+                    oDialog.Description = "Directory 'UnofficialDDNS' will be appended to the selected path.";
+                    if ( oDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK ) {
+                        oSession["INSTALLDIR"] = 
+                            Path.Combine( oDialog.SelectedPath, "UnofficialDDNS" ) + Path.DirectorySeparatorChar;
+                    }
+                }
+            } );
+            oThread.SetApartmentState( ApartmentState.STA );
+            oThread.Start();
+            oThread.Join();
+
+            return ActionResult.Success;
+        }
+
         [CustomAction]
         public static ActionResult PopulateRegistrarList( Session oSession ) {
             string sWixProperty = "RegistrarRegistrar";
