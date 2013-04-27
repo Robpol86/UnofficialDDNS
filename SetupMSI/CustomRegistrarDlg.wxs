@@ -9,7 +9,6 @@
   <todo>
         * Validate button uses CancelDlg. Make new dialog for validation. Or send everythign to the DLL and validate there.
         * Maybe use checkmarks and x icons for authentication?
-        * Populate dropdown from DLL.
         * Status messages besids Validate button. With red/green.
         * Change button text to "Validate/Update Record".
         * DLL will have a discover feature (check if domain exists and if it has something other than one A record) and an apply feature. Installer will do both. App does one.
@@ -20,8 +19,6 @@
         * In welcome dialog error messages, maybe use license text field to allow users to copy/paste?
         ***** Use HideTarget for credentials being passed to custom action.
         * Fix keyboard navigation.
-        * Does FolderDialog auto-locate parent path?
-        * Use Vista dialog instead.
   </todo>
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">

@@ -11,21 +11,19 @@ namespace UDDNSQuery {
         [CustomAction]
         public static ActionResult BrowseDirectoryButton( Session oSession ) {
             Thread oThread = new Thread( (ThreadStart) delegate {
-                using ( var oDialog = new System.Windows.Forms.FolderBrowserDialog() ) {
-                    oDialog.ShowNewFolderButton = true;
-                    oDialog.SelectedPath = oSession["INSTALLDIR"];
-                    while ( !Directory.Exists( oDialog.SelectedPath ) ) {
+                using ( FolderBrowser2 oDialog = new FolderBrowser2() ) {
+                    oDialog.DirectoryPath = oSession["INSTALLDIR"];
+                    /*while ( !Directory.Exists( oDialog.DirectoryPath ) ) {
                         try {
-                            oDialog.SelectedPath = Path.GetDirectoryName( oDialog.SelectedPath );
+                            oDialog.DirectoryPath = Path.GetDirectoryName( oDialog.DirectoryPath );
                         } catch ( System.ArgumentException ) {
-                            oDialog.SelectedPath = null;
+                            oDialog.DirectoryPath = null;
                             break;
                         }
-                    }
-                    oDialog.Description = "Directory 'UnofficialDDNS' will be appended to the selected path.";
-                    if ( oDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK ) {
-                        oSession["INSTALLDIR"] = 
-                            Path.Combine( oDialog.SelectedPath, "UnofficialDDNS" ) + Path.DirectorySeparatorChar;
+                    }*/
+                    if ( oDialog.ShowDialog( null ) == System.Windows.Forms.DialogResult.OK ) {
+                        oSession["INSTALLDIR"] =
+                            Path.Combine( oDialog.DirectoryPath, "UnofficialDDNS" ) + Path.DirectorySeparatorChar;
                     }
                 }
             } );
