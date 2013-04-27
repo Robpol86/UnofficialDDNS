@@ -24,6 +24,7 @@
   <ItemGroup>
     <Compile Include="CustomDialogSet.wxs" />
     <Compile Include="CustomInstallDirDlg.wxs" />
+    <Compile Include="CustomRegistrarDlg.wxs" />
     <Compile Include="CustomWelcomeDlg.wxs" />
     <Compile Include="Product.wxs" />
   </ItemGroup>

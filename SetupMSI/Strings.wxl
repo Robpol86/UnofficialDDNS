@@ -5,8 +5,18 @@
     <String Id="Keywords" Overridable="yes">DDNS</String>
     <String Id="Description" Overridable="yes">UnofficialDDNS</String>
     <String Id="Comments" Overridable="yes">A dynamic DNS service for regular registrars without native DDNS options.</String>
+    
     <String Id="WelcomeDlgTitle_OSError">{\WixUI_Font_Bigger}ERROR: Unsupported OS</String>
     <String Id="WelcomeDlgDescription_OSError">[ProductName] requires at least Windows Vista SP2 or Server 2008 SP2. Supported operating systems are:&#13;&#10;&#13;&#10;        &#8226; Windows Vista&#13;&#10;        &#8226; Windows 7&#13;&#10;        &#8226; Windows 8&#13;&#10;        &#8226; Windows Server 2008&#13;&#10;        &#8226; Windows Server 2008 R2&#13;&#10;        &#8226; Windows Server 2012</String>
     <String Id="WelcomeDlgTitle_NETError">{\WixUI_Font_Bigger}ERROR: .NET Framework 4.5 Not Installed</String>
     <String Id="WelcomeDlgDescription_NETError">[ProductName] uses the .NET Framework version 4.5, install it and re-run this installer. You can type the following in a browser. Sorry, no links :(&#13;&#10;&#13;&#10;http://microsoft.com/download/details.aspx?id=30653</String>
+
+    <String Id="RegistrarDlgTitle">{\WixUI_Font_Title}Registrar Credentials</String>
+    <String Id="RegistrarDlgDescription">Enter and validate all the details to be used by the service.</String>
+    <String Id="RegistrarDlgRegistrarLabel">Registrar:</String>
+    <String Id="RegistrarDlgUsernameLabel">Username:</String>
+    <String Id="RegistrarDlgApiTokenLabel">API token:</String>
+    <String Id="RegistrarDlgDomainLabel">Domain name:</String>
+    <String Id="RegistrarDlgDomainToolTip">Example: server.mydomain.com</String>
+    <String Id="RegistrarDlgValidate">Validate</String>
 </WixLocalization>

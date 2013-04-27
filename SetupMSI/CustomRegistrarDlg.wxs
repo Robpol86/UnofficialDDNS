@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  <copyright file="CustomRegistrarDlg.wxs" company="Robpol86">
+    Copyright (c) 2013, Robpol86
+    This software is made available under the terms of the MIT License that can
+    be found in the LICENSE.rtf file.
+  </copyright>
+  
+  <todo>
+        * Validate button uses CancelDlg. Make new dialog for validation. Or send everythign to the DLL and validate there.
+        * Maybe use checkmarks and x icons for authentication?
+        * Populate dropdown from DLL.
+        * Status messages besids Validate button. With red/green.
+        * Change button text to "Validate/Update Record".
+        * DLL will have a discover feature (check if domain exists and if it has something other than one A record) and an apply feature. Installer will do both. App does one.
+        * Have each field publish set property to "". Test if it disables Next when trying to click on it if user changes something after validation.
+        * Validate button disabed while DLL is working.
+        //  Set checkmarks/crosses for each field from Windows icon files.
+        * Check how DLL works with welcome dialog when .net 4.5 isnt installed.
+        * In welcome dialog error messages, maybe use license text field to allow users to copy/paste?
+  </todo>
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <Binary Id="UDDNSQuery.CA.dll" SourceFile="..\UDDNSQuery\bin\$(var.Configuration)\UDDNSQuery.CA.dll" />
+        <CustomAction Id="PopulateRegistrarList" BinaryKey="UDDNSQuery.CA.dll" DllEntry="PopulateRegistrarList" Execute="immediate" />
+        
+        <InstallExecuteSequence>
+            <Custom Action='PopulateRegistrarList' After='CostFinalize' />
+        </InstallExecuteSequence>
+        <InstallUISequence>
+            <Custom Action='PopulateRegistrarList' After='CostFinalize' />
+        </InstallUISequence>
+        
+        <UI>
+            <Dialog Id="CustomRegistrarDlg" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">
+                <!-- Bitmaps/Lines/Headings -->
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallDirDlgBannerBitmap)" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.RegistrarDlgTitle)" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.RegistrarDlgDescription)" />
+                
+                <!-- Labels -->
+                <Control Id="RegistrarLabel" Type="Text" X="20" Y="60" Width="70" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.RegistrarDlgRegistrarLabel)" />
+                <Control Id="UsernameLabel" Type="Text" X="20" Y="82" Width="70" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.RegistrarDlgUsernameLabel)" />
+                <Control Id="ApiTokenLabel" Type="Text" X="20" Y="104" Width="70" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.RegistrarDlgApiTokenLabel)" />
+                <Control Id="DomainLabel" Type="Text" X="20" Y="126" Width="70" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.RegistrarDlgDomainLabel)" />
+
+                <!-- Fields -->
+                <Control Id="RegistrarList" Type="ComboBox" Property="RegistrarRegistrar" Width="200" Height="13" X="95" Y="58" ComboList="yes">
+                    <ComboBox Property="RegistrarRegistrar">
+                        <ListItem Text="SomethingNeedsToBeHere" Value="SomethingNeedsToBeHere" />
+                    </ComboBox>
+                    <Publish Property="RegistrarValidated" Value="{}">1</Publish>
+                </Control>
+                <Control Id="UserField" Type="Edit" Property="RegistrarUser" Width="200" Height="16" X="95" Y="80">
+                    <Publish Property="RegistrarValidated" Value="{}">1</Publish>
+                </Control>
+                <Control Id="TokenField" Type="Edit" Property="RegistrarToken" Width="200" Height="16" X="95" Y="102">
+                    <Publish Property="RegistrarValidated" Value="{}">1</Publish>
+                </Control>
+                <Control Id="DomainField" Type="Edit" Property="RegistrarDomain" Width="200" Height="16" X="95" Y="124" ToolTip="!(loc.RegistrarDlgDomainToolTip)">
+                    <Publish Property="RegistrarValidated" Value="{}">1</Publish>
+                </Control>
+                
+                <!-- Buttons -->
+                <Control Id="Validate" Type="PushButton" X="20" Y="202" Width="56" Height="17" Default="yes" Text="!(loc.RegistrarDlgValidate)">
+                    <!-- <Publish Event="SpawnDialog" Value="CancelDlg">RegistrarRegistrar = "" OR RegistrarUser = "" OR RegistrarToken = "" OR RegistrarDomain = ""</Publish> -->
+                    <Publish Property="RegistrarValidated" Value="1">1</Publish>
+                </Control>
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)">
+                    <Condition Action="disable"><![CDATA[RegistrarValidated <> "1"]]></Condition>
+                    <Condition Action="enable">RegistrarValidated = "1"</Condition>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+                </Control>
+            </Dialog>
+        </UI>
+    </Fragment>
+</Wix>
