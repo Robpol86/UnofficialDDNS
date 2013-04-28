@@ -24,6 +24,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <CustomAction Id="PopulateRegistrarList" BinaryKey="UDDNSQuery.CA.dll" DllEntry="PopulateRegistrarList" Execute="immediate" />
+        <CustomAction Id="ValidateCredentials" BinaryKey="UDDNSQuery.CA.dll" DllEntry="ValidateCredentials" Execute="immediate" />
         
         <InstallExecuteSequence>
             <Custom Action='PopulateRegistrarList' After='CostFinalize' />
@@ -31,6 +32,11 @@
         <InstallUISequence>
             <Custom Action='PopulateRegistrarList' After='CostFinalize' />
         </InstallUISequence>
+
+        <Property Id="RegistrarValidated" Value="0" />
+        <Property Id="RegistrarUser" Hidden="yes" />
+        <Property Id="RegistrarToken" Hidden="yes" />
+        <Property Id="RegistrarTokenEncrypted" Hidden="yes" />
         
         <UI>
             <Dialog Id="CustomRegistrarDlg" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">
@@ -52,26 +58,30 @@
                     <ComboBox Property="RegistrarRegistrar">
                         <ListItem Text="SomethingNeedsToBeHere" Value="SomethingNeedsToBeHere" />
                     </ComboBox>
-                    <Publish Property="RegistrarValidated" Value="{}">1</Publish>
+                    <Publish Property="RegistrarValidated" Value="0">1</Publish>
                 </Control>
                 <Control Id="UserField" Type="Edit" Property="RegistrarUser" Width="200" Height="16" X="95" Y="80">
-                    <Publish Property="RegistrarValidated" Value="{}">1</Publish>
+                    <Publish Property="RegistrarValidated" Value="0">1</Publish>
                 </Control>
                 <Control Id="TokenField" Type="Edit" Property="RegistrarToken" Width="200" Height="16" X="95" Y="102">
-                    <Publish Property="RegistrarValidated" Value="{}">1</Publish>
+                    <Publish Property="RegistrarValidated" Value="0">1</Publish>
                 </Control>
                 <Control Id="DomainField" Type="Edit" Property="RegistrarDomain" Width="200" Height="16" X="95" Y="124" ToolTip="!(loc.RegistrarDlgDomainToolTip)">
-                    <Publish Property="RegistrarValidated" Value="{}">1</Publish>
+                    <Publish Property="RegistrarValidated" Value="0">1</Publish>
                 </Control>
                 
                 <!-- Buttons -->
                 <Control Id="Validate" Type="PushButton" X="20" Y="202" Width="56" Height="17" Default="yes" Text="!(loc.RegistrarDlgValidate)">
-                    <!-- <Publish Event="SpawnDialog" Value="CancelDlg">RegistrarRegistrar = "" OR RegistrarUser = "" OR RegistrarToken = "" OR RegistrarDomain = ""</Publish> -->
-                    <Publish Property="RegistrarValidated" Value="1">1</Publish>
+                    <Condition Action="enable"><![CDATA[RegistrarRegistrar <> ""]]></Condition>
+                    <Condition Action="disable">RegistrarRegistrar = ""</Condition>
+                    <Publish Property="RegistrarValidated" Value="0" Order="1">1</Publish>
+                    <Publish Property="_RegistrarValidated" Value="0" Order="2">1</Publish>
+                    <Publish Event="DoAction" Value="ValidateCredentials" Order="3">1</Publish>
+                    <Publish Property="RegistrarValidated" Value="[_RegistrarValidated]" Order="4">1</Publish>
                 </Control>
                 <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)">
-                    <Condition Action="disable"><![CDATA[RegistrarValidated <> "1"]]></Condition>
-                    <Condition Action="enable">RegistrarValidated = "1"</Condition>
+                    <Condition Action="disable"><![CDATA[RegistrarValidated <> "1" OR RegistrarTokenEncrypted = ""]]></Condition>
+                    <Condition Action="enable"><![CDATA[RegistrarValidated = "1" AND RegistrarTokenEncrypted <> ""]]></Condition>
                 </Control>
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
                 <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">

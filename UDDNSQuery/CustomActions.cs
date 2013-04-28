@@ -67,5 +67,13 @@ namespace UDDNSQuery {
             oSession.Log( sLogPrefix + "Method end." );
             return ActionResult.Success;
         }
+
+        [CustomAction]
+        public static ActionResult ValidateCredentials( Session oSession ) {
+            System.Threading.Thread.Sleep( 2000 );
+            oSession["_RegistrarValidated"] = "1";
+            oSession["RegistrarTokenEncrypted"] = "data";
+            return ActionResult.Success;
+        }
     }
 }
