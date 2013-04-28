@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace UDDNSQuery {
-    /*
     class QueryAPIName : QueryAPI, IQueryAPI {
         private static readonly string m_sUrlPrefix = "https://api.name.com";
         private static readonly string m_sUrlGetCurrentIP = m_sUrlPrefix + "/api/hello";
@@ -16,9 +15,14 @@ namespace UDDNSQuery {
         private static readonly string m_sUrlCreateRecordPrefix = m_sUrlPrefix + "/api/dns/create/";
         private static readonly string m_sUrlLogout = m_sUrlPrefix + "/api/logout";
 
-        public QueryAPIName() : base() {
-            this.m_sRegistrar = "Name.com";
-            this.m_sInfoURL = "http://www.name.com/reseller/";
-        }
-    } */
+        public QueryAPIName( string sUserName, string sApiTokenEncrypted, string sDomain ) : 
+            base( sUserName, sApiTokenEncrypted, sDomain ) { }
+
+        public void GetCurrentIP() { }
+        public void Authenticate() { }
+        public void GetPriDomain() { }
+        public void GetRecords() { }
+        public void UpdateDNSRecord() { }
+        public void Logout() { }
+    }
 }

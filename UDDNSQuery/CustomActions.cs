@@ -5,6 +5,8 @@ using System.Text;
 using Microsoft.Deployment.WindowsInstaller;
 using System.Threading;
 using System.IO;
+using System.Windows.Forms;
+using System.Security.Cryptography;
 
 namespace UDDNSQuery {
     public class CustomActions {
@@ -21,7 +23,7 @@ namespace UDDNSQuery {
                             break;
                         }
                     }*/
-                    if ( oDialog.ShowDialog( null ) == System.Windows.Forms.DialogResult.OK ) {
+                    if ( oDialog.ShowDialog( null ) == DialogResult.OK ) {
                         oSession["INSTALLDIR"] =
                             Path.Combine( oDialog.DirectoryPath, "UnofficialDDNS" ) + Path.DirectorySeparatorChar;
                     }
@@ -41,8 +43,10 @@ namespace UDDNSQuery {
             oSession.Log( sLogPrefix + "Method begin." );
             
             // Nuke the combobox and initialize the View.
-            View oComboBoxView = oSession.Database.OpenView( "DELETE FROM ComboBox WHERE ComboBox.Property = '{0}'",
-                new string[] { sWixProperty, } );
+            Microsoft.Deployment.WindowsInstaller.View oComboBoxView = oSession.Database.OpenView(
+                "DELETE FROM ComboBox WHERE ComboBox.Property = '{0}'",
+                new string[] { sWixProperty, }
+                );
             oComboBoxView.Execute();
             oComboBoxView = oSession.Database.OpenView( "SELECT * FROM ComboBox" );
             oComboBoxView.Execute();
@@ -56,7 +60,7 @@ namespace UDDNSQuery {
                 iCounter++;
                 sEntry = String.Format( "{0} ({1})", sName, QueryAPIIndex.Instance.RegistrarList[sName] );
                 oComboBoxItem = oSession.Database.CreateRecord( 4 );
-                oComboBoxItem.SetString( 1, "RegistrarRegistrar" ); // Property name.
+                oComboBoxItem.SetString( 1, sWixProperty ); // Property name.
                 oComboBoxItem.SetInteger( 2, iCounter ); // Order.
                 oComboBoxItem.SetString( 3, sName ); // Value of item.
                 oComboBoxItem.SetString( 4, sEntry ); // Text to represent item.
@@ -70,9 +74,39 @@ namespace UDDNSQuery {
 
         [CustomAction]
         public static ActionResult ValidateCredentials( Session oSession ) {
+            // Check for empty text fields.
+            string sError = null;
+            if ( oSession["RegistrarDomain"].Length == 0 ) sError = "Error102";
+            if ( oSession["RegistrarToken"].Length == 0 ) sError = "Error101";
+            if ( oSession["RegistrarUser"].Length == 0 ) sError = "Error100";
+            if ( sError != null ) {
+                Thread oThread = new Thread( (ThreadStart) delegate {
+                    MessageBox.Show(
+                        Errors.ResourceManager.GetString( sError ),
+                        Strings.ResourceManager.GetString( "EmptyFieldTitle" ),
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1
+                        );
+                } );
+                oThread.SetApartmentState( ApartmentState.STA );
+                oThread.Start();
+                oThread.Join();
+                return ActionResult.NotExecuted;
+            }
+
+            // Prepare QueryAPI instance.
+            oSession["RegistrarTokenEncrypted"] = Convert.ToBase64String ( ProtectedData.Protect(
+                Encoding.ASCII.GetBytes( oSession["RegistrarToken"] ),
+                null, DataProtectionScope.LocalMachine
+                ) );
+            IQueryAPI oApi = QueryAPIIndex.Instance.Factory(
+                oSession["RegistrarRegistrar"],
+                oSession["RegistrarUser"],
+                oSession["RegistrarTokenEncrypted"],
+                oSession["RegistrarDomain"]
+                );
+
             System.Threading.Thread.Sleep( 2000 );
             oSession["_RegistrarValidated"] = "1";
-            oSession["RegistrarTokenEncrypted"] = "data";
             return ActionResult.Success;
         }
     }

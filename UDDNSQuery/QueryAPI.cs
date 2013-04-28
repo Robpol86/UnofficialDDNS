@@ -26,24 +26,22 @@ namespace UDDNSQuery {
         }
 
         public IDictionary<string, string> RegistrarList { get { return this.m_dRegistrarList; } }
-        /*
-        public IQueryAPI Factory( string sRegistrar ) {
+        
+        public IQueryAPI Factory( string sRegistrar, string sUserName, string sApiTokenEncrypted, string sDomain ) {
             switch ( sRegistrar ) {
-                case "Name.com": return new QueryAPIName();
+                case "Name.com": return new QueryAPIName( sUserName, sApiTokenEncrypted, sDomain );
                 default: return null;
             }
-        } */
+        }
     }
 
     public interface IQueryAPI {
-        string Registrar { get; }
-        string InfoURL { get; }
         string CurrentIP { get; }
         IDictionary<string, string> RecordedIP { get; }
 
         //JObject RequestJSON( string sUrl, byte[] baPostData ); TODO
         void GetCurrentIP();
-        void Authenticate( string sUserName, byte[] baApiToken );
+        void Authenticate();
         void GetPriDomain();
         void GetRecords();
         void UpdateDNSRecord();
@@ -52,21 +50,22 @@ namespace UDDNSQuery {
     }
 
     class QueryAPI {
-        protected string m_sRegistrar = null; // Name of registrar.
-        protected string m_sInfoURL = null; // URL for registrar API information.
+        protected string m_sUserName = null;
+        protected string m_sApiTokenEncrypted = null;
         protected string m_sDomain = null; // FQDN target.
-        protected string m_sPriDomain = null; // Primary portion of the FQDN (e.g. test.co.uk from server.test.co.uk).
+
         protected string m_sCurrentIP = null; // Current public IP of the local host.
+        protected string m_sPriDomain = null; // Primary portion of the FQDN (e.g. test.co.uk from server.test.co.uk).
         protected IDictionary<string, string> m_dRecordedIP = null; // IP currently set at registrar. List in case of multiple records.
         protected string m_sSessionToken = null; // Session token to insert in HTTP header.
 
-        public QueryAPI() {
-            //this.m_sDomain = sDomain; TODO FIX
-        }
-
-        public string Registrar { get { return this.m_sRegistrar; } }
-        public string InfoURL { get { return this.m_sInfoURL; } }
         public string CurrentIP { get { return this.m_sCurrentIP; } }
         public IDictionary<string, string> RecordedIP { get { return this.m_dRecordedIP; } }
+
+        public QueryAPI( string sUserName, string sApiTokenEncrypted, string sDomain ) {
+            this.m_sUserName = sUserName;
+            this.m_sApiTokenEncrypted = sApiTokenEncrypted;
+            this.m_sDomain = sDomain;
+        }
     }
 }
