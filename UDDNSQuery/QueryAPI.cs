@@ -2,12 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UDDNSQuery {
+    /*
+     * TODO:
+     *  UpdateDNSRecords should only update A records.
+     *  ValidateDomain needs to be done.
+     *  Authentication failures have unclear messages.
+     *  Entering correct credentials gives error 202. /dns/list, no error.
+     */
     public sealed class QueryAPIIndex {
         private IDictionary<string, string> m_dRegistrarList = new Dictionary<string, string>();
 
@@ -58,12 +62,32 @@ namespace UDDNSQuery {
         /// <param name="sApiTokenEncrypted">The encrypted and base64 encoded API token/password.</param>
         /// <param name="sDomain">The fully qualified domain name target.</param>
         void Credentials( string sUserName, string sApiTokenEncrypted, string sDomain );
-        
+
+        /// <summary>
+        /// Gets the current public IP.
+        /// </summary>
+        /// <exception cref="QueryAPIException" />
         void GetCurrentIP();
+
+        /// <summary>
+        /// Authenticates to the API.
+        /// </summary>
+        /// <exception cref="QueryAPIException" />
         void Authenticate();
+        
         void ValidateDomain();
+        
+        /// <summary>
+        /// Gets all records related to the domain.
+        /// </summary>
+        /// <exception cref="QueryAPIException" />
         void GetRecords();
+        
         void UpdateDNSRecord();
+
+        /// <summary>
+        /// De-authenticate from the API.
+        /// </summary>
         void Logout();
         //TODO
     }

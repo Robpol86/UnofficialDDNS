@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Microsoft.Deployment.WindowsInstaller;
 using System.Threading;
@@ -92,7 +90,7 @@ namespace UDDNSQuery {
             }
 
             // Encrypt token.
-            oSession["RegistrarTokenEncrypted"] = Convert.ToBase64String ( ProtectedData.Protect(
+            oSession["RegistrarTokenEncrypted"] = Convert.ToBase64String( ProtectedData.Protect(
                 Encoding.ASCII.GetBytes( oSession["RegistrarToken"] ),
                 null, DataProtectionScope.LocalMachine
                 ) );

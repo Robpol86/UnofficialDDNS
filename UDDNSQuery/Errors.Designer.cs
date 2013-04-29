@@ -113,5 +113,176 @@ namespace UDDNSQuery {
                 return ResourceManager.GetString("Error202", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing result code and/or message in JSON from API..
+        /// </summary>
+        internal static string Error300 {
+            get {
+                return ResourceManager.GetString("Error300", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API responded with non-100 API code. Message:.
+        /// </summary>
+        internal static string Error301 {
+            get {
+                return ResourceManager.GetString("Error301", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid JSON from API, missing client_ip..
+        /// </summary>
+        internal static string Error302 {
+            get {
+                return ResourceManager.GetString("Error302", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API did not provide a valid IP address..
+        /// </summary>
+        internal static string Error303 {
+            get {
+                return ResourceManager.GetString("Error303", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing result code and/or message in JSON from API..
+        /// </summary>
+        internal static string Error400 {
+            get {
+                return ResourceManager.GetString("Error400", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API responded with non-100 API code. Message:.
+        /// </summary>
+        internal static string Error401 {
+            get {
+                return ResourceManager.GetString("Error401", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid JSON from API, missing session_token..
+        /// </summary>
+        internal static string Error402 {
+            get {
+                return ResourceManager.GetString("Error402", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API did not provide a valid session token..
+        /// </summary>
+        internal static string Error403 {
+            get {
+                return ResourceManager.GetString("Error403", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GetPriDomain: Missing result code and/or message in JSON from API..
+        /// </summary>
+        internal static string Error500 {
+            get {
+                return ResourceManager.GetString("Error500", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GetPriDomain: API responded with non-100 API code. Message:.
+        /// </summary>
+        internal static string Error501 {
+            get {
+                return ResourceManager.GetString("Error501", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GetPriDomain: Found no domains associated with account..
+        /// </summary>
+        internal static string Error502 {
+            get {
+                return ResourceManager.GetString("Error502", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GetPriDomain: No access to the domain..
+        /// </summary>
+        internal static string Error503 {
+            get {
+                return ResourceManager.GetString("Error503", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing result code and/or message in JSON from API..
+        /// </summary>
+        internal static string Error600 {
+            get {
+                return ResourceManager.GetString("Error600", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API responded with non-100 API code. Message:.
+        /// </summary>
+        internal static string Error601 {
+            get {
+                return ResourceManager.GetString("Error601", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UpdateDNSRecord (delete): Missing result code and/or message in JSON from API..
+        /// </summary>
+        internal static string Error700 {
+            get {
+                return ResourceManager.GetString("Error700", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UpdateDNSRecord (delete): API responded with non-100 API code. Message:.
+        /// </summary>
+        internal static string Error701 {
+            get {
+                return ResourceManager.GetString("Error701", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UpdateDNSRecord (create): Missing result code and/or message in JSON from API..
+        /// </summary>
+        internal static string Error702 {
+            get {
+                return ResourceManager.GetString("Error702", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UpdateDNSRecord (create): API responded with non-100 API code. Message:.
+        /// </summary>
+        internal static string Error703 {
+            get {
+                return ResourceManager.GetString("Error703", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UpdateDNSRecord: Updated domain record with the public IP address..
+        /// </summary>
+        internal static string Error704 {
+            get {
+                return ResourceManager.GetString("Error704", resourceCulture);
+            }
+        }
     }
 }
