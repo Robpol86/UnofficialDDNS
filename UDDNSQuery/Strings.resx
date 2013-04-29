@@ -121,4 +121,8 @@
     <value>Empty Field</value>
     <comment>MessageBox title.</comment>
   </data>
+  <data name="ValidationFailedTitle" xml:space="preserve">
+    <value>Validation Failed</value>
+    <comment>MessageBox title.</comment>
+  </data>
 </root>

@@ -129,4 +129,16 @@
     <value>Domain name field is empty.</value>
     <comment>Used by the installer.</comment>
   </data>
+  <data name="Error200" xml:space="preserve">
+    <value>API responded with non-200 HTTP code.</value>
+    <comment>QueryAPI.RequestJSON</comment>
+  </data>
+  <data name="Error201" xml:space="preserve">
+    <value>Got exception while querying API.</value>
+    <comment>QueryAPI.RequestJSON</comment>
+  </data>
+  <data name="Error202" xml:space="preserve">
+    <value>Invalid JSON from API.</value>
+    <comment>QueryAPI.RequestJSON</comment>
+  </data>
 </root>

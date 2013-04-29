@@ -68,5 +68,14 @@ namespace UDDNSQuery {
                 return ResourceManager.GetString("EmptyFieldTitle", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Validation Failed.
+        /// </summary>
+        internal static string ValidationFailedTitle {
+            get {
+                return ResourceManager.GetString("ValidationFailedTitle", resourceCulture);
+            }
+        }
     }
 }

@@ -76,14 +76,12 @@ namespace UDDNSQuery {
         public static ActionResult ValidateCredentials( Session oSession ) {
             // Check for empty text fields.
             string sError = null;
-            if ( oSession["RegistrarDomain"].Length == 0 ) sError = "Error102";
-            if ( oSession["RegistrarToken"].Length == 0 ) sError = "Error101";
-            if ( oSession["RegistrarUser"].Length == 0 ) sError = "Error100";
+            if ( oSession["RegistrarDomain"].Length == 0 ) sError = Errors.Error102;
+            if ( oSession["RegistrarToken"].Length == 0 ) sError = Errors.Error101;
+            if ( oSession["RegistrarUser"].Length == 0 ) sError = Errors.Error100;
             if ( sError != null ) {
                 Thread oThread = new Thread( (ThreadStart) delegate {
-                    MessageBox.Show(
-                        Errors.ResourceManager.GetString( sError ),
-                        Strings.ResourceManager.GetString( "EmptyFieldTitle" ),
+                    MessageBox.Show( sError, Strings.EmptyFieldTitle,
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1
                         );
                 } );
@@ -93,19 +91,38 @@ namespace UDDNSQuery {
                 return ActionResult.NotExecuted;
             }
 
-            // Prepare QueryAPI instance.
+            // Encrypt token.
             oSession["RegistrarTokenEncrypted"] = Convert.ToBase64String ( ProtectedData.Protect(
                 Encoding.ASCII.GetBytes( oSession["RegistrarToken"] ),
                 null, DataProtectionScope.LocalMachine
                 ) );
-            IQueryAPI oApi = QueryAPIIndex.Instance.Factory(
-                oSession["RegistrarRegistrar"],
-                oSession["RegistrarUser"],
-                oSession["RegistrarTokenEncrypted"],
-                oSession["RegistrarDomain"]
-                );
 
-            System.Threading.Thread.Sleep( 2000 );
+            // Validate.
+            using ( IQueryAPI oApi = QueryAPIIndex.Instance.Factory( oSession["RegistrarRegistrar"] ) ) {
+                try {
+                    oApi.Credentials( oSession["RegistrarUser"], oSession["RegistrarTokenEncrypted"], 
+                        oSession["RegistrarDomain"]
+                        ); // Pass credentials to class instance.
+                    oApi.Authenticate(); // Login to API to validate user/token.
+                    oApi.ValidateDomain(); // Check if user owns the domain.
+                    oApi.GetRecords(); // Make sure domain doesn't have anything other than 0 or 1 A record.
+                    oApi.Logout();
+                } catch ( QueryAPIException e ) {
+                    Thread oThread = new Thread( (ThreadStart) delegate {
+                        string sMessage = e.Code.ToString() + ": " + e.RMessage;
+                        if ( e.Details != null ) sMessage += "\n" + e.Details;
+                        MessageBox.Show( sMessage, Strings.ValidationFailedTitle,
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1
+                            );
+                    } );
+                    oThread.SetApartmentState( ApartmentState.STA );
+                    oThread.Start();
+                    oThread.Join();
+                    return ActionResult.NotExecuted;
+                }
+            }
+            
+            // Success!
             oSession["_RegistrarValidated"] = "1";
             return ActionResult.Success;
         }

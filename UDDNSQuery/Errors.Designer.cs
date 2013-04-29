@@ -86,5 +86,32 @@ namespace UDDNSQuery {
                 return ResourceManager.GetString("Error102", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API responded with non-200 HTTP code..
+        /// </summary>
+        internal static string Error200 {
+            get {
+                return ResourceManager.GetString("Error200", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Got exception while querying API..
+        /// </summary>
+        internal static string Error201 {
+            get {
+                return ResourceManager.GetString("Error201", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid JSON from API..
+        /// </summary>
+        internal static string Error202 {
+            get {
+                return ResourceManager.GetString("Error202", resourceCulture);
+            }
+        }
     }
 }

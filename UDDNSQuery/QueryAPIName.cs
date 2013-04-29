@@ -15,12 +15,11 @@ namespace UDDNSQuery {
         private static readonly string m_sUrlCreateRecordPrefix = m_sUrlPrefix + "/api/dns/create/";
         private static readonly string m_sUrlLogout = m_sUrlPrefix + "/api/logout";
 
-        public QueryAPIName( string sUserName, string sApiTokenEncrypted, string sDomain ) : 
-            base( sUserName, sApiTokenEncrypted, sDomain ) { }
+        public QueryAPIName() : base() { }
 
         public void GetCurrentIP() { }
         public void Authenticate() { }
-        public void GetPriDomain() { }
+        public void ValidateDomain() { }
         public void GetRecords() { }
         public void UpdateDNSRecord() { }
         public void Logout() { }
