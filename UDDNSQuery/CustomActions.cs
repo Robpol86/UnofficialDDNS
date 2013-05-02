@@ -73,13 +73,64 @@ namespace UDDNSQuery {
         [CustomAction]
         public static ActionResult ValidateCredentials( Session oSession ) {
             // Check for empty text fields.
+            string sErrorTitle = Strings.EmptyFieldTitle;
             string sError = null;
             if ( oSession["RegistrarDomain"].Length == 0 ) sError = Errors.Error102;
             if ( oSession["RegistrarToken"].Length == 0 ) sError = Errors.Error101;
             if ( oSession["RegistrarUser"].Length == 0 ) sError = Errors.Error100;
+            
+            if ( sError == null ) { // No errors so far.
+                // Encrypt token.
+                oSession["RegistrarTokenEncrypted"] = Convert.ToBase64String( ProtectedData.Protect(
+                    Encoding.ASCII.GetBytes( oSession["RegistrarToken"] ),
+                    null, DataProtectionScope.LocalMachine
+                    ) );
+
+                // Validate with status dialog.
+                using ( IQueryAPI oApi = QueryAPIIndex.Instance.Factory( oSession["RegistrarRegistrar"] ) ) {
+                    // Pass credentials to class instance.
+                    oApi.Credentials( oSession["RegistrarUser"], oSession["RegistrarTokenEncrypted"],
+                        oSession["RegistrarDomain"]
+                        );
+
+                    // Setup the dialog.
+                    using ( Form oStatusDialog = new Form() ) {
+                        oStatusDialog.ControlBox = false; // Hide buttons.
+
+                        // Launch dialog in thread.
+                        Thread oDialogThread = new Thread( (ThreadStart) delegate { oStatusDialog.ShowDialog(); } );
+                        oDialogThread.Start();
+
+                        try {
+                            // Do the actual validation and update the dialog.
+                            oStatusDialog.Text = "Authenticating..."; // TODO italics?
+                            oApi.Authenticate(); // Login to API to validate user/token.
+
+                            oStatusDialog.Text = "Validating domain...";
+                            oApi.ValidateDomain(); // Check if user owns the domain.
+
+                            oStatusDialog.Text = "Geting records...";
+                            oApi.GetRecords(); // Make sure domain doesn't have anything other than 0 or 1 A record.
+
+                            oStatusDialog.Text = "Logging ou...";
+                            oApi.Logout();
+                        } catch ( QueryAPIException e ) {
+                            sErrorTitle = Strings.ValidationFailedTitle;
+                            sError = e.Code.ToString() + ": " + e.RMessage;
+                            if ( e.Details != null ) sError += "\n" + e.Details;
+                        }
+
+                        // Done with dialog.
+                        oStatusDialog.Close();
+                        oDialogThread.Join();
+                    }
+                }
+            }
+
+            // Check for errors.
             if ( sError != null ) {
                 Thread oThread = new Thread( (ThreadStart) delegate {
-                    MessageBox.Show( sError, Strings.EmptyFieldTitle,
+                    MessageBox.Show( sError, sErrorTitle,
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1
                         );
                 } );
@@ -89,37 +140,6 @@ namespace UDDNSQuery {
                 return ActionResult.NotExecuted;
             }
 
-            // Encrypt token.
-            oSession["RegistrarTokenEncrypted"] = Convert.ToBase64String( ProtectedData.Protect(
-                Encoding.ASCII.GetBytes( oSession["RegistrarToken"] ),
-                null, DataProtectionScope.LocalMachine
-                ) );
-
-            // Validate.
-            using ( IQueryAPI oApi = QueryAPIIndex.Instance.Factory( oSession["RegistrarRegistrar"] ) ) {
-                try {
-                    oApi.Credentials( oSession["RegistrarUser"], oSession["RegistrarTokenEncrypted"], 
-                        oSession["RegistrarDomain"]
-                        ); // Pass credentials to class instance.
-                    oApi.Authenticate(); // Login to API to validate user/token.
-                    oApi.ValidateDomain(); // Check if user owns the domain.
-                    oApi.GetRecords(); // Make sure domain doesn't have anything other than 0 or 1 A record.
-                    oApi.Logout();
-                } catch ( QueryAPIException e ) {
-                    Thread oThread = new Thread( (ThreadStart) delegate {
-                        string sMessage = e.Code.ToString() + ": " + e.RMessage;
-                        if ( e.Details != null ) sMessage += "\n" + e.Details;
-                        MessageBox.Show( sMessage, Strings.ValidationFailedTitle,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1
-                            );
-                    } );
-                    oThread.SetApartmentState( ApartmentState.STA );
-                    oThread.Start();
-                    oThread.Join();
-                    return ActionResult.NotExecuted;
-                }
-            }
-            
             // Success!
             oSession["_RegistrarValidated"] = "1";
             return ActionResult.Success;

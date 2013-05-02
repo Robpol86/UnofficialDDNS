@@ -11,6 +11,11 @@ namespace UDDNSQuery {
      *  ValidateDomain needs to be done.
      *  Authentication failures have unclear messages.
      *  Entering correct credentials gives error 202. /dns/list, no error.
+     *  Have a dialog come up while working (2s timer on the cancel button).
+     *      Dialog will show progress.
+     *      Dialog will allow user to cancel.
+     *      Show screenshot example if more than 1 record/wrong record.
+     *      Center dialogs over installer window.
      */
     public sealed class QueryAPIIndex {
         private IDictionary<string, string> m_dRegistrarList = new Dictionary<string, string>();
