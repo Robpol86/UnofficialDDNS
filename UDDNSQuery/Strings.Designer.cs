@@ -70,11 +70,11 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Validation Failed.
+        ///   Looks up a localized string similar to UDDNS Validation.
         /// </summary>
-        internal static string ValidationFailedTitle {
+        internal static string StatusDialogTitle {
             get {
-                return ResourceManager.GetString("ValidationFailedTitle", resourceCulture);
+                return ResourceManager.GetString("StatusDialogTitle", resourceCulture);
             }
         }
     }

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace UDDNSQuery {
     /*
@@ -48,6 +50,9 @@ namespace UDDNSQuery {
     }
 
     public interface IQueryAPI : IDisposable {
+        int UserLength { get; }
+        int TokenLength { get; }
+        int DomainLength { get; }
         string CurrentIP { get; }
         IDictionary<string, string> RecordedIP { get; }
 
@@ -56,9 +61,10 @@ namespace UDDNSQuery {
         /// </summary>
         /// <param name="sUrl">The URL to query.</param>
         /// <param name="baPostData">HTTP POST data to send.</param>
-        /// <returns>JSON.nt JObject</returns>
+        /// <returns>JSON.net JObject</returns>
         /// <exception cref="QueryAPIException" />
-        JObject RequestJSON( string sUrl, byte[] baPostData );
+        /// <exception cref="OperationCancelledException" />
+        Task<JObject> RequestJSONAsync( string sUrl, byte[] baPostData, CancellationToken oCT );
         
         /// <summary>
         /// Pass credentials and the target domain to class instance.
@@ -72,28 +78,32 @@ namespace UDDNSQuery {
         /// Gets the current public IP.
         /// </summary>
         /// <exception cref="QueryAPIException" />
-        void GetCurrentIP();
+        /// <exception cref="OperationCancelledException" />
+        Task GetCurrentIPAsync( CancellationToken oCT );
 
         /// <summary>
         /// Authenticates to the API.
         /// </summary>
         /// <exception cref="QueryAPIException" />
-        void Authenticate();
-        
-        void ValidateDomain();
+        /// <exception cref="OperationCancelledException" />
+        Task AuthenticateAsync( CancellationToken oCT );
+
+        Task ValidateDomainAsync( CancellationToken oCT );
         
         /// <summary>
         /// Gets all records related to the domain.
         /// </summary>
         /// <exception cref="QueryAPIException" />
-        void GetRecords();
-        
-        void UpdateDNSRecord();
+        /// <exception cref="OperationCancelledException" />
+        Task GetRecordsAsync( CancellationToken oCT );
+
+        Task UpdateDNSRecordAsync( CancellationToken oCT );
 
         /// <summary>
         /// De-authenticate from the API.
         /// </summary>
-        void Logout();
+        /// <exception cref="OperationCancelledException" />
+        Task LogoutAsync( CancellationToken oCT );
         //TODO
     }
 
@@ -107,6 +117,9 @@ namespace UDDNSQuery {
         protected IDictionary<string, string> m_dRecordedIP = null; // IP currently set at registrar. List in case of multiple records.
         protected string m_sSessionToken = null; // Session token to insert in HTTP header.
 
+        public int UserLength { get { return this.m_sUserName.Length; } }
+        public int TokenLength { get { return this.m_sApiTokenEncrypted.Length; } }
+        public int DomainLength { get { return this.m_sDomain.Length; } }
         public string CurrentIP { get { return this.m_sCurrentIP; } }
         public IDictionary<string, string> RecordedIP { get { return this.m_dRecordedIP; } }
 
@@ -131,7 +144,8 @@ namespace UDDNSQuery {
         /// <param name="baPostData">HTTP POST data to send.</param>
         /// <returns>JSON.nt JObject</returns>
         /// <exception cref="QueryAPIException" />
-        public JObject RequestJSON( string sUrl, byte[] baPostData ) {
+        /// <exception cref="OperationCancelledException" />
+        public async Task<JObject> RequestJSONAsync( string sUrl, byte[] baPostData, CancellationToken oCT ) {
             // Setup HTTP request.
             HttpWebRequest oRequest = (HttpWebRequest) WebRequest.Create( sUrl );
             oRequest.ContentType = "application/x-www-form-urlencoded";
@@ -144,10 +158,14 @@ namespace UDDNSQuery {
                 oStream.Write( baPostData, 0, baPostData.Length );
                 oStream.Close();
             }
+            // Setup the cancelation token.
+            CancellationTokenRegistration oCTReg = oCT.Register( () => {
+                try { if ( oRequest != null ) oRequest.Abort(); oCT.ThrowIfCancellationRequested(); } catch { }
+            } );
             // Execute request.
             string sSerializedJson;
             try {
-                using ( HttpWebResponse oResponse = (HttpWebResponse) oRequest.GetResponse() ) {
+                using ( HttpWebResponse oResponse = (HttpWebResponse) await oRequest.GetResponseAsync() ) {
                     if ( oResponse.StatusCode != HttpStatusCode.OK ) {
                         string sDetails =
                             String.Format( "HTTP {1}; URL: {0}", oResponse.StatusCode.ToString(), sUrl );
@@ -160,6 +178,8 @@ namespace UDDNSQuery {
             } catch ( WebException e ) {
                 string sDetails = String.Format( "URL: {0}; WebException: ", sUrl, e.ToString() );
                 throw new QueryAPIException( 201, sDetails );
+            } finally {
+                oCTReg.Dispose();
             }
             // Parse JSON.
             JObject oJson;

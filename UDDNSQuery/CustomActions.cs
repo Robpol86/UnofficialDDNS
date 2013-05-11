@@ -72,77 +72,33 @@ namespace UDDNSQuery {
 
         [CustomAction]
         public static ActionResult ValidateCredentials( Session oSession ) {
-            // Check for empty text fields.
-            string sErrorTitle = Strings.EmptyFieldTitle;
-            string sError = null;
-            if ( oSession["RegistrarDomain"].Length == 0 ) sError = Errors.Error102;
-            if ( oSession["RegistrarToken"].Length == 0 ) sError = Errors.Error101;
-            if ( oSession["RegistrarUser"].Length == 0 ) sError = Errors.Error100;
-            
-            if ( sError == null ) { // No errors so far.
-                // Encrypt token.
+            // Encrypt token.
+            if ( oSession["RegistrarToken"].Length > 0 ) {
                 oSession["RegistrarTokenEncrypted"] = Convert.ToBase64String( ProtectedData.Protect(
                     Encoding.ASCII.GetBytes( oSession["RegistrarToken"] ),
                     null, DataProtectionScope.LocalMachine
                     ) );
+            } else {
+                oSession["RegistrarTokenEncrypted"] = "";
+            }
 
-                // Validate with status dialog.
-                using ( IQueryAPI oApi = QueryAPIIndex.Instance.Factory( oSession["RegistrarRegistrar"] ) ) {
-                    // Pass credentials to class instance.
-                    oApi.Credentials( oSession["RegistrarUser"], oSession["RegistrarTokenEncrypted"],
-                        oSession["RegistrarDomain"]
-                        );
+            // Validate with status dialog.
+            using ( IQueryAPI oApi = QueryAPIIndex.Instance.Factory( oSession["RegistrarRegistrar"] ) )
+            using ( StatusDialog oDialog = new StatusDialog( oApi ) ) {
+                // Pass credentials to class instance.
+                oApi.Credentials( oSession["RegistrarUser"], oSession["RegistrarTokenEncrypted"],
+                    oSession["RegistrarDomain"]
+                    );
 
-                    // Setup the dialog.
-                    using ( Form oStatusDialog = new Form() ) {
-                        oStatusDialog.ControlBox = false; // Hide buttons.
-
-                        // Launch dialog in thread.
-                        Thread oDialogThread = new Thread( (ThreadStart) delegate { oStatusDialog.ShowDialog(); } );
-                        oDialogThread.Start();
-
-                        try {
-                            // Do the actual validation and update the dialog.
-                            oStatusDialog.Text = "Authenticating..."; // TODO italics?
-                            oApi.Authenticate(); // Login to API to validate user/token.
-
-                            oStatusDialog.Text = "Validating domain...";
-                            oApi.ValidateDomain(); // Check if user owns the domain.
-
-                            oStatusDialog.Text = "Geting records...";
-                            oApi.GetRecords(); // Make sure domain doesn't have anything other than 0 or 1 A record.
-
-                            oStatusDialog.Text = "Logging ou...";
-                            oApi.Logout();
-                        } catch ( QueryAPIException e ) {
-                            sErrorTitle = Strings.ValidationFailedTitle;
-                            sError = e.Code.ToString() + ": " + e.RMessage;
-                            if ( e.Details != null ) sError += "\n" + e.Details;
-                        }
-
-                        // Done with dialog.
-                        oStatusDialog.Close();
-                        oDialogThread.Join();
-                    }
+                // Launch the dialog and get result.
+                if ( oDialog.Show() == TaskDialogResult.OK ) {
+                    oSession["_RegistrarValidated"] = "1";
+                    return ActionResult.Success;
+                } else {
+                    oSession["_RegistrarValidated"] = "0";
+                    return ActionResult.NotExecuted;
                 }
             }
-
-            // Check for errors.
-            if ( sError != null ) {
-                Thread oThread = new Thread( (ThreadStart) delegate {
-                    MessageBox.Show( sError, sErrorTitle,
-                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1
-                        );
-                } );
-                oThread.SetApartmentState( ApartmentState.STA );
-                oThread.Start();
-                oThread.Join();
-                return ActionResult.NotExecuted;
-            }
-
-            // Success!
-            oSession["_RegistrarValidated"] = "1";
-            return ActionResult.Success;
         }
     }
 }

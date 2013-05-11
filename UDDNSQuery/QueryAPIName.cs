@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace UDDNSQuery {
@@ -24,9 +25,10 @@ namespace UDDNSQuery {
         /// Gets the current public IP.
         /// </summary>
         /// <exception cref="QueryAPIException" />
-        public void GetCurrentIP() {
+        /// <exception cref="OperationCancelledException" />
+        public async Task GetCurrentIPAsync( CancellationToken oCT ) {
             // Parse JSON.
-            JObject oJson = this.RequestJSON( m_sUrlGetCurrentIP, null );
+            JObject oJson = await this.RequestJSONAsync( m_sUrlGetCurrentIP, null, oCT );
             if ( (string) oJson.SelectToken( "result.code" ) == null ||
                 (string) oJson.SelectToken( "result.message" ) == null
                 ) throw new QueryAPIException( 300 );
@@ -45,13 +47,14 @@ namespace UDDNSQuery {
         /// Authenticates to the API.
         /// </summary>
         /// <exception cref="QueryAPIException" />
-        public void Authenticate() {
+        /// <exception cref="OperationCancelledException" />
+        public async Task AuthenticateAsync( CancellationToken oCT ) {
             // Decrypt API token and setup API query for session token.
             byte[] baData = Encoding.ASCII.GetBytes( String.Format( "{{\"username\":\"{0}\",\"api_token\":\"{1}\"}}",
                 this.m_sUserName, Encoding.ASCII.GetString( ProtectedData.Unprotect( Convert.FromBase64String(
                 this.m_sApiTokenEncrypted ), null, DataProtectionScope.LocalMachine ) ) ) );
             // Parse JSON.
-            JObject oJson = this.RequestJSON( m_sUrlAuthenticate, baData );
+            JObject oJson = await this.RequestJSONAsync( m_sUrlAuthenticate, baData, oCT );
             baData = null; // Remove clear-text API token from memory.
             if ( (string) oJson.SelectToken( "result.code" ) == null ||
                 (string) oJson.SelectToken( "result.message" ) == null
@@ -67,15 +70,16 @@ namespace UDDNSQuery {
             this.m_sSessionToken = sSession_token;
         }
 
-        public void ValidateDomain() { } //TODO
+        public async Task ValidateDomainAsync( CancellationToken oCT ) { } //TODO
 
         /// <summary>
         /// Gets all records related to the domain.
         /// </summary>
         /// <exception cref="QueryAPIException" />
-        public void GetRecords() {
+        /// <exception cref="OperationCancelledException" />
+        public async Task GetRecordsAsync( CancellationToken oCT ) {
             // Parse JSON.
-            JObject oJson = this.RequestJSON( m_sUrlGetRecordsPrefix + this.m_sPriDomain, null );
+            JObject oJson = await this.RequestJSONAsync( m_sUrlGetRecordsPrefix + this.m_sPriDomain, null, oCT );
             if ( (string) oJson.SelectToken( "result.code" ) == null ||
                 (string) oJson.SelectToken( "result.message" ) == null
                 ) throw new QueryAPIException( 600 );
@@ -92,7 +96,8 @@ namespace UDDNSQuery {
         /// Removes all records for the domain and adds an A record with the current public IP address.
         /// </summary>
         /// <exception cref="QueryAPIException" />
-        public void UpdateDNSRecord() {
+        /// <exception cref="OperationCancelledException" />
+        public async Task UpdateDNSRecordAsync( CancellationToken oCT ) {
             /*// Create record.
             JObject oJson;
             byte[] baData;
@@ -120,8 +125,9 @@ namespace UDDNSQuery {
         /// <summary>
         /// De-authenticate from the API.
         /// </summary>
-        public void Logout() {
-            this.RequestJSON( m_sUrlLogout, null );
+        /// <exception cref="OperationCancelledException" />
+        public async Task LogoutAsync( CancellationToken oCT ) {
+            await this.RequestJSONAsync( m_sUrlLogout, null, oCT );
             this.m_sSessionToken = null;
         }
     }
