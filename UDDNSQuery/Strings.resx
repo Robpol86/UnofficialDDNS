@@ -121,6 +121,26 @@
     <value>Empty Field</value>
     <comment>MessageBox title.</comment>
   </data>
+  <data name="StatusDialogHeading" xml:space="preserve">
+    <value>Please wait while your settings are validated</value>
+    <comment>TaskDialog heading.</comment>
+  </data>
+  <data name="StatusDialogHeadingError" xml:space="preserve">
+    <value>An error has occurred during validation</value>
+    <comment>TaskDialog heading during an error.</comment>
+  </data>
+  <data name="StatusDialogTextAuth" xml:space="preserve">
+    <value>Authenticating...</value>
+  </data>
+  <data name="StatusDialogTextDomain" xml:space="preserve">
+    <value>Validating domain...</value>
+  </data>
+  <data name="StatusDialogTextLogout" xml:space="preserve">
+    <value>Logging out...</value>
+  </data>
+  <data name="StatusDialogTextRecords" xml:space="preserve">
+    <value>Getting records...</value>
+  </data>
   <data name="StatusDialogTitle" xml:space="preserve">
     <value>UDDNS Validation</value>
     <comment>TaskDialog title.</comment>

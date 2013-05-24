@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace UDDNSQuery {
@@ -23,6 +19,7 @@ namespace UDDNSQuery {
         // Private data
         private uint cookie;
         private static ACTCTX enableThemingActivationContext;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Reliability", "CA2006:UseSafeHandleToEncapsulateNativeResources" )]
         private static IntPtr hActCtx;
         private static bool contextCreationSucceeded = false;
 
@@ -39,23 +36,29 @@ namespace UDDNSQuery {
         }
 
         ~EnableThemingInScope() {
-            Dispose( false );
+            Dispose();
         }
 
         void IDisposable.Dispose() {
-            Dispose( true );
+            Dispose();
+            GC.SuppressFinalize( this );
         }
 
-        private void Dispose( bool disposing ) {
+        private void Dispose() {
             if ( cookie != 0 ) {
-                if ( DeactivateActCtx( 0, cookie ) ) {
-                    // deactivation succeeded...
-                    cookie = 0;
+                try {
+                    if ( DeactivateActCtx( 0, cookie ) ) {
+                        // deactivation succeeded...
+                        cookie = 0;
+                    }
+                } catch ( SEHException ) {
+                    // Robpol86: I don't know how to fix this!
                 }
             }
         }
 
-        private bool EnsureActivateContextCreated() {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Reliability", "CA2002:DoNotLockOnObjectsWithWeakIdentity" )]
+        private static bool EnsureActivateContextCreated() {
             lock ( typeof( EnableThemingInScope ) ) {
                 if ( !contextCreationSucceeded ) {
                     // Pull manifest from the .NET Framework install

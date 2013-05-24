@@ -70,6 +70,60 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please wait while your settings are validated.
+        /// </summary>
+        internal static string StatusDialogHeading {
+            get {
+                return ResourceManager.GetString("StatusDialogHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error has occurred during validation.
+        /// </summary>
+        internal static string StatusDialogHeadingError {
+            get {
+                return ResourceManager.GetString("StatusDialogHeadingError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authenticating....
+        /// </summary>
+        internal static string StatusDialogTextAuth {
+            get {
+                return ResourceManager.GetString("StatusDialogTextAuth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Validating domain....
+        /// </summary>
+        internal static string StatusDialogTextDomain {
+            get {
+                return ResourceManager.GetString("StatusDialogTextDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logging out....
+        /// </summary>
+        internal static string StatusDialogTextLogout {
+            get {
+                return ResourceManager.GetString("StatusDialogTextLogout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Getting records....
+        /// </summary>
+        internal static string StatusDialogTextRecords {
+            get {
+                return ResourceManager.GetString("StatusDialogTextRecords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to UDDNS Validation.
         /// </summary>
         internal static string StatusDialogTitle {

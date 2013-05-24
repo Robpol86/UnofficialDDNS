@@ -91,7 +91,11 @@ namespace UDDNSQuery {
                     );
 
                 // Launch the dialog and get result.
-                if ( oDialog.Show() == TaskDialogResult.OK ) {
+                Thread oThread = new Thread( (ThreadStart) delegate { oDialog.Show(); } );
+                oThread.SetApartmentState( ApartmentState.STA );
+                oThread.Start();
+                oThread.Join();
+                if ( oDialog.Result == TaskDialog.TaskDialogResult.Ok ) {
                     oSession["_RegistrarValidated"] = "1";
                     return ActionResult.Success;
                 } else {
