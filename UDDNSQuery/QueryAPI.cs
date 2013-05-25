@@ -162,98 +162,98 @@ namespace UDDNSQuery {
     #endregion
 
     class QueryAPI {
-        protected string m_sUserName = null;
-        protected string m_sApiTokenEncrypted = null;
-        protected string m_sDomain = null; // FQDN target.
+        protected string _userName = null;
+        protected string _apiTokenEncrypted = null;
+        protected string _domain = null; // FQDN target.
 
-        protected string m_sCurrentIP = null; // Current public IP of the local host.
-        protected string m_sPriDomain = null; // Primary portion of the FQDN (e.g. test.co.uk from server.test.co.uk).
-        protected IDictionary<string, string> m_dRecordedIP = null; // IP currently set at registrar. List in case of multiple records.
-        protected string m_sSessionToken = null; // Session token to insert in HTTP header.
+        protected string _currentIP = null; // Current public IP of the local host.
+        protected string _priDomain = null; // Primary portion of the FQDN (e.g. test.co.uk from server.test.co.uk).
+        protected IDictionary<string, string> _recordedIP = null; // IP currently set at registrar. List in case of multiple records.
+        protected string _sessionToken = null; // Session token to insert in HTTP header.
 
-        public int UserLength { get { return this.m_sUserName.Length; } }
-        public int TokenLength { get { return this.m_sApiTokenEncrypted.Length; } }
-        public int DomainLength { get { return this.m_sDomain.Length; } }
-        public string CurrentIP { get { return this.m_sCurrentIP; } }
-        public IDictionary<string, string> RecordedIP { get { return this.m_dRecordedIP; } }
+        public int UserLength { get { return _userName.Length; } }
+        public int TokenLength { get { return _apiTokenEncrypted.Length; } }
+        public int DomainLength { get { return _domain.Length; } }
+        public string CurrentIP { get { return _currentIP; } }
+        public IDictionary<string, string> RecordedIP { get { return _recordedIP; } }
 
         public QueryAPI() { }
 
         /// <summary>
         /// Pass credentials and the target domain to class instance.
         /// </summary>
-        /// <param name="sUserName">The API Username.</param>
-        /// <param name="sApiTokenEncrypted">The encrypted and base64 encoded API token/password.</param>
-        /// <param name="sDomain">The fully qualified domain name target.</param>
-        public void Credentials( string sUserName, string sApiTokenEncrypted, string sDomain ) {
-            this.m_sUserName = sUserName;
-            this.m_sApiTokenEncrypted = sApiTokenEncrypted;
-            this.m_sDomain = sDomain;
+        /// <param name="userName">The API Username.</param>
+        /// <param name="apiTokenEncrypted">The encrypted and base64 encoded API token/password.</param>
+        /// <param name="domain">The fully qualified domain name target.</param>
+        public void Credentials( string userName, string apiTokenEncrypted, string domain ) {
+            _userName = userName;
+            _apiTokenEncrypted = apiTokenEncrypted;
+            _domain = domain;
         }
 
         /// <summary>
         /// Requests the JSON from a URL.
         /// </summary>
-        /// <param name="sUrl">The URL to query.</param>
-        /// <param name="baPostData">HTTP POST data to send.</param>
+        /// <param name="url">The URL to query.</param>
+        /// <param name="postData">HTTP POST data to send.</param>
         /// <returns>JSON.nt JObject</returns>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
-        public async Task<JObject> RequestJSONAsync( string sUrl, byte[] baPostData, CancellationToken oCT ) {
+        public async Task<JObject> RequestJSONAsync( string url, byte[] postData, CancellationToken ct ) {
             // Setup HTTP request.
-            HttpWebRequest oRequest = (HttpWebRequest) WebRequest.Create( sUrl );
-            oRequest.ContentType = "application/x-www-form-urlencoded";
-            oRequest.Accept = "application/json";
-            if ( this.m_sSessionToken != null ) oRequest.Headers.Add( "Api-Session-Token", this.m_sSessionToken );
-            oRequest.Method = baPostData != null ? "POST" : "GET";
-            if ( baPostData != null ) {
-                oRequest.ContentLength = baPostData.Length;
-                Stream oStream = oRequest.GetRequestStream();
-                oStream.Write( baPostData, 0, baPostData.Length );
-                oStream.Close();
+            HttpWebRequest request = (HttpWebRequest) WebRequest.Create( url );
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.Accept = "application/json";
+            if ( _sessionToken != null ) request.Headers.Add( "Api-Session-Token", _sessionToken );
+            request.Method = postData != null ? "POST" : "GET";
+            if ( postData != null ) {
+                request.ContentLength = postData.Length;
+                Stream stream = request.GetRequestStream();
+                stream.Write( postData, 0, postData.Length );
+                stream.Close();
             }
             // Setup the cancelation token.
-            CancellationTokenRegistration oCTReg = oCT.Register( () => {
-                try { if ( oRequest != null ) oRequest.Abort(); oCT.ThrowIfCancellationRequested(); } catch { }
+            CancellationTokenRegistration ctReg = ct.Register( () => {
+                try { if ( request != null ) request.Abort(); ct.ThrowIfCancellationRequested(); } catch { }
             } );
             // Execute request.
-            string sSerializedJson;
+            string serializedJson;
             try {
-                using ( HttpWebResponse oResponse = (HttpWebResponse) await oRequest.GetResponseAsync() ) {
-                    if ( oResponse.StatusCode != HttpStatusCode.OK ) {
-                        string sDetails =
-                            String.Format( "HTTP {1}; URL: {0}", oResponse.StatusCode.ToString(), sUrl );
-                        throw new QueryAPIException( 200, sDetails );
+                using ( HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync() ) {
+                    if ( response.StatusCode != HttpStatusCode.OK ) {
+                        string details =
+                            String.Format( "HTTP {1}; URL: {0}", response.StatusCode.ToString(), url );
+                        throw new QueryAPIException( 200, details );
                     }
-                    using ( StreamReader oStream = new StreamReader( oResponse.GetResponseStream(), true ) ) {
-                        sSerializedJson = oStream.ReadToEnd();
+                    using ( StreamReader stream = new StreamReader( response.GetResponseStream(), true ) ) {
+                        serializedJson = stream.ReadToEnd();
                     }
                 }
             } catch ( WebException e ) {
-                string sDetails = String.Format( "URL: {0}; WebException: ", sUrl, e.ToString() );
-                throw new QueryAPIException( 201, sDetails );
+                string details = String.Format( "URL: {0}; WebException: ", url, e.ToString() );
+                throw new QueryAPIException( 201, details );
             } finally {
-                oCTReg.Dispose();
+                ctReg.Dispose();
             }
             // Parse JSON.
-            JObject oJson;
+            JObject json;
             try {
-                oJson = JObject.Parse( sSerializedJson );
+                json = JObject.Parse( serializedJson );
             } catch ( Exception e ) {
-                string sDetails = String.Format( "URL: {0}; Exception: ", sUrl, e.ToString() );
-                throw new QueryAPIException( 202, sDetails );
+                string details = String.Format( "URL: {0}; Exception: ", url, e.ToString() );
+                throw new QueryAPIException( 202, details );
             }
-            return oJson;
+            return json;
         }
 
         public void Dispose() {
-            this.m_sUserName = null;
-            this.m_sApiTokenEncrypted = null;
-            this.m_sDomain = null;
-            this.m_sCurrentIP = null;
-            this.m_sPriDomain = null;
-            this.m_dRecordedIP = null;
-            this.m_sSessionToken = null;
+            _userName = null;
+            _apiTokenEncrypted = null;
+            _domain = null;
+            _currentIP = null;
+            _priDomain = null;
+            _recordedIP = null;
+            _sessionToken = null;
         }
     }
 }
