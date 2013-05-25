@@ -14,98 +14,152 @@ namespace UDDNSQuery {
      *  Authentication failures have unclear messages.
      *  Entering correct credentials gives error 202. /dns/list, no error.
      *  Have a dialog come up while working (2s timer on the cancel button).
-     *      Dialog will show progress.
-     *      Dialog will allow user to cancel.
      *      Show screenshot example if more than 1 record/wrong record.
-     *      Center dialogs over installer window.
+     *  Change RecordedIP to string.
      */
+
+    #region Helper Objects
+
+    /// <summary>
+    /// Sinleton which centralizes the collection of supported registrars, the string presented in the installer, and the
+    /// object used to actually query the registrar.
+    /// </summary>
     public sealed class QueryAPIIndex {
-        private IDictionary<string, string> m_dRegistrarList = new Dictionary<string, string>();
+        private IDictionary<string, string> _registrarList = new Dictionary<string, string>();
+        private static QueryAPIIndex _instance = null;
+        private static readonly object _padlock = new object();
 
         /// <summary>
-        /// Setup the singleton class and populate the registrar list.
+        /// Singleton instance.
         /// </summary>
-        private static QueryAPIIndex instance = null;
-        private static readonly object padlock = new object();
+        /// <value>
+        /// The instance object.
+        /// </value>
+        public static QueryAPIIndex Instance { get { lock ( _padlock ) { if ( _instance == null ) _instance = new QueryAPIIndex(); return _instance; } } }
+        /// <summary>
+        /// Collection of supported registrars.
+        /// </summary>
+        /// <value>
+        /// IDictionary containing all registrars.
+        /// </value>
+        public IDictionary<string, string> Registrars { get { return _registrarList; } }
+        
         private QueryAPIIndex() {
-            this.m_dRegistrarList.Add( "Name.com", "http://name.com/reseller" );
-        }
-        public static QueryAPIIndex Instance {
-            get {
-                lock ( padlock ) {
-                    if ( instance == null ) instance = new QueryAPIIndex();
-                    return instance;
-                }
-            }
+            _registrarList.Add( "Name.com", "http://name.com/reseller" );
         }
 
-        public IDictionary<string, string> RegistrarList { get { return this.m_dRegistrarList; } }
-        
-        public IQueryAPI Factory( string sRegistrar ) {
-            switch ( sRegistrar ) {
+        /// <summary>
+        /// Class factory for QueryAPI objects for specific registrars.
+        /// </summary>
+        /// <param name="registrar">The desired registrar.</param>
+        /// <returns>Registrar specific instance which inherits QueryAPI.</returns>
+        public IQueryAPI Factory( string registrar ) {
+            switch ( registrar ) {
                 case "Name.com": return new QueryAPIName();
                 default: return null;
             }
         }
     }
 
+    /// <summary>
+    /// Represents an object that queries a registrar's API.
+    /// </summary>
     public interface IQueryAPI : IDisposable {
+        /// <summary>
+        /// Gets an integer that represents the total number of characters in the username.
+        /// </summary>
         int UserLength { get; }
+        /// <summary>
+        /// Gets an integer that represents the total number of characters in the (not encrypted) API token.
+        /// </summary>
         int TokenLength { get; }
+        /// <summary>
+        /// Gets an integer that represents the total number of characters in the domain.
+        /// </summary>
         int DomainLength { get; }
+        /// <summary>
+        /// The current IP address of this host.
+        /// </summary>
         string CurrentIP { get; }
+        /// <summary>
+        /// The IP address currently set at the registrar.
+        /// </summary>
         IDictionary<string, string> RecordedIP { get; }
 
         /// <summary>
         /// Requests the JSON from a URL.
         /// </summary>
-        /// <param name="sUrl">The URL to query.</param>
-        /// <param name="baPostData">HTTP POST data to send.</param>
+        /// <param name="url">The URL to query.</param>
+        /// <param name="postData">HTTP POST data to send.</param>
         /// <returns>JSON.net JObject</returns>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
-        Task<JObject> RequestJSONAsync( string sUrl, byte[] baPostData, CancellationToken oCT );
+        Task<JObject> RequestJSONAsync( string url, byte[] postData, CancellationToken ct );
         
         /// <summary>
         /// Pass credentials and the target domain to class instance.
         /// </summary>
-        /// <param name="sUserName">API Username.</param>
-        /// <param name="sApiTokenEncrypted">The encrypted and base64 encoded API token/password.</param>
-        /// <param name="sDomain">The fully qualified domain name target.</param>
-        void Credentials( string sUserName, string sApiTokenEncrypted, string sDomain );
+        /// <param name="userName">API Username.</param>
+        /// <param name="apiTokenEncrypted">The encrypted and base64 encoded API token/password.</param>
+        /// <param name="domain">The fully qualified domain name target.</param>
+        void Credentials( string userName, string apiTokenEncrypted, string domain );
 
         /// <summary>
         /// Gets the current public IP.
         /// </summary>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
-        Task GetCurrentIPAsync( CancellationToken oCT );
+        Task GetCurrentIPAsync( CancellationToken ct );
 
         /// <summary>
         /// Authenticates to the API.
         /// </summary>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
-        Task AuthenticateAsync( CancellationToken oCT );
+        Task AuthenticateAsync( CancellationToken ct );
 
-        Task ValidateDomainAsync( CancellationToken oCT );
+        Task ValidateDomainAsync( CancellationToken ct );
         
         /// <summary>
         /// Gets all records related to the domain.
         /// </summary>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
-        Task GetRecordsAsync( CancellationToken oCT );
+        Task GetRecordsAsync( CancellationToken ct );
 
-        Task UpdateDNSRecordAsync( CancellationToken oCT );
+        Task UpdateDNSRecordAsync( CancellationToken ct );
 
         /// <summary>
         /// De-authenticate from the API.
         /// </summary>
         /// <exception cref="OperationCancelledException" />
-        Task LogoutAsync( CancellationToken oCT );
-        //TODO
+        Task LogoutAsync( CancellationToken ct );
     }
+
+    [Serializable]
+    class QueryAPIException : Exception {
+        protected int _code; // Error code.
+        protected string _details; // Additional details about the error (error messages from API for example).
+        protected string _resxMessage; // String from Errors.resx.
+
+        public int Code { get { return _code; } }
+        public string Details { get { return _details; } }
+        public string RMessage { get { return _resxMessage; } }
+
+        public QueryAPIException( int code ) : base( code.ToString() ) {
+            _code = code;
+            _details = null;
+            _resxMessage = Errors.ResourceManager.GetString( "Error" + code );
+        }
+
+        public QueryAPIException( int code, string details ) : base( code.ToString() ) {
+            _code = code;
+            _details = details;
+            _resxMessage = Errors.ResourceManager.GetString( "Error" + code );
+        }
+    }
+
+    #endregion
 
     class QueryAPI {
         protected string m_sUserName = null;
@@ -200,31 +254,6 @@ namespace UDDNSQuery {
             this.m_sPriDomain = null;
             this.m_dRecordedIP = null;
             this.m_sSessionToken = null;
-        }
-    }
-
-    [Serializable]
-    class QueryAPIException : Exception {
-        protected int m_iCode; // Error code.
-        protected string m_sDetails; // Additional details about the error (error messages from API for example).
-        protected string m_sResxMessage; // String from Errors.resx.
-
-        public int Code { get { return this.m_iCode; } }
-        public string Details { get { return this.m_sDetails; } }
-        public string RMessage { get { return this.m_sResxMessage; } }
-
-        public QueryAPIException( int iCode )
-            : base( iCode.ToString() ) {
-            this.m_iCode = iCode;
-            this.m_sDetails = null;
-            this.m_sResxMessage = Errors.ResourceManager.GetString( "Error" + iCode );
-        }
-        
-        public QueryAPIException( int iCode, string sDetails )
-            : base( iCode.ToString() ) {
-            this.m_iCode = iCode;
-            this.m_sDetails = sDetails;
-            this.m_sResxMessage = Errors.ResourceManager.GetString( "Error" + iCode );
         }
     }
 }

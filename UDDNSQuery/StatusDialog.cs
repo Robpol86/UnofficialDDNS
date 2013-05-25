@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,7 +20,11 @@ namespace UDDNSQuery {
         private IQueryAPI _api; // API object.
         private CancellationTokenSource _cts; // Cancellation for all API tasks.
         private int _progressMax; // The maximum value for progress bars.
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatusDialog"/> class.
+        /// </summary>
+        /// <param name="api">The API.</param>
         public StatusDialog( IQueryAPI api ) {
             // Initialize.
             _api = api;
@@ -44,6 +43,9 @@ namespace UDDNSQuery {
             Opened += new EventHandler( StatusDialog_Opened );
         }
 
+        /// <summary>
+        /// Dispose the CancellationTokenSource and TaskDialog resources.
+        /// </summary>
         public new void Dispose() {
             _cts.Dispose();
             base.Dispose();

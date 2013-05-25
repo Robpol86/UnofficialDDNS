@@ -5,7 +5,6 @@ using System.Threading;
 using System.IO;
 using System.Windows.Forms;
 using System.Security.Cryptography;
-using System.Runtime.InteropServices;
 
 namespace UDDNSQuery {
     public class CustomActions {
@@ -55,9 +54,9 @@ namespace UDDNSQuery {
             int i = 0;
             Record comboBoxItem;
             string entry;
-            foreach ( string name in QueryAPIIndex.Instance.RegistrarList.Keys ) {
+            foreach ( string name in QueryAPIIndex.Instance.Registrars.Keys ) {
                 i++;
-                entry = String.Format( "{0} ({1})", name, QueryAPIIndex.Instance.RegistrarList[name] );
+                entry = String.Format( "{0} ({1})", name, QueryAPIIndex.Instance.Registrars[name] );
                 comboBoxItem = session.Database.CreateRecord( 4 );
                 comboBoxItem.SetString( 1, wixProperty ); // Property name.
                 comboBoxItem.SetInteger( 2, i ); // Order.
