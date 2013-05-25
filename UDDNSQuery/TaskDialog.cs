@@ -19,6 +19,7 @@ namespace UDDNSQuery {
         private string text; // Dialog body text.
         private IntPtr[] updatedStrings;
         private IntPtr hWndDialog;
+        private IntPtr hWndOwner;
         private TaskDialogShowState showState;
         private TaskDialogResult result;
         private TaskDialogProgressBarState progressBarState;
@@ -41,6 +42,7 @@ namespace UDDNSQuery {
             progressBarMaximum = 100;
             progressBarValue = 0;
             updatedStrings = new IntPtr[Enum.GetNames( typeof( TaskDialogElement ) ).Length];
+            hWndOwner = FindWindow( "MsiDialogCloseClass", 0 );
             if ( SupportsTaskbarProgress ) taskbarList = (ITaskbarList4) new CTaskbarList();
         }
 
@@ -66,7 +68,7 @@ namespace UDDNSQuery {
         /// Task Dialog - flags
         /// </summary>
         [Flags]
-        public enum TaskDialogOptions { AllowCancel = 0x0008, ShowProgressBar = 0x0200 }
+        public enum TaskDialogOptions { AllowCancel = 0x0008, ShowProgressBar = 0x0200, PositionRelativeToWindow = 0x1000, }
 
         public enum TaskDialogElement { Content, ExpandedInformation, Footer, MainInstruction }
 
@@ -86,12 +88,12 @@ namespace UDDNSQuery {
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
         public enum TaskDialogMessage {
-            ClickButton = TaskDialog.UserMessage + 102, // wParam = Button ID
-            SetProgressBarState = TaskDialog.UserMessage + 104, // wParam = new progress state
-            SetProgressBarRange = TaskDialog.UserMessage + 105, // lParam = MAKELPARAM(nMinRange, nMaxRange)
-            SetProgressBarPosition = TaskDialog.UserMessage + 106, // wParam = new position
-            SetElementText = TaskDialog.UserMessage + 108, // wParam = element (TASKDIALOG_ELEMENTS), lParam = new element text (LPCWSTR)
-            EnableButton = TaskDialog.UserMessage + 111, // lParam = 0 (disable), lParam != 0 (enable), wParam = Button ID
+            ClickButton = UserMessage + 102, // wParam = Button ID
+            SetProgressBarState = UserMessage + 104, // wParam = new progress state
+            SetProgressBarRange = UserMessage + 105, // lParam = MAKELPARAM(nMinRange, nMaxRange)
+            SetProgressBarPosition = UserMessage + 106, // wParam = new position
+            SetElementText = UserMessage + 108, // wParam = element (TASKDIALOG_ELEMENTS), lParam = new element text (LPCWSTR)
+            EnableButton = UserMessage + 111, // lParam = 0 (disable), lParam != 0 (enable), wParam = Button ID
         }
 
         #endregion
@@ -129,6 +131,9 @@ namespace UDDNSQuery {
             IntPtr wparam,
             IntPtr lparam
         );
+
+        [DllImport( "user32.dll" )]
+        public static extern IntPtr FindWindow( string strClassName, int nptWindowName );
 
         // Main task dialog configuration struct.
         // NOTE: Packing must be set to 4 to make this work on 64-bit platforms.
@@ -273,7 +278,7 @@ namespace UDDNSQuery {
             if ( i < progressBarMinimum || i > progressBarMaximum ) throw new ArgumentOutOfRangeException();
             SendMessageHelper( TaskDialogMessage.SetProgressBarPosition, i, 0 );
             if ( !SupportsTaskbarProgress ) return;
-            taskbarList.SetProgressValue( hWndDialog, Convert.ToUInt32( i ), Convert.ToUInt32( progressBarMaximum ) );
+            taskbarList.SetProgressValue( hWndOwner, Convert.ToUInt32( i ), Convert.ToUInt32( progressBarMaximum ) );
         }
 
         private void UpdateProgressBarState( TaskDialogProgressBarState state ) {
@@ -281,7 +286,7 @@ namespace UDDNSQuery {
             if ( !SupportsTaskbarProgress ) return;
             TaskbarProgressBarState taskbarState = TaskbarProgressBarState.Normal;
             if ( state == TaskDialogProgressBarState.Error ) taskbarState = TaskbarProgressBarState.Error;
-            taskbarList.SetProgressState( hWndDialog, taskbarState );
+            taskbarList.SetProgressState( hWndOwner, taskbarState );
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Usage", "CA2208:InstantiateArgumentExceptionsCorrectly" )]
@@ -323,11 +328,12 @@ namespace UDDNSQuery {
             TaskDialogConfiguration nativeConfig = new TaskDialogConfiguration();
 
             nativeConfig.size = (uint) Marshal.SizeOf( nativeConfig );
+            nativeConfig.parentHandle = hWndOwner;
             nativeConfig.commonButtons = TaskDialogResult.Cancel;
             nativeConfig.content = text;
             nativeConfig.windowTitle = caption;
             nativeConfig.mainInstruction = instructionText;
-            nativeConfig.taskDialogFlags = TaskDialogOptions.AllowCancel | TaskDialogOptions.ShowProgressBar;
+            nativeConfig.taskDialogFlags = TaskDialogOptions.AllowCancel | TaskDialogOptions.ShowProgressBar | TaskDialogOptions.PositionRelativeToWindow;
             nativeConfig.callback = new TaskDialogCallback( DialogProc );
 
             // Show the dialog.
@@ -371,7 +377,7 @@ namespace UDDNSQuery {
         /// <summary>
         /// Close TaskDialog with a given TaskDialogResult
         /// </summary>
-        /// <param name="result">TaskDialogResult to return from the TaskDialog.Show() method</param>
+        /// <param name="result">TaskDialogResult to return from the Show() method</param>
         /// <exception cref="InvalidOperationException">if TaskDialog is not showing.</exception>
         public void Close( TaskDialogResult result ) {
             if ( !NativeDialogShowing ) throw new InvalidOperationException();

@@ -22,82 +22,83 @@ namespace UDDNSQuery {
     /// Opens a dialog showing the status of validation using the new-to-Vista TaskDialog.
     /// </summary>
     public class StatusDialog : TaskDialog {
-        private IQueryAPI m_oApi; // API object.
-        private CancellationTokenSource m_oCTS; // Cancellation for all API tasks.
-        private int m_iProgressMax; // The maximum value for progress bars.
+        private IQueryAPI _api; // API object.
+        private CancellationTokenSource _cts; // Cancellation for all API tasks.
+        private int _progressMax; // The maximum value for progress bars.
         
-        public StatusDialog( IQueryAPI oApi ) {
+        public StatusDialog( IQueryAPI api ) {
             // Initialize.
-            this.m_oApi = oApi;
-            this.m_oCTS = new CancellationTokenSource();
-            this.m_iProgressMax = 40;
+            _api = api;
+            _cts = new CancellationTokenSource();
+            _progressMax = 40;
 
             // Setup dialog/progressbar.
-            this.Caption = Strings.StatusDialogTitle;
-            this.InstructionText = Strings.StatusDialogHeading;
-            this.ProgressBarRange = new int[2] { 0, this.m_iProgressMax };
-            this.ProgressBarValue = 1;
-            this.ProgressBarState = TaskDialogProgressBarState.Normal;
+            Caption = Strings.StatusDialogTitle;
+            InstructionText = Strings.StatusDialogHeading;
+            ProgressBarRange = new int[2] { 0, _progressMax };
+            ProgressBarValue = 1;
+            ProgressBarState = TaskDialogProgressBarState.Normal;
             
             // Hook events.
-            this.Closing += new EventHandler<CancelEventArgs>( this.StatusDialog_Canceled );
-            this.Opened += new EventHandler( this.StatusDialog_Shown );
+            Closing += new EventHandler<CancelEventArgs>( StatusDialog_Canceled );
+            Opened += new EventHandler( StatusDialog_Opened );
         }
 
         public new void Dispose() {
-            this.m_oCTS.Dispose();
+            _cts.Dispose();
             base.Dispose();
+            GC.SuppressFinalize( this );
         }
 
-        private void StatusDialog_Canceled( object oSender, EventArgs oEvent ) {
-            if ( this.m_oCTS != null ) this.m_oCTS.Cancel();
+        private void StatusDialog_Canceled( object sender, EventArgs e ) {
+            if ( _cts != null ) _cts.Cancel();
         }
 
-        private async void StatusDialog_Shown( object oSender, EventArgs oEvent ) {
+        private async void StatusDialog_Opened( object sender, EventArgs e ) {
             // Finish drawing dialog.
             Application.DoEvents();
 
             // Do async work and catch errors/cancelation.
             try {
-                if ( this.m_oApi.UserLength == 0 ) {
-                    await Task.Delay( 700, this.m_oCTS.Token ); throw new QueryAPIException( 100 );
+                if ( _api.UserLength == 0 ) {
+                    await Task.Delay( 700, _cts.Token ); throw new QueryAPIException( 100 );
                 }
-                if ( this.m_oApi.TokenLength == 0 ) {
-                    await Task.Delay( 700, this.m_oCTS.Token ); throw new QueryAPIException( 101 );
+                if ( _api.TokenLength == 0 ) {
+                    await Task.Delay( 700, _cts.Token ); throw new QueryAPIException( 101 );
                 }
-                if ( this.m_oApi.DomainLength == 0 ) {
-                    await Task.Delay( 700, this.m_oCTS.Token ); throw new QueryAPIException( 102 );
+                if ( _api.DomainLength == 0 ) {
+                    await Task.Delay( 700, _cts.Token ); throw new QueryAPIException( 102 );
                 }
 
-                this.Text = Strings.StatusDialogTextAuth;
-                await Task.Delay( 700, this.m_oCTS.Token ); // Wait for UI to catch up.
-                await this.m_oApi.AuthenticateAsync( m_oCTS.Token ); // Login to API to validate user/token.
-                this.ProgressBarValue = 10;
+                Text = Strings.StatusDialogTextAuth;
+                await Task.Delay( 700, _cts.Token ); // Wait for UI to catch up.
+                await _api.AuthenticateAsync( _cts.Token ); // Login to API to validate user/token.
+                ProgressBarValue = 10;
 
-                this.Text = Strings.StatusDialogTextDomain;
-                await this.m_oApi.ValidateDomainAsync( m_oCTS.Token ); // Check if user owns the domain.
-                this.ProgressBarValue = 20;
+                Text = Strings.StatusDialogTextDomain;
+                await _api.ValidateDomainAsync( _cts.Token ); // Check if user owns the domain.
+                ProgressBarValue = 20;
 
-                this.Text = Strings.StatusDialogTextRecords;
-                await this.m_oApi.GetRecordsAsync( m_oCTS.Token ); // Make sure domain doesn't have anything other than 0 or 1 A record.
-                this.ProgressBarValue = 30;
+                Text = Strings.StatusDialogTextRecords;
+                await _api.GetRecordsAsync( _cts.Token ); // Make sure domain doesn't have anything other than 0 or 1 A record.
+                ProgressBarValue = 30;
 
-                this.Text = Strings.StatusDialogTextLogout;
-                await this.m_oApi.LogoutAsync( m_oCTS.Token );
-                this.ProgressBarValue = this.m_iProgressMax;
-                await Task.Delay( 700, this.m_oCTS.Token );
-            } catch ( QueryAPIException e ) {
-                this.ProgressBarState = TaskDialogProgressBarState.Error;
-                this.InstructionText = Strings.StatusDialogHeadingError;
-                this.Text = e.Code.ToString() + ": " + e.RMessage;
-                if ( e.Details != null ) this.Text += "\n" + e.Details;
+                Text = Strings.StatusDialogTextLogout;
+                await _api.LogoutAsync( _cts.Token );
+                ProgressBarValue = _progressMax;
+                await Task.Delay( 700, _cts.Token );
+            } catch ( QueryAPIException err ) {
+                ProgressBarState = TaskDialogProgressBarState.Error;
+                InstructionText = Strings.StatusDialogHeadingError;
+                Text = err.Code.ToString() + ": " + err.RMessage;
+                if ( err.Details != null ) Text += "\n" + err.Details;
                 return;
             } catch ( OperationCanceledException ) {
                 // Nothing.
             }
 
             // No errors, this must mean validation was successfull.
-            this.Close( TaskDialogResult.Ok );
+            Close( TaskDialogResult.Ok );
         }
     }
 }
