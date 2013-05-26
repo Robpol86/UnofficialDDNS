@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,13 +10,7 @@ using System.Threading.Tasks;
 namespace UDDNSQuery {
     /*
      * TODO:
-     *  UpdateDNSRecords should only update A records.
-     *  ValidateDomain needs to be done.
-     *  Authentication failures have unclear messages.
-     *  Entering correct credentials gives error 202. /dns/list, no error.
-     *  Have a dialog come up while working (2s timer on the cancel button).
-     *      Show screenshot example if more than 1 record/wrong record.
-     *  Change RecordedIP to string.
+     *  URLS in dialog to GitHub page with screenshots and help for each error.
      */
 
     #region Helper Objects
@@ -82,7 +77,7 @@ namespace UDDNSQuery {
         /// </summary>
         string CurrentIP { get; }
         /// <summary>
-        /// The IP address currently set at the registrar.
+        /// The IP address currently set at the registrar. Might be more than one incase last update attempt failed.
         /// </summary>
         IDictionary<string, string> RecordedIP { get; }
 
@@ -91,6 +86,7 @@ namespace UDDNSQuery {
         /// </summary>
         /// <param name="url">The URL to query.</param>
         /// <param name="postData">HTTP POST data to send.</param>
+        /// <param name="ct">Cancellation token</param>
         /// <returns>JSON.net JObject</returns>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
@@ -107,31 +103,46 @@ namespace UDDNSQuery {
         /// <summary>
         /// Gets the current public IP.
         /// </summary>
-        /// <exception cref="QueryAPIException" />
-        /// <exception cref="OperationCancelledException" />
+        /// <param name="ct">Cancellation token</param>
+        /// <returns></returns>
+        /// <exception cref="QueryAPIException"></exception>
+        /// <exception cref="OperationCancelledException"></exception>
         Task GetCurrentIPAsync( CancellationToken ct );
 
         /// <summary>
         /// Authenticates to the API.
         /// </summary>
+        /// <param name="ct">Cancellation token</param>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
         Task AuthenticateAsync( CancellationToken ct );
 
-        Task ValidateDomainAsync( CancellationToken ct );
-        
         /// <summary>
-        /// Gets all records related to the domain.
+        /// Makes sure the user owns this domain. Responsible for _mainDomain.
         /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        Task ValidateDomainAsync( CancellationToken ct );
+
+        /// <summary>
+        /// Gets all records related to the domain. Responsible for _recordedIP.
+        /// </summary>
+        /// <param name="ct">Cancellation token</param>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
         Task GetRecordsAsync( CancellationToken ct );
 
-        Task UpdateDNSRecordAsync( CancellationToken ct );
+        /// <summary>
+        /// Appends the CurrentIP to the domain as an A record and then purges all other records for the domain.
+        /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        /// <exception cref="QueryAPIException" />
+        /// <exception cref="OperationCancelledException" />
+        Task UpdateRecordAsync( CancellationToken ct );
 
         /// <summary>
         /// De-authenticate from the API.
         /// </summary>
+        /// <param name="ct">Cancellation token</param>
         /// <exception cref="OperationCancelledException" />
         Task LogoutAsync( CancellationToken ct );
     }
@@ -146,11 +157,7 @@ namespace UDDNSQuery {
         public string Details { get { return _details; } }
         public string RMessage { get { return _resxMessage; } }
 
-        public QueryAPIException( int code ) : base( code.ToString() ) {
-            _code = code;
-            _details = null;
-            _resxMessage = Errors.ResourceManager.GetString( "Error" + code );
-        }
+        public QueryAPIException( int code ) : this( code, null ) { }
 
         public QueryAPIException( int code, string details ) : base( code.ToString() ) {
             _code = code;
@@ -161,15 +168,14 @@ namespace UDDNSQuery {
 
     #endregion
 
-    class QueryAPI {
-        protected string _userName = null;
-        protected string _apiTokenEncrypted = null;
-        protected string _domain = null; // FQDN target.
-
-        protected string _currentIP = null; // Current public IP of the local host.
-        protected string _priDomain = null; // Primary portion of the FQDN (e.g. test.co.uk from server.test.co.uk).
-        protected IDictionary<string, string> _recordedIP = null; // IP currently set at registrar. List in case of multiple records.
-        protected string _sessionToken = null; // Session token to insert in HTTP header.
+    abstract class QueryAPI : IQueryAPI {
+        protected string _userName; // API username.
+        protected string _apiTokenEncrypted; // API token, locally encrypted.
+        protected string _domain; // Domain which will hold the IP address of this host.
+        protected string _mainDomain; // Main domain on the user's account, incase _domain is a subdomain.
+        protected string _currentIP; // Current public IP of this host.
+        protected IDictionary<string, string> _recordedIP; // A record(s) associated with this domain.
+        protected string _sessionToken; // Session token to insert in HTTP header.
 
         public int UserLength { get { return _userName.Length; } }
         public int TokenLength { get { return _apiTokenEncrypted.Length; } }
@@ -179,27 +185,7 @@ namespace UDDNSQuery {
 
         public QueryAPI() { }
 
-        /// <summary>
-        /// Pass credentials and the target domain to class instance.
-        /// </summary>
-        /// <param name="userName">The API Username.</param>
-        /// <param name="apiTokenEncrypted">The encrypted and base64 encoded API token/password.</param>
-        /// <param name="domain">The fully qualified domain name target.</param>
-        public void Credentials( string userName, string apiTokenEncrypted, string domain ) {
-            _userName = userName;
-            _apiTokenEncrypted = apiTokenEncrypted;
-            _domain = domain;
-        }
-
-        /// <summary>
-        /// Requests the JSON from a URL.
-        /// </summary>
-        /// <param name="url">The URL to query.</param>
-        /// <param name="postData">HTTP POST data to send.</param>
-        /// <returns>JSON.nt JObject</returns>
-        /// <exception cref="QueryAPIException" />
-        /// <exception cref="OperationCancelledException" />
-        public async Task<JObject> RequestJSONAsync( string url, byte[] postData, CancellationToken ct ) {
+        public virtual async Task<JObject> RequestJSONAsync( string url, byte[] postData, CancellationToken ct ) {
             // Setup HTTP request.
             HttpWebRequest request = (HttpWebRequest) WebRequest.Create( url );
             request.ContentType = "application/x-www-form-urlencoded";
@@ -221,8 +207,7 @@ namespace UDDNSQuery {
             try {
                 using ( HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync() ) {
                     if ( response.StatusCode != HttpStatusCode.OK ) {
-                        string details =
-                            String.Format( "HTTP {1}; URL: {0}", response.StatusCode.ToString(), url );
+                        string details = String.Format( "HTTP {0}; URL: {1}", response.StatusCode.ToString(), url );
                         throw new QueryAPIException( 200, details );
                     }
                     using ( StreamReader stream = new StreamReader( response.GetResponseStream(), true ) ) {
@@ -230,7 +215,7 @@ namespace UDDNSQuery {
                     }
                 }
             } catch ( WebException e ) {
-                string details = String.Format( "URL: {0}; WebException: ", url, e.ToString() );
+                string details = String.Format( "URL: {0}\nWebException: {1}", url, e.ToString() );
                 throw new QueryAPIException( 201, details );
             } finally {
                 ctReg.Dispose();
@@ -239,19 +224,37 @@ namespace UDDNSQuery {
             JObject json;
             try {
                 json = JObject.Parse( serializedJson );
-            } catch ( Exception e ) {
-                string details = String.Format( "URL: {0}; Exception: ", url, e.ToString() );
+            } catch ( JsonReaderException e ) {
+                string details = String.Format( "URL: {0}\nException: {1}", url, e.ToString() );
                 throw new QueryAPIException( 202, details );
             }
             return json;
         }
 
+        public void Credentials( string userName, string apiTokenEncrypted, string domain ) {
+            _userName = userName;
+            _apiTokenEncrypted = apiTokenEncrypted;
+            _domain = domain;
+        }
+
+        public abstract Task GetCurrentIPAsync( CancellationToken ct );
+
+        public abstract Task AuthenticateAsync( CancellationToken ct );
+
+        public abstract Task ValidateDomainAsync( CancellationToken ct );
+
+        public abstract Task GetRecordsAsync( CancellationToken ct );
+
+        public abstract Task UpdateRecordAsync( CancellationToken ct );
+
+        public abstract Task LogoutAsync( CancellationToken ct );
+
         public void Dispose() {
             _userName = null;
             _apiTokenEncrypted = null;
             _domain = null;
+            _mainDomain = null;
             _currentIP = null;
-            _priDomain = null;
             _recordedIP = null;
             _sessionToken = null;
         }

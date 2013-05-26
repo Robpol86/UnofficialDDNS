@@ -8,8 +8,8 @@ namespace UDDNSQuery {
     public class FolderBrowser2 : IDisposable {
         public string DirectoryPath { get; set; }
 
-        public DialogResult ShowDialog( IWin32Window owner ) {
-            IntPtr hwndOwner = owner != null ? owner.Handle : GetActiveWindow();
+        public DialogResult ShowDialog() {
+            IntPtr hwndOwner = FindWindow( "MsiDialogCloseClass", 0 );
 
             IFileOpenDialog dialog = (IFileOpenDialog) new FileOpenDialog();
             try {
@@ -51,7 +51,7 @@ namespace UDDNSQuery {
         private static extern int SHCreateShellItem( IntPtr pidlParent, IntPtr psfParent, IntPtr pidl, out IShellItem ppsi );
 
         [DllImport( "user32.dll" )]
-        private static extern IntPtr GetActiveWindow();
+        public static extern IntPtr FindWindow( string strClassName, int nptWindowName );
 
         private const uint ERROR_CANCELLED = 0x800704C7;
 

@@ -141,13 +141,13 @@
     <value>Invalid JSON from API.</value>
     <comment>QueryAPI.RequestJSON</comment>
   </data>
-  <data name="Error300" xml:space="preserve">
-    <value>Missing result code and/or message in JSON from API.</value>
-    <comment>QueryAPIName.GetCurrentIP</comment>
+  <data name="Error203" xml:space="preserve">
+    <value>API responded with non-100 API code.</value>
+    <comment>QueryAPIName.RequestJSON</comment>
   </data>
-  <data name="Error301" xml:space="preserve">
-    <value>API responded with non-100 API code. Message:</value>
-    <comment>QueryAPIName.GetCurrentIP</comment>
+  <data name="Error204" xml:space="preserve">
+    <value>Missing result code and/or message in JSON from API.</value>
+    <comment>QueryAPIName.RequestJSON</comment>
   </data>
   <data name="Error302" xml:space="preserve">
     <value>Invalid JSON from API, missing client_ip.</value>
@@ -157,14 +157,6 @@
     <value>API did not provide a valid IP address.</value>
     <comment>QueryAPIName.GetCurrentIP</comment>
   </data>
-  <data name="Error400" xml:space="preserve">
-    <value>Missing result code and/or message in JSON from API.</value>
-    <comment>QueryAPIName.Authenticate</comment>
-  </data>
-  <data name="Error401" xml:space="preserve">
-    <value>API responded with non-100 API code. Message:</value>
-    <comment>QueryAPIName.Authenticate</comment>
-  </data>
   <data name="Error402" xml:space="preserve">
     <value>Invalid JSON from API, missing session_token.</value>
     <comment>QueryAPIName.Authenticate</comment>
@@ -173,28 +165,16 @@
     <value>API did not provide a valid session token.</value>
     <comment>QueryAPIName.Authenticate</comment>
   </data>
-  <data name="Error500" xml:space="preserve">
-    <value>GetPriDomain: Missing result code and/or message in JSON from API.</value>
-    <comment>QueryAPIName</comment>
-  </data>
-  <data name="Error501" xml:space="preserve">
-    <value>GetPriDomain: API responded with non-100 API code. Message:</value>
-    <comment>QueryAPIName</comment>
-  </data>
   <data name="Error502" xml:space="preserve">
-    <value>GetPriDomain: Found no domains associated with account.</value>
-    <comment>QueryAPIName</comment>
+    <value>Found no domains associated with account.</value>
+    <comment>QueryAPIName.ValidateDomain</comment>
   </data>
   <data name="Error503" xml:space="preserve">
-    <value>GetPriDomain: No access to the domain.</value>
-    <comment>QueryAPIName</comment>
+    <value>No access to the domain.</value>
+    <comment>QueryAPIName.ValidateDomain</comment>
   </data>
   <data name="Error600" xml:space="preserve">
-    <value>Missing result code and/or message in JSON from API.</value>
-    <comment>QueryAPIName.GetRecords</comment>
-  </data>
-  <data name="Error601" xml:space="preserve">
-    <value>API responded with non-100 API code. Message:</value>
+    <value>Domain does not exist or has no A records.</value>
     <comment>QueryAPIName.GetRecords</comment>
   </data>
   <data name="Error700" xml:space="preserve">

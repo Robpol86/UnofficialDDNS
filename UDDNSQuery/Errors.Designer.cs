@@ -115,20 +115,20 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing result code and/or message in JSON from API..
+        ///   Looks up a localized string similar to API responded with non-100 API code..
         /// </summary>
-        internal static string Error300 {
+        internal static string Error203 {
             get {
-                return ResourceManager.GetString("Error300", resourceCulture);
+                return ResourceManager.GetString("Error203", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to API responded with non-100 API code. Message:.
+        ///   Looks up a localized string similar to Missing result code and/or message in JSON from API..
         /// </summary>
-        internal static string Error301 {
+        internal static string Error204 {
             get {
-                return ResourceManager.GetString("Error301", resourceCulture);
+                return ResourceManager.GetString("Error204", resourceCulture);
             }
         }
         
@@ -151,24 +151,6 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing result code and/or message in JSON from API..
-        /// </summary>
-        internal static string Error400 {
-            get {
-                return ResourceManager.GetString("Error400", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to API responded with non-100 API code. Message:.
-        /// </summary>
-        internal static string Error401 {
-            get {
-                return ResourceManager.GetString("Error401", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid JSON from API, missing session_token..
         /// </summary>
         internal static string Error402 {
@@ -187,25 +169,7 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to GetPriDomain: Missing result code and/or message in JSON from API..
-        /// </summary>
-        internal static string Error500 {
-            get {
-                return ResourceManager.GetString("Error500", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to GetPriDomain: API responded with non-100 API code. Message:.
-        /// </summary>
-        internal static string Error501 {
-            get {
-                return ResourceManager.GetString("Error501", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to GetPriDomain: Found no domains associated with account..
+        ///   Looks up a localized string similar to Found no domains associated with account..
         /// </summary>
         internal static string Error502 {
             get {
@@ -214,7 +178,7 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to GetPriDomain: No access to the domain..
+        ///   Looks up a localized string similar to No access to the domain..
         /// </summary>
         internal static string Error503 {
             get {
@@ -223,20 +187,11 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing result code and/or message in JSON from API..
+        ///   Looks up a localized string similar to Domain does not exist or has no A records..
         /// </summary>
         internal static string Error600 {
             get {
                 return ResourceManager.GetString("Error600", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to API responded with non-100 API code. Message:.
-        /// </summary>
-        internal static string Error601 {
-            get {
-                return ResourceManager.GetString("Error601", resourceCulture);
             }
         }
         

@@ -92,8 +92,8 @@ namespace UDDNSQuery {
             } catch ( QueryAPIException err ) {
                 ProgressBarState = TaskDialogProgressBarState.Error;
                 InstructionText = Strings.StatusDialogHeadingError;
-                Text = err.Code.ToString() + ": " + err.RMessage;
-                if ( err.Details != null ) Text += "\n" + err.Details;
+                Text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
+                if ( err.Details != null ) Text += "\n\n" + err.Details;
                 return;
             } catch ( OperationCanceledException ) {
                 // Nothing.

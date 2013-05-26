@@ -21,7 +21,7 @@ namespace UDDNSQuery {
                             break;
                         }
                     }*/
-                    if ( dialog.ShowDialog( null ) == DialogResult.OK ) {
+                    if ( dialog.ShowDialog() == DialogResult.OK ) {
                         session["INSTALLDIR"] =
                             Path.Combine( dialog.DirectoryPath, "UnofficialDDNS" ) + Path.DirectorySeparatorChar;
                     }
