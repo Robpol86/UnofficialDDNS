@@ -27,9 +27,10 @@ namespace UDDNSQuery {
 
         public event EventHandler Opened;
         public event EventHandler<CancelEventArgs> Closing;
+        public event EventHandler<HyperlinkEventArgs> HyperlinkClick;
         public string Caption { get { return caption; } set { if ( NativeDialogShowing ) throw new NotSupportedException(); caption = value; } }
-        public string InstructionText { get { return instructionText; } set { instructionText = value; if ( NativeDialogShowing ) UpdateInstruction( instructionText ); } }
-        public string Text { get { return text; } set { text = value; if ( NativeDialogShowing ) { UpdateText( text ); } } }
+        public string InstructionText { get { return instructionText; } set { instructionText = value; if ( NativeDialogShowing ) UpdateInstruction( value ); } }
+        public string Text { get { return text; } set { text = value; if ( NativeDialogShowing ) { UpdateText( value ); } } }
         public int[] ProgressBarRange { get { return new int[2] { progressBarMinimum, progressBarMaximum }; } set { UpdateProgressBarRange( value ); progressBarMinimum = value[0]; ; progressBarMaximum = value[1]; } }
         public int ProgressBarValue { get { return progressBarValue; } set { UpdateProgressBarValue( value ); progressBarValue = value; } }
         public bool NativeDialogShowing { get { return (showState == TaskDialogShowState.Showing || showState == TaskDialogShowState.Closing); } }
@@ -68,11 +69,11 @@ namespace UDDNSQuery {
         /// Task Dialog - flags
         /// </summary>
         [Flags]
-        public enum TaskDialogOptions { AllowCancel = 0x0008, ShowProgressBar = 0x0200, PositionRelativeToWindow = 0x1000, }
+        public enum TaskDialogOptions { EnableHyperlinks = 0x0001, AllowCancel = 0x0008, ShowProgressBar = 0x0200, PositionRelativeToWindow = 0x1000, }
 
         public enum TaskDialogElement { Content, ExpandedInformation, Footer, MainInstruction }
 
-        public enum TaskDialogNotification { Created = 0, ButtonClicked = 2, Destroyed = 5 }
+        public enum TaskDialogNotification { Created = 0, ButtonClicked = 2, HyperlinkClicked = 3, Destroyed = 5 }
 
         /// <summary>
         /// Indicates the various buttons and options clicked by the user on the task dialog and identifies common buttons.
@@ -237,6 +238,9 @@ namespace UDDNSQuery {
                     if ( (int) wparam < (int) TaskDialogCommonButtonReturnId.Close + 1 )
                         return RaiseClosingEvent();
                     return (int) HResult.False;
+                case TaskDialogNotification.HyperlinkClicked:
+                    RaiseHyperlinkClickEvent( Marshal.PtrToStringUni( lparam ) );
+                    break;
                 default:
                     break;
             }
@@ -267,6 +271,31 @@ namespace UDDNSQuery {
             if ( Opened != null ) {
                 Opened( this, EventArgs.Empty );
             }
+        }
+
+        private void RaiseHyperlinkClickEvent( string link ) {
+            EventHandler<HyperlinkEventArgs> handler = HyperlinkClick;
+            if ( handler != null ) {
+                handler( this, new HyperlinkEventArgs( link ) );
+            }
+        }
+
+        /// <summary>
+        /// Defines event data associated with a HyperlinkClick event.
+        /// </summary>
+        public class HyperlinkEventArgs : EventArgs {
+            /// <summary>
+            /// Creates a new instance of this class with the specified link text.
+            /// </summary>
+            /// <param name="linkText">The text of the hyperlink that was clicked.</param>
+            public HyperlinkEventArgs( string linkText ) {
+                LinkText = linkText;
+            }
+
+            /// <summary>
+            /// Gets or sets the text of the hyperlink that was clicked.
+            /// </summary>
+            public string LinkText { get; set; }
         }
 
         #endregion
@@ -333,7 +362,7 @@ namespace UDDNSQuery {
             nativeConfig.content = text;
             nativeConfig.windowTitle = caption;
             nativeConfig.mainInstruction = instructionText;
-            nativeConfig.taskDialogFlags = TaskDialogOptions.AllowCancel | TaskDialogOptions.ShowProgressBar | TaskDialogOptions.PositionRelativeToWindow;
+            nativeConfig.taskDialogFlags = TaskDialogOptions.AllowCancel | TaskDialogOptions.ShowProgressBar | TaskDialogOptions.PositionRelativeToWindow | TaskDialogOptions.EnableHyperlinks;
             nativeConfig.callback = new TaskDialogCallback( DialogProc );
 
             // Show the dialog.
@@ -399,7 +428,7 @@ namespace UDDNSQuery {
         /// <summary>
         /// Dispose TaskDialog Resources
         /// </summary>
-        public void Dispose() {
+        public virtual void Dispose() {
             Dispose( true );
             GC.SuppressFinalize( this );
         }

@@ -3,16 +3,13 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace UDDNSQuery {
-    /*
-     * TODO:
-     *  URLS in dialog to GitHub page with screenshots and help for each error.
-     */
-
+    
     #region Helper Objects
 
     /// <summary>
@@ -152,10 +149,12 @@ namespace UDDNSQuery {
         protected int _code; // Error code.
         protected string _details; // Additional details about the error (error messages from API for example).
         protected string _resxMessage; // String from Errors.resx.
+        protected string _url; // URL to project wiki for more information about the error.
 
         public int Code { get { return _code; } }
         public string Details { get { return _details; } }
         public string RMessage { get { return _resxMessage; } }
+        public string Url { get { return _url; } }
 
         public QueryAPIException( int code ) : this( code, null ) { }
 
@@ -163,6 +162,8 @@ namespace UDDNSQuery {
             _code = code;
             _details = details;
             _resxMessage = Errors.ResourceManager.GetString( "Error" + code );
+            int[] moreInfo = { 100, 1 }; // TODO real errors instead of these placeholders.
+            if ( moreInfo.Contains( code ) ) _url = "https://github.com/Robpol86/UnofficialDDNS/wiki/Errors#error-" + code.ToString();
         }
     }
 

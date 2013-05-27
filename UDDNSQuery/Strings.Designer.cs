@@ -88,6 +88,15 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More information about this error: &lt;a href=&quot;{0}&quot;&gt;UnofficialDDNS Wiki&lt;/a&gt;.
+        /// </summary>
+        internal static string StatusDialogMoreInfo {
+            get {
+                return ResourceManager.GetString("StatusDialogMoreInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Authenticating....
         /// </summary>
         internal static string StatusDialogTextAuth {
