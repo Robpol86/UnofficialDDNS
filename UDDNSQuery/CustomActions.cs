@@ -71,6 +71,20 @@ namespace UDDNSQuery {
         }
 
         [CustomAction]
+        public static ActionResult CancelDialog( Session session ) {
+            using ( TaskDialog dialog = new TaskDialog() ) {
+                // Launch the dialog and get result.
+                Thread thread = new Thread( (ThreadStart) delegate { dialog.ShowCancellation( session["_CancelDlgTitle"], session["_CancelDlgText"] ); } );
+                thread.SetApartmentState( ApartmentState.STA );
+                thread.Start();
+                thread.Join();
+                if ( dialog.Result == TaskDialog.TaskDialogResult.Yes ) session["_UserWantsOut"] = "1";
+                else session["_UserWantsOut"] = "0";
+                return ActionResult.UserExit;
+            }
+        }
+
+        [CustomAction]
         public static ActionResult ValidateCredentials( Session session ) {
             // Encrypt token.
             if ( session["RegistrarToken"].Length > 0 ) {

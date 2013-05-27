@@ -96,6 +96,7 @@ namespace UDDNSQuery {
                 ProgressBarValue = _progressMax;
                 await Task.Delay( 700, _cts.Token );
             } catch ( QueryAPIException err ) {
+                Icon = TaskDialogStandardIcon.Error;
                 ProgressBarState = TaskDialogProgressBarState.Error;
                 InstructionText = Strings.StatusDialogHeadingError;
                 string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );

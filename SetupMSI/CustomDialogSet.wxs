@@ -36,6 +36,7 @@ Patch dialog sequence:
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <Binary Id="UDDNSQuery.CA.dll" SourceFile="..\UDDNSQuery\bin\$(var.Configuration)\UDDNSQuery.CA.dll" />
+        <CustomAction Id="CancelDialog" BinaryKey="UDDNSQuery.CA.dll" DllEntry="CancelDialog" Execute="immediate" />
         
         <UI Id="CustomDialogSet">
             <TextStyle Id="WixUI_Font_Normal" FaceName="!(loc.Advanced_Font_FaceName)" Size="!(loc.Advanced_Font_Normal_Size)" />
@@ -58,36 +59,68 @@ Patch dialog sequence:
 
             <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
 
-            <Publish Dialog="CustomWelcomeDlg" Control="Next" Event="NewDialog" Value="LicenseAgreementDlg">NOT Installed</Publish>
-            <Publish Dialog="CustomWelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">Installed AND PATCH</Publish>
+            <Publish Dialog="CustomWelcomeDlg" Control="Next" Event="NewDialog" Value="CustomLicenseAgreementDlg">NOT Installed</Publish>
+            <Publish Dialog="CustomWelcomeDlg" Control="Next" Event="NewDialog" Value="CustomVerifyReadyDlg">Installed AND PATCH</Publish>
+            <Publish Dialog="CustomWelcomeDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
+            <Publish Dialog="CustomWelcomeDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
+            <Publish Dialog="CustomWelcomeDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
+            <Publish Dialog="CustomWelcomeDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
-            <Publish Dialog="LicenseAgreementDlg" Control="Back" Event="NewDialog" Value="CustomWelcomeDlg">1</Publish>
-            <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="CustomRegistrarDlg">LicenseAccepted = "1"</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Back" Event="NewDialog" Value="CustomWelcomeDlg">1</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Next" Event="NewDialog" Value="CustomRegistrarDlg">LicenseAccepted = "1"</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
-            <Publish Dialog="CustomRegistrarDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
+            <Publish Dialog="CustomRegistrarDlg" Control="Back" Event="NewDialog" Value="CustomLicenseAgreementDlg">1</Publish>
             <Publish Dialog="CustomRegistrarDlg" Control="Next" Event="NewDialog" Value="CustomInstallDirDlg">RegistrarValidated = "1"</Publish>
+            <Publish Dialog="CustomRegistrarDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
+            <Publish Dialog="CustomRegistrarDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
+            <Publish Dialog="CustomRegistrarDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
+            <Publish Dialog="CustomRegistrarDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
             <Publish Dialog="CustomInstallDirDlg" Control="Back" Event="NewDialog" Value="CustomRegistrarDlg">1</Publish>
             <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
             <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="DoAction" Value="WixUIValidatePath" Order="2">NOT WIXUI_DONTVALIDATEPATH</Publish>
             <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="3"><![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
-            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="4">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
+            <Publish Dialog="CustomInstallDirDlg" Control="Next" Event="NewDialog" Value="CustomVerifyReadyDlg" Order="4">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
+            <Publish Dialog="CustomInstallDirDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
+            <Publish Dialog="CustomInstallDirDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
+            <Publish Dialog="CustomInstallDirDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
+            <Publish Dialog="CustomInstallDirDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
             <Publish Dialog="CustomInstallDirDlgClone" Control="Back" Event="NewDialog" Value="CustomRegistrarDlg">1</Publish>
             <Publish Dialog="CustomInstallDirDlgClone" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
             <Publish Dialog="CustomInstallDirDlgClone" Control="Next" Event="DoAction" Value="WixUIValidatePath" Order="2">NOT WIXUI_DONTVALIDATEPATH</Publish>
             <Publish Dialog="CustomInstallDirDlgClone" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="3"><![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
-            <Publish Dialog="CustomInstallDirDlgClone" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="4">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
-            
-            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomInstallDirDlg" Order="1">NOT Installed</Publish>
-            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed AND NOT PATCH</Publish>
-            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomWelcomeDlg" Order="2">Installed AND PATCH</Publish>
+            <Publish Dialog="CustomInstallDirDlgClone" Control="Next" Event="NewDialog" Value="CustomVerifyReadyDlg" Order="4">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
+            <Publish Dialog="CustomInstallDirDlgClone" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
+            <Publish Dialog="CustomInstallDirDlgClone" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
+            <Publish Dialog="CustomInstallDirDlgClone" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
+            <Publish Dialog="CustomInstallDirDlgClone" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
-            <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+            <Publish Dialog="CustomVerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomInstallDirDlg" Order="1">NOT Installed</Publish>
+            <Publish Dialog="CustomVerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomMaintenanceTypeDlg" Order="2">Installed AND NOT PATCH</Publish>
+            <Publish Dialog="CustomVerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomWelcomeDlg" Order="2">Installed AND PATCH</Publish>
+            <Publish Dialog="CustomVerifyReadyDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
+            <Publish Dialog="CustomVerifyReadyDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
+            <Publish Dialog="CustomVerifyReadyDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
+            <Publish Dialog="CustomVerifyReadyDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
-            <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
-            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
-            <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+            <Publish Dialog="CustomMaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="CustomMaintenanceTypeDlg">1</Publish>
+            <Publish Dialog="CustomMaintenanceWelcomeDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
+            <Publish Dialog="CustomMaintenanceWelcomeDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
+            <Publish Dialog="CustomMaintenanceWelcomeDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
+            <Publish Dialog="CustomMaintenanceWelcomeDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
+
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="CustomVerifyReadyDlg">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="CustomVerifyReadyDlg">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="CustomMaintenanceWelcomeDlg">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
             <Property Id="ARPNOMODIFY" Value="1" />
         </UI>

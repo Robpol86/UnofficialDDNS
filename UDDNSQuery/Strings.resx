@@ -130,7 +130,7 @@
     <comment>TaskDialog heading during an error.</comment>
   </data>
   <data name="StatusDialogMoreInfo" xml:space="preserve">
-    <value>More information about this error: &lt;a href="{0}"&gt;UnofficialDDNS Wiki&lt;/a&gt;</value>
+    <value>More information: &lt;a href="{0}"&gt;UnofficialDDNS Wiki&lt;/a&gt;</value>
     <comment>StatusDialog.cs</comment>
   </data>
   <data name="StatusDialogTextAuth" xml:space="preserve">

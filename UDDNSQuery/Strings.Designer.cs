@@ -88,7 +88,7 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to More information about this error: &lt;a href=&quot;{0}&quot;&gt;UnofficialDDNS Wiki&lt;/a&gt;.
+        ///   Looks up a localized string similar to More information: &lt;a href=&quot;{0}&quot;&gt;UnofficialDDNS Wiki&lt;/a&gt;.
         /// </summary>
         internal static string StatusDialogMoreInfo {
             get {

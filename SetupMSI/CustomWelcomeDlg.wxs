@@ -55,9 +55,7 @@
                     <Condition Action="disable"><![CDATA[(VersionNT < 600)]]></Condition>
                     <Condition Action="disable">NOT NETFRAMEWORK45</Condition>
                 </Control>
-                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
-                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
-                </Control>
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)" />
             </Dialog>
 
             <InstallUISequence>

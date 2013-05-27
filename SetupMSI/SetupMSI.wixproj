@@ -24,7 +24,11 @@
   <ItemGroup>
     <Compile Include="CustomDialogSet.wxs" />
     <Compile Include="CustomInstallDirDlg.wxs" />
+    <Compile Include="CustomLicenseAgreementDlg.wxs" />
+    <Compile Include="CustomMaintenanceTypeDlg.wxs" />
+    <Compile Include="CustomMaintenanceWelcomeDlg.wxs" />
     <Compile Include="CustomRegistrarDlg.wxs" />
+    <Compile Include="CustomVerifyReadyDlg.wxs" />
     <Compile Include="CustomWelcomeDlg.wxs" />
     <Compile Include="Product.wxs" />
   </ItemGroup>
@@ -32,7 +36,7 @@
     <Content Include="bannrbmp.bmp" />
     <Content Include="Definitions.wxi" />
     <Content Include="dlgbmp.bmp" />
-    <Content Include="LICENSE.rtf" />
+    <Content Include="LICENSE_en-us.rtf" />
     <Content Include="WIXUILICENSE.TXT" />
   </ItemGroup>
   <ItemGroup>

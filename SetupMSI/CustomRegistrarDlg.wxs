@@ -84,9 +84,7 @@
                     <Condition Action="enable"><![CDATA[RegistrarValidated = "1" AND RegistrarTokenEncrypted <> ""]]></Condition>
                 </Control>
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
-                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
-                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
-                </Control>
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)" />
             </Dialog>
         </UI>
     </Fragment>

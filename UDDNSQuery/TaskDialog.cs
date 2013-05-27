@@ -17,6 +17,7 @@ namespace UDDNSQuery {
         private string caption; // Dialog title.
         private string instructionText; // Blue heading text.
         private string text; // Dialog body text.
+        private TaskDialogStandardIcon icon;
         private IntPtr[] updatedStrings;
         private IntPtr hWndDialog;
         private IntPtr hWndOwner;
@@ -31,6 +32,7 @@ namespace UDDNSQuery {
         public string Caption { get { return caption; } set { if ( NativeDialogShowing ) throw new NotSupportedException(); caption = value; } }
         public string InstructionText { get { return instructionText; } set { instructionText = value; if ( NativeDialogShowing ) UpdateInstruction( value ); } }
         public string Text { get { return text; } set { text = value; if ( NativeDialogShowing ) { UpdateText( value ); } } }
+        public TaskDialogStandardIcon Icon { get { return icon; } set { icon = value; if ( NativeDialogShowing ) { UpdateMainIcon( value ); } } }
         public int[] ProgressBarRange { get { return new int[2] { progressBarMinimum, progressBarMaximum }; } set { UpdateProgressBarRange( value ); progressBarMinimum = value[0]; ; progressBarMaximum = value[1]; } }
         public int ProgressBarValue { get { return progressBarValue; } set { UpdateProgressBarValue( value ); progressBarValue = value; } }
         public bool NativeDialogShowing { get { return (showState == TaskDialogShowState.Showing || showState == TaskDialogShowState.Closing); } }
@@ -56,6 +58,10 @@ namespace UDDNSQuery {
 
         public enum TaskDialogShowState { PreShow, Showing, Closing, Closed }
 
+        public enum TaskDialogStandardIcon { None = 0, Error = 65534, Information = 65533 }
+
+        public enum TaskDialogIconElement { Main, Footer }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
         public enum TaskDialogProgressBarState { Normal = 0x0001, Error = 0x0002 }
 
@@ -79,13 +85,13 @@ namespace UDDNSQuery {
         /// Indicates the various buttons and options clicked by the user on the task dialog and identifies common buttons.
         /// </summary>        
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1027:MarkEnumsWithFlags" ), System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
-        public enum TaskDialogResult { Ok = 0x0001, Cancel = 0x0008 }
+        public enum TaskDialogResult { Ok = 0x0001, Yes = 0x0002, No = 0x0004, Cancel = 0x0008 }
 
         /// <summary>
         /// Identify button *return values* - note that, unfortunately, these are different from the inbound button values.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1027:MarkEnumsWithFlags" ), System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
-        public enum TaskDialogCommonButtonReturnId { Ok = 1, Cancel = 2, Close = 8 }
+        public enum TaskDialogCommonButtonReturnId { Ok = 1, Cancel = 2, Yes = 6, No = 7, Close = 8 }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
         public enum TaskDialogMessage {
@@ -95,6 +101,7 @@ namespace UDDNSQuery {
             SetProgressBarPosition = UserMessage + 106, // wParam = new position
             SetElementText = UserMessage + 108, // wParam = element (TASKDIALOG_ELEMENTS), lParam = new element text (LPCWSTR)
             EnableButton = UserMessage + 111, // lParam = 0 (disable), lParam != 0 (enable), wParam = Button ID
+            UpdateIcon = UserMessage + 116  // wParam = icon element (TASKDIALOG_ICON_ELEMENTS), lParam = new icon (hIcon if TDF_USE_HICON_* was set, PCWSTR otherwise)
         }
 
         #endregion
@@ -147,7 +154,7 @@ namespace UDDNSQuery {
             internal TaskDialogResult commonButtons;
             [MarshalAs( UnmanagedType.LPWStr )]
             internal string windowTitle;
-            internal IntPtr mainIcon; // NOTE: 32-bit union field, holds pszMainIcon as well
+            internal IconUnion mainIcon; // NOTE: 32-bit union field, holds pszMainIcon as well
             [MarshalAs( UnmanagedType.LPWStr )]
             internal string mainInstruction;
             [MarshalAs( UnmanagedType.LPWStr )]
@@ -166,12 +173,35 @@ namespace UDDNSQuery {
             internal string expandedControlText;
             [MarshalAs( UnmanagedType.LPWStr )]
             internal string collapsedControlText;
-            internal IntPtr footerIcon;  // NOTE: 32-bit union field, holds pszFooterIcon as well
+            internal IconUnion footerIcon;  // NOTE: 32-bit union field, holds pszFooterIcon as well
             [MarshalAs( UnmanagedType.LPWStr )]
             internal string footerText;
             internal TaskDialogCallback callback;
             internal IntPtr callbackData;
             internal uint width;
+        }
+
+        // NOTE: We include a "spacer" so that the struct size varies on 
+        // 64-bit architectures.
+        [StructLayout( LayoutKind.Explicit, CharSet = CharSet.Auto )]
+        private struct IconUnion {
+            private IconUnion( int i ) {
+                mainIcon = i;
+                spacer = IntPtr.Zero;
+            }
+
+            [FieldOffset( 0 )]
+            private int mainIcon;
+
+            // This field is used to adjust the length of the structure on 32/64bit OS.
+            [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields" )]
+            [FieldOffset( 0 )]
+            private IntPtr spacer;
+
+            /// <summary>
+            /// Gets the handle to the Icon
+            /// </summary>
+            public int MainIcon { get { return mainIcon; } }
         }
 
         private int SendMessageHelper( TaskDialogMessage message, int wparam, long lparam ) { //TODO make private
@@ -228,6 +258,7 @@ namespace UDDNSQuery {
             // dialog proc can get.
             switch ( (TaskDialogNotification) message ) {
                 case TaskDialogNotification.Created:
+                    UpdateMainIcon( icon );
                     UpdateProgressBarRange( new int[2] { progressBarMinimum, progressBarMaximum } );
                     UpdateProgressBarState( progressBarState );
                     UpdateProgressBarValue( progressBarValue );
@@ -348,9 +379,55 @@ namespace UDDNSQuery {
             UpdateTextCore( s, TaskDialogElement.MainInstruction );
         }
 
+        private void UpdateMainIcon( TaskDialogStandardIcon icon ) {
+            TaskDialogIconElement element = TaskDialogIconElement.Main;
+            SendMessageHelper( TaskDialogMessage.UpdateIcon, (int) element, (long) icon );
+        }
+
         #endregion
 
         #region Show and Close
+
+        public TaskDialogResult ShowCancellation( string title, string text ) {
+            result = TaskDialogResult.No;
+            TaskDialogConfiguration nativeConfig = new TaskDialogConfiguration();
+            Icon = TaskDialogStandardIcon.Information;
+
+            nativeConfig.size = (uint) Marshal.SizeOf( nativeConfig );
+            nativeConfig.parentHandle = hWndOwner;
+            nativeConfig.commonButtons = TaskDialogResult.Yes | TaskDialogResult.No;
+            nativeConfig.content = text;
+            nativeConfig.windowTitle = title;
+            nativeConfig.mainInstruction = instructionText;
+            nativeConfig.taskDialogFlags = TaskDialogOptions.AllowCancel | TaskDialogOptions.PositionRelativeToWindow;
+            nativeConfig.callback = new TaskDialogCallback( DialogProc );
+
+            showState = TaskDialogShowState.Showing;
+            using ( new EnableThemingInScope( true ) ) { // Here is the way we use "vanilla" P/Invoke to call TaskDialogIndirect().
+                TaskDialogIndirect(
+                    nativeConfig,
+                    out selectedButtonId,
+                    IntPtr.Zero,
+                    IntPtr.Zero );
+            }
+            showState = TaskDialogShowState.Closed;
+
+            if ( (TaskDialogCommonButtonReturnId) selectedButtonId == TaskDialogCommonButtonReturnId.Yes ) {
+                result = TaskDialogResult.Yes;
+            }
+
+            // Free up strings.
+            if ( updatedStrings != null ) {
+                for ( int i = 0; i < updatedStrings.Length; i++ ) {
+                    if ( updatedStrings[i] != IntPtr.Zero ) {
+                        Marshal.FreeHGlobal( updatedStrings[i] );
+                        updatedStrings[i] = IntPtr.Zero;
+                    }
+                }
+            }
+
+            return result;
+        }
 
         public TaskDialogResult Show() {
             result = TaskDialogResult.Cancel;
