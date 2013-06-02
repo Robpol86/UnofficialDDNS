@@ -30,6 +30,17 @@
         <!-- Properties and Variables. -->
         <Property Id="MSIFASTINSTALL" Value="1" /> <!-- Don't set a restore point in Win7 and up. -->
         <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+        <Property Id="REGISTRAR_REGISTRAR" Secure="yes">
+            <RegistrySearch Id="Registrar" Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="raw" Name="Registrar" />
+        </Property>
+        <Property Id="REGISTRAR_USER" Secure="yes" Hidden="yes">
+            <RegistrySearch Id="Username" Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="raw" Name="Username" />
+        </Property>
+        <Property Id="REGISTRAR_TOKEN" Secure="no" Hidden="yes" />
+        <Property Id="REGISTRAR_TOKEN_ENCRYPTED" Secure="yes" Hidden="yes" />
+        <Property Id="REGISTRAR_DOMAIN" Secure="yes">
+            <RegistrySearch Id="Domain" Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="raw" Name="Domain" />
+        </Property>
         <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
         <WixVariable Id="WixUIBannerBmp" Value="bannrbmp.bmp" />
         <WixVariable Id="WixUIDialogBmp" Value="dlgbmp.bmp" />
@@ -45,14 +56,26 @@
 
 	<Fragment>
 		<ComponentGroup Id="ProductComponents" Directory="INSTALLDIR">
-			<Component Id="ProductComponent">
-                <File Id="UnofficialDDNSExe" Name="UnofficialDDNS.exe"
-                      Source="..\UnofficialDDNS\bin\$(var.Configuration)\UnofficialDDNS.exe" KeyPath="yes" />
+			<Component Id="MainExe" Guid="6B35D256-4E15-4BEC-8C8D-130A91E8D12A">
+                <File Id="MainExe" Checksum="yes" KeyPath="yes"
+                      Source="..\UnofficialDDNS\bin\$(var.Configuration)\UnofficialDDNS.exe" />
             </Component>
-            <Component Id="JSONnetDll">
-                <File Id="NewtonsoftJsonDll" Name="Newtonsoft.Json.dll"
-                      Source="..\UnofficialDDNS\bin\$(var.Configuration)\Newtonsoft.Json.dll" KeyPath="yes" />
+            <Component Id="QueryDLL" Guid="DE604E70-986D-4246-B979-1DB49DEB57AB">
+                <File Id="QueryDLL" Checksum="yes" KeyPath="yes"
+                      Source="..\UDDNSQuery\bin\$(var.Configuration)\UDDNSQuery.dll" />
+            </Component>
+            <Component Id="JSONnetDll" Guid="8E258E91-AC73-4533-9BAE-23A18BCB5E33">
+                <File Id="JSONnetDll" Checksum="yes" KeyPath="yes"
+                      Source="..\UDDNSQuery\bin\$(var.Configuration)\Newtonsoft.Json.dll" />
 			</Component>
+            <Component Id="RegistryEntries" Guid="0B6EDE44-4C6D-4CB0-AA2D-C302476BE1E7">
+                <RegistryKey Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string" Name="Registrar" Value="[REGISTRAR_REGISTRAR]" />
+                    <RegistryValue Type="string" Name="Username" Value="[REGISTRAR_USER]" />
+                    <RegistryValue Type="string" Name="ApiToken" Value="[REGISTRAR_TOKEN_ENCRYPTED]" />
+                    <RegistryValue Type="string" Name="Domain" Value="[REGISTRAR_DOMAIN]" />
+                </RegistryKey>
+            </Component>
 		</ComponentGroup>
 	</Fragment>
 </Wix>

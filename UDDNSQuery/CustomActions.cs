@@ -36,7 +36,7 @@ namespace UDDNSQuery {
 
         [CustomAction]
         public static ActionResult PopulateRegistrarList( Session session ) {
-            string wixProperty = "RegistrarRegistrar";
+            string wixProperty = "REGISTRAR_REGISTRAR";
             string logPrefix = "UDDNSQuery.PopulateRegistrarList: ";
             session.Log( logPrefix + "Method begin." );
             
@@ -87,21 +87,21 @@ namespace UDDNSQuery {
         [CustomAction]
         public static ActionResult ValidateCredentials( Session session ) {
             // Encrypt token.
-            if ( session["RegistrarToken"].Length > 0 ) {
-                session["RegistrarTokenEncrypted"] = Convert.ToBase64String( ProtectedData.Protect(
-                    Encoding.ASCII.GetBytes( session["RegistrarToken"] ),
+            if ( session["REGISTRAR_TOKEN"].Length > 0 ) {
+                session["REGISTRAR_TOKEN_ENCRYPTED"] = Convert.ToBase64String( ProtectedData.Protect(
+                    Encoding.ASCII.GetBytes( session["REGISTRAR_TOKEN"] ),
                     null, DataProtectionScope.LocalMachine
                     ) );
             } else {
-                session["RegistrarTokenEncrypted"] = "";
+                session["REGISTRAR_TOKEN_ENCRYPTED"] = "";
             }
 
             // Validate with status dialog.
-            using ( IQueryAPI api = QueryAPIIndex.Instance.Factory( session["RegistrarRegistrar"] ) )
+            using ( IQueryAPI api = QueryAPIIndex.Instance.Factory( session["REGISTRAR_REGISTRAR"] ) )
             using ( StatusDialog dialog = new StatusDialog( api ) ) {
                 // Pass credentials to class instance.
-                api.Credentials( session["RegistrarUser"], session["RegistrarTokenEncrypted"],
-                    session["RegistrarDomain"]
+                api.Credentials( session["REGISTRAR_USER"], session["REGISTRAR_TOKEN_ENCRYPTED"],
+                    session["REGISTRAR_DOMAIN"]
                     );
 
                 // Launch the dialog and get result.

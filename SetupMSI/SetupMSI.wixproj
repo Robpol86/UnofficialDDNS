@@ -26,7 +26,6 @@
     <Compile Include="CustomInstallDirDlg.wxs" />
     <Compile Include="CustomLicenseAgreementDlg.wxs" />
     <Compile Include="CustomMaintenanceTypeDlg.wxs" />
-    <Compile Include="CustomMaintenanceWelcomeDlg.wxs" />
     <Compile Include="CustomRegistrarDlg.wxs" />
     <Compile Include="CustomVerifyReadyDlg.wxs" />
     <Compile Include="CustomWelcomeDlg.wxs" />

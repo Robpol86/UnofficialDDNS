@@ -34,9 +34,9 @@
         </InstallUISequence>
 
         <Property Id="RegistrarValidated" Value="0" />
-        <Property Id="RegistrarUser" Hidden="yes" />
-        <Property Id="RegistrarToken" Hidden="yes" />
-        <Property Id="RegistrarTokenEncrypted" Hidden="yes" />
+        <PropertyRef Id="REGISTRAR_USER" />
+        <PropertyRef Id="REGISTRAR_TOKEN" />
+        <PropertyRef Id="REGISTRAR_TOKEN_ENCRYPTED" />
         
         <UI>
             <Dialog Id="CustomRegistrarDlg" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">
@@ -54,34 +54,34 @@
                 <Control Id="DomainLabel" Type="Text" X="20" Y="126" Width="70" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.RegistrarDlgDomainLabel)" />
 
                 <!-- Fields -->
-                <Control Id="RegistrarList" Type="ComboBox" Property="RegistrarRegistrar" Width="200" Height="13" X="95" Y="58" ComboList="yes">
-                    <ComboBox Property="RegistrarRegistrar">
+                <Control Id="RegistrarList" Type="ComboBox" Property="REGISTRAR_REGISTRAR" Width="200" Height="13" X="95" Y="58" ComboList="yes">
+                    <ComboBox Property="REGISTRAR_REGISTRAR">
                         <ListItem Text="SomethingNeedsToBeHere" Value="SomethingNeedsToBeHere" />
                     </ComboBox>
                     <Publish Property="RegistrarValidated" Value="0">1</Publish>
                 </Control>
-                <Control Id="UserField" Type="Edit" Property="RegistrarUser" Width="200" Height="16" X="95" Y="80">
+                <Control Id="UserField" Type="Edit" Property="REGISTRAR_USER" Width="200" Height="16" X="95" Y="80">
                     <Publish Property="RegistrarValidated" Value="0">1</Publish>
                 </Control>
-                <Control Id="TokenField" Type="Edit" Property="RegistrarToken" Width="200" Height="16" X="95" Y="102">
+                <Control Id="TokenField" Type="Edit" Property="REGISTRAR_TOKEN" Width="200" Height="16" X="95" Y="102">
                     <Publish Property="RegistrarValidated" Value="0">1</Publish>
                 </Control>
-                <Control Id="DomainField" Type="Edit" Property="RegistrarDomain" Width="200" Height="16" X="95" Y="124" ToolTip="!(loc.RegistrarDlgDomainToolTip)">
+                <Control Id="DomainField" Type="Edit" Property="REGISTRAR_DOMAIN" Width="200" Height="16" X="95" Y="124" ToolTip="!(loc.RegistrarDlgDomainToolTip)">
                     <Publish Property="RegistrarValidated" Value="0">1</Publish>
                 </Control>
                 
                 <!-- Buttons -->
                 <Control Id="Validate" Type="PushButton" X="20" Y="202" Width="56" Height="17" Default="yes" Text="!(loc.RegistrarDlgValidate)">
-                    <Condition Action="enable"><![CDATA[RegistrarRegistrar <> ""]]></Condition>
-                    <Condition Action="disable">RegistrarRegistrar = ""</Condition>
+                    <Condition Action="enable"><![CDATA[REGISTRAR_REGISTRAR <> ""]]></Condition>
+                    <Condition Action="disable">REGISTRAR_REGISTRAR = ""</Condition>
                     <Publish Property="RegistrarValidated" Value="0" Order="1">1</Publish>
                     <Publish Property="_RegistrarValidated" Value="0" Order="2">1</Publish>
                     <Publish Event="DoAction" Value="ValidateCredentials" Order="3">1</Publish>
                     <Publish Property="RegistrarValidated" Value="[_RegistrarValidated]" Order="4">1</Publish>
                 </Control>
                 <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)">
-                    <Condition Action="disable"><![CDATA[RegistrarValidated <> "1" OR RegistrarTokenEncrypted = ""]]></Condition>
-                    <Condition Action="enable"><![CDATA[RegistrarValidated = "1" AND RegistrarTokenEncrypted <> ""]]></Condition>
+                    <Condition Action="disable"><![CDATA[RegistrarValidated <> "1" OR REGISTRAR_TOKEN_ENCRYPTED = ""]]></Condition>
+                    <Condition Action="enable"><![CDATA[RegistrarValidated = "1" AND REGISTRAR_TOKEN_ENCRYPTED <> ""]]></Condition>
                 </Control>
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
                 <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)" />
