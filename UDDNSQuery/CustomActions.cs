@@ -87,20 +87,18 @@ namespace UDDNSQuery {
         [CustomAction]
         public static ActionResult ValidateCredentials( Session session ) {
             // Encrypt token.
-            if ( session["REGISTRAR_TOKEN"].Length > 0 ) {
-                session["REGISTRAR_TOKEN_ENCRYPTED"] = Convert.ToBase64String( ProtectedData.Protect(
+            if ( session["REGISTRAR_TOKEN"].Length > 0 && !session["REGISTRAR_TOKEN"].StartsWith("ENCRYPTED:") ) {
+                session["REGISTRAR_TOKEN"] = "ENCRYPTED:" + Convert.ToBase64String( ProtectedData.Protect(
                     Encoding.ASCII.GetBytes( session["REGISTRAR_TOKEN"] ),
                     null, DataProtectionScope.LocalMachine
                     ) );
-            } else {
-                session["REGISTRAR_TOKEN_ENCRYPTED"] = "";
             }
 
             // Validate with status dialog.
             using ( IQueryAPI api = QueryAPIIndex.Instance.Factory( session["REGISTRAR_REGISTRAR"] ) )
             using ( StatusDialog dialog = new StatusDialog( api ) ) {
                 // Pass credentials to class instance.
-                api.Credentials( session["REGISTRAR_USER"], session["REGISTRAR_TOKEN_ENCRYPTED"],
+                api.Credentials( session["REGISTRAR_USER"], session["REGISTRAR_TOKEN"].Replace( "ENCRYPTED:", "" ),
                     session["REGISTRAR_DOMAIN"]
                     );
 

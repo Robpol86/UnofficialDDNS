@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Todo:
-        * Ask user if this should install for All Users or current user.
-        ** Check what happens if user changes password if current user is selected.
+        * Enable modify button, when user clicks it shows the CustomRegistrarDlg.
+        ** But instead of a Next button it should say Modify. Clicking it does the modification (after verify). Then show the finish screen.
         * Make uninstall ask if user is sure.
-        * The directory browser is ugly, fix it.
-        * Use modern icons.
         * Revision number should be whole VersionNumber.
-        * Detect if already installed.
-        * Fix norestorepoint.
         
         * Test:
         ** Everythign with combos 32/64bit, xp, vista, 7, 8, 2003, 2003r2, 2008, 2008r2, 2012.
@@ -16,10 +12,10 @@
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <?include Definitions.wxi ?>
-	<Product Id="*" Name="!(loc.ProductName) $(var.VersionNumber)" Language="!(loc.LANG)" Version="$(var.VersionNumber)" 
-             Manufacturer="Robpol86" UpgradeCode="$(var.UpgradeCode)">
-		<Package InstallerVersion="301" Compressed="yes" InstallScope="perMachine" Keywords="!(loc.Keywords)" 
-                 Description="!(loc.Description)" Comments="!(loc.Comments)" />
+	<Product Id="$(var.GuidProduct)" Name="!(loc.ProductName) $(var.VersionNumber)" Language="!(loc.LANG)"
+             Version="$(var.VersionNumber)" Manufacturer="Robpol86" UpgradeCode="$(var.GuidUpgrade)">
+		<Package Id="$(var.GuidPackage)" InstallerVersion="301" Compressed="yes" InstallScope="perMachine"
+                 Keywords="!(loc.Keywords)" Description="!(loc.Description)" Comments="!(loc.Comments)" />
         <MediaTemplate EmbedCab="yes" />
         <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 		<Feature Id="ProductFeature" Title="UnofficialDDNS" Level="1">
@@ -28,6 +24,7 @@
         <UIRef Id="CustomDialogSet" />
 
         <!-- Properties and Variables. -->
+        <Property Id="ARPNOREPAIR" Value="1" /> <!-- Repair won't restore custom registry values. -->
         <Property Id="MSIFASTINSTALL" Value="1" /> <!-- Don't set a restore point in Win7 and up. -->
         <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
         <Property Id="REGISTRAR_REGISTRAR" Secure="yes">
@@ -36,8 +33,9 @@
         <Property Id="REGISTRAR_USER" Secure="yes" Hidden="yes">
             <RegistrySearch Id="Username" Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="raw" Name="Username" />
         </Property>
-        <Property Id="REGISTRAR_TOKEN" Secure="no" Hidden="yes" />
-        <Property Id="REGISTRAR_TOKEN_ENCRYPTED" Secure="yes" Hidden="yes" />
+        <Property Id="REGISTRAR_TOKEN" Secure="yes" Hidden="yes">
+            <RegistrySearch Id="ApiToken" Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="raw" Name="ApiToken" />
+        </Property>
         <Property Id="REGISTRAR_DOMAIN" Secure="yes">
             <RegistrySearch Id="Domain" Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="raw" Name="Domain" />
         </Property>
@@ -56,23 +54,23 @@
 
 	<Fragment>
 		<ComponentGroup Id="ProductComponents" Directory="INSTALLDIR">
-			<Component Id="MainExe" Guid="6B35D256-4E15-4BEC-8C8D-130A91E8D12A">
+			<Component Id="MainExe" Guid="$(var.GuidMainExe)">
                 <File Id="MainExe" Checksum="yes" KeyPath="yes"
                       Source="..\UnofficialDDNS\bin\$(var.Configuration)\UnofficialDDNS.exe" />
             </Component>
-            <Component Id="QueryDLL" Guid="DE604E70-986D-4246-B979-1DB49DEB57AB">
+            <Component Id="QueryDLL" Guid="$(var.GuidQueryDLL)">
                 <File Id="QueryDLL" Checksum="yes" KeyPath="yes"
                       Source="..\UDDNSQuery\bin\$(var.Configuration)\UDDNSQuery.dll" />
             </Component>
-            <Component Id="JSONnetDll" Guid="8E258E91-AC73-4533-9BAE-23A18BCB5E33">
+            <Component Id="JSONnetDll" Guid="$(var.GuidJSONnetDll)">
                 <File Id="JSONnetDll" Checksum="yes" KeyPath="yes"
                       Source="..\UDDNSQuery\bin\$(var.Configuration)\Newtonsoft.Json.dll" />
 			</Component>
-            <Component Id="RegistryEntries" Guid="0B6EDE44-4C6D-4CB0-AA2D-C302476BE1E7">
+            <Component Id="RegistryEntries" Guid="$(var.GuidRegistryEntries)">
                 <RegistryKey Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Action="createAndRemoveOnUninstall">
                     <RegistryValue Type="string" Name="Registrar" Value="[REGISTRAR_REGISTRAR]" />
                     <RegistryValue Type="string" Name="Username" Value="[REGISTRAR_USER]" />
-                    <RegistryValue Type="string" Name="ApiToken" Value="[REGISTRAR_TOKEN_ENCRYPTED]" />
+                    <RegistryValue Type="string" Name="ApiToken" Value="[REGISTRAR_TOKEN]" />
                     <RegistryValue Type="string" Name="Domain" Value="[REGISTRAR_DOMAIN]" />
                 </RegistryKey>
             </Component>

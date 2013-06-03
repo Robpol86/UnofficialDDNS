@@ -36,7 +36,6 @@
         <Property Id="RegistrarValidated" Value="0" />
         <PropertyRef Id="REGISTRAR_USER" />
         <PropertyRef Id="REGISTRAR_TOKEN" />
-        <PropertyRef Id="REGISTRAR_TOKEN_ENCRYPTED" />
         
         <UI>
             <Dialog Id="CustomRegistrarDlg" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">
@@ -80,8 +79,8 @@
                     <Publish Property="RegistrarValidated" Value="[_RegistrarValidated]" Order="4">1</Publish>
                 </Control>
                 <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)">
-                    <Condition Action="disable"><![CDATA[RegistrarValidated <> "1" OR REGISTRAR_TOKEN_ENCRYPTED = ""]]></Condition>
-                    <Condition Action="enable"><![CDATA[RegistrarValidated = "1" AND REGISTRAR_TOKEN_ENCRYPTED <> ""]]></Condition>
+                    <Condition Action="disable"><![CDATA[RegistrarValidated <> "1"]]></Condition>
+                    <Condition Action="enable">RegistrarValidated = "1"</Condition>
                 </Control>
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
                 <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)" />
