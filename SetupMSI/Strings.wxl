@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
-	<String Id="LANG" Overridable="yes">1033</String>
+    <String Id="LANG" Overridable="yes">1033</String>
     <String Id="ProductName" Overridable="yes">UnofficialDDNS</String>
     <String Id="Keywords" Overridable="yes">DDNS</String>
     <String Id="Description" Overridable="yes">UnofficialDDNS</String>
