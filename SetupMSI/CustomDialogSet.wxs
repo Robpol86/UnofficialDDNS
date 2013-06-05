@@ -74,6 +74,7 @@ Patch dialog sequence:
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
             <Publish Dialog="CustomRegistrarDlg" Control="Back" Event="NewDialog" Value="CustomLicenseAgreementDlg">1</Publish>
+            <Publish Dialog="CustomRegistrarDlg" Control="ChangeBack" Event="NewDialog" Value="CustomMaintenanceTypeDlg">1</Publish>
             <Publish Dialog="CustomRegistrarDlg" Control="Next" Event="NewDialog" Value="CustomInstallDirDlg">RegistrarValidated = "1"</Publish>
             <Publish Dialog="CustomRegistrarDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
             <Publish Dialog="CustomRegistrarDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
@@ -108,14 +109,12 @@ Patch dialog sequence:
             <Publish Dialog="CustomVerifyReadyDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
             <Publish Dialog="CustomVerifyReadyDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
-            <Publish Dialog="CustomMaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="CustomVerifyReadyDlg">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="ChangeButton" Event="NewDialog" Value="CustomRegistrarDlg">1</Publish>
             <Publish Dialog="CustomMaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="CustomVerifyReadyDlg">1</Publish>
             <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
             <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
             <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
             <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
-
-            <Property Id="ARPNOMODIFY" Value="1" />
         </UI>
 
         <UIRef Id="WixUI_Common" />
