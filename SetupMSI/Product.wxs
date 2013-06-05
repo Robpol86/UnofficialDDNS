@@ -23,6 +23,8 @@
         <UIRef Id="CustomDialogSet" />
 
         <!-- Properties and Variables. -->
+        <Property Id="ARPCOMMENTS" Value="!(loc.Comments)" />
+        <Property Id="ARPHELPLINK" Value="https://github.com/Robpol86/UnofficialDDNS/wiki/" />
         <Property Id="ARPNOREPAIR" Value="1" /> <!-- Repair won't restore custom registry values. -->
         <Property Id="MSIFASTINSTALL" Value="1" /> <!-- Don't set a restore point in Win7 and up. -->
         <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
