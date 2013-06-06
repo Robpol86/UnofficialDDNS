@@ -47,6 +47,9 @@
     <Reference Include="Microsoft.Deployment.WindowsInstaller" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\UnofficialDDNS\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
     <Compile Include="CustomActions.cs" />
     <Compile Include="EnableThemingInScope.cs" />
     <Compile Include="FolderBrowser.cs" />

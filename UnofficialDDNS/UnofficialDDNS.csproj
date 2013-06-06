@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\AssemblyInfoCommon.cs" />
     <Compile Include="CustomException.cs" />
     <Compile Include="LogSingleton.cs" />
     <Compile Include="MainPollingThread.cs" />

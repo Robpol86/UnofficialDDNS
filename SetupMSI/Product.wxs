@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Todo:
-        * Enable modify button, when user clicks it shows the CustomRegistrarDlg.
-        ** But instead of a Next button it should say Modify. Clicking it does the modification (after verify). Then show the finish screen.
-        * Make uninstall ask if user is sure.
         * Revision number should be whole VersionNumber.
         
         * Test:
