@@ -59,5 +59,16 @@
 	</Target>
 	<Target Name="AfterBuild">
 	</Target>
-	-->
+    -->
+  <Target Name="ReadAssemblyVersion">
+    <PropertyGroup>
+      <Pattern>^\s*\[assembly: AssemblyVersion\(\D*(\d+)\.(\d+)\.(\d+)</Pattern>
+      <In>$([System.IO.File]::ReadAllText('..\UnofficialDDNS\Properties\AssemblyInfoCommon.cs'))</In>
+      <MajorVersion>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</MajorVersion>
+      <MinorVersion>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[2].Value)</MinorVersion>
+      <BuildVersion>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[3].Value)</BuildVersion>
+    </PropertyGroup>
+    <Message Text="Output : $(MajorVersion).$(MinorVersion).$(BuildVersion)" Importance="high" />
+  </Target>
+  <Target Name="BeforeBuild" DependsOnTargets="ReadAssemblyVersion" />
 </Project>

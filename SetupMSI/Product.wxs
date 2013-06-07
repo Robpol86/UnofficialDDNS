@@ -2,6 +2,9 @@
 <!--
     Todo:
         * Revision number should be whole VersionNumber.
+        http://stackoverflow.com/questions/2042350/how-to-read-the-assemblyversion-from-assemblyinfo-cs
+        http://stackoverflow.com/questions/15974343/reference-version-string-from-another-project-using-wix
+        http://wix.sourceforge.net/manual-wix3/votive_project_references.htm
         
         * Test:
         ** Everythign with combos 32/64bit, xp, vista, 7, 8, 2003, 2003r2, 2008, 2008r2, 2012.
