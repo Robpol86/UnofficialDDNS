@@ -1,12 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <In>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\..\UnofficialDDNS\Properties\AssemblyInfoCommon.cs'))</In>
+    <Pattern>^\s*\[assembly: AssemblyVersion\(\D*(\d+)\.(\d+)\.(\d+)</Pattern>
+    <AssemblyVersionMajor>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</AssemblyVersionMajor>
+    <AssemblyVersionMinor>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[2].Value)</AssemblyVersionMinor>
+    <AssemblyVersionBuild>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[3].Value)</AssemblyVersionBuild>
+    <Pattern>^\s*\[assembly: AssemblyDescription\(\s*"([^"]+)"</Pattern>
+    <AssemblyDescription>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</AssemblyDescription>
+    <Pattern>^\s*\[assembly: AssemblyProduct\(\s*"([^"]+)"</Pattern>
+    <AssemblyProduct>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</AssemblyProduct>
+    <Pattern>^\s*\[assembly: AssemblyCompany\(\s*"([^"]+)"</Pattern>
+    <AssemblyCompany>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</AssemblyCompany>
+  </PropertyGroup>
+  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>3.7</ProductVersion>
     <ProjectGuid>e9f27836-917b-45af-96ff-295a1f18a854</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>SetupMSI</OutputName>
+    <OutputName>$(AssemblyProduct)-$(AssemblyVersionMajor).$(AssemblyVersionMinor).$(AssemblyVersionBuild)</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
@@ -14,12 +27,13 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>Debug</DefineConstants>
+    <DefineConstants>Debug;AssemblyVersionMajor=$(AssemblyVersionMajor);AssemblyVersionMinor=$(AssemblyVersionMinor);AssemblyVersionBuild=$(AssemblyVersionBuild);AssemblyDescription=$(AssemblyDescription);AssemblyProduct=$(AssemblyProduct);AssemblyCompany=$(AssemblyCompany)</DefineConstants>
     <SuppressValidation>False</SuppressValidation>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>AssemblyVersionMajor=$(AssemblyVersionMajor);AssemblyVersionMinor=$(AssemblyVersionMinor);AssemblyVersionBuild=$(AssemblyVersionBuild);AssemblyDescription=$(AssemblyDescription);AssemblyProduct=$(AssemblyProduct);AssemblyCompany=$(AssemblyCompany)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CustomDialogSet.wxs" />
@@ -51,6 +65,24 @@
       <Name>WixUIExtension</Name>
     </WixExtension>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UDDNSQuery\UDDNSQuery.csproj">
+      <Name>UDDNSQuery</Name>
+      <Project>{71e05116-3fa9-4b9c-b62e-dbcc47adbc47}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\UnofficialDDNS\UnofficialDDNS.csproj">
+      <Name>UnofficialDDNS</Name>
+      <Project>{36360929-e885-4692-962e-f93958b53a82}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
@@ -60,15 +92,12 @@
 	<Target Name="AfterBuild">
 	</Target>
     -->
-  <Target Name="ReadAssemblyVersion">
-    <PropertyGroup>
-      <Pattern>^\s*\[assembly: AssemblyVersion\(\D*(\d+)\.(\d+)\.(\d+)</Pattern>
-      <In>$([System.IO.File]::ReadAllText('..\UnofficialDDNS\Properties\AssemblyInfoCommon.cs'))</In>
-      <MajorVersion>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value)</MajorVersion>
-      <MinorVersion>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[2].Value)</MinorVersion>
-      <BuildVersion>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern), System.Text.RegularExpressions.RegexOptions.Multiline).Groups[3].Value)</BuildVersion>
-    </PropertyGroup>
-    <Message Text="Output : $(MajorVersion).$(MinorVersion).$(BuildVersion)" Importance="high" />
+  <Target Name="BeforeBuild">
+    <Error Condition=" '$(AssemblyVersionMajor)' == '' " Text="The AssemblyVersionMajor property must be set." />
+    <Error Condition=" '$(AssemblyVersionMinor)' == '' " Text="The AssemblyVersionMinor property must be set." />
+    <Error Condition=" '$(AssemblyVersionBuild)' == '' " Text="The AssemblyVersionBuild property must be set." />
+    <Error Condition=" '$(AssemblyDescription)' == '' " Text="The AssemblyDescription property must be set." />
+    <Error Condition=" '$(AssemblyProduct)' == '' " Text="The AssemblyProduct property must be set." />
+    <Error Condition=" '$(AssemblyCompany)' == '' " Text="The AssemblyCompany property must be set." />
   </Target>
-  <Target Name="BeforeBuild" DependsOnTargets="ReadAssemblyVersion" />
 </Project>

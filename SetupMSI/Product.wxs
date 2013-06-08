@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Todo:
-        * Revision number should be whole VersionNumber.
-        http://stackoverflow.com/questions/2042350/how-to-read-the-assemblyversion-from-assemblyinfo-cs
-        http://stackoverflow.com/questions/15974343/reference-version-string-from-another-project-using-wix
-        http://wix.sourceforge.net/manual-wix3/votive_project_references.htm
-        
         * Test:
         ** Everythign with combos 32/64bit, xp, vista, 7, 8, 2003, 2003r2, 2008, 2008r2, 2012.
         ** Admin user, user with admin powers, normal user.
+        ** No network, network stops during validation.
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <?include Definitions.wxi ?>
-    <Product Id="$(var.GuidProduct)" Name="!(loc.ProductName) $(var.VersionNumber)" Language="!(loc.LANG)"
-             Version="$(var.VersionNumber)" Manufacturer="Robpol86" UpgradeCode="$(var.GuidUpgrade)">
+    <Product Id="$(var.GuidProduct)" Name="$(var.AssemblyProduct) $(var.VersionNumber)" Language="!(loc.LANG)"
+             Version="$(var.VersionNumber)" Manufacturer="$(var.AssemblyCompany)" UpgradeCode="$(var.GuidUpgrade)">
         <Package Id="$(var.GuidPackage)" InstallerVersion="301" Compressed="yes" InstallScope="perMachine"
-                 Keywords="!(loc.Keywords)" Description="!(loc.Description)" Comments="!(loc.Comments)" />
+                 Keywords="!(loc.Keywords)" Description="$(var.AssemblyProduct)" Comments="$(var.AssemblyDescription)" />
         <MediaTemplate EmbedCab="yes" />
         <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
         <Feature Id="Files" Title="Files"><ComponentGroupRef Id="Files" /></Feature>
@@ -23,7 +19,7 @@
         <UIRef Id="CustomDialogSet" />
 
         <!-- Properties and Variables. -->
-        <Property Id="ARPCOMMENTS" Value="!(loc.Comments)" />
+        <Property Id="ARPCOMMENTS" Value="$(var.AssemblyDescription)" />
         <Property Id="ARPHELPLINK" Value="https://github.com/Robpol86/UnofficialDDNS/wiki/" />
         <Property Id="ARPNOREPAIR" Value="1" /> <!-- Repair won't restore custom registry values. -->
         <Property Id="MSIFASTINSTALL" Value="1" /> <!-- Don't set a restore point in Win7 and up. -->
@@ -56,16 +52,13 @@
     <Fragment>
         <ComponentGroup Id="Files" Directory="INSTALLDIR">
             <Component Id="MainExe" Guid="$(var.GuidMainExe)">
-                <File Id="MainExe" Checksum="yes" KeyPath="yes"
-                      Source="..\UnofficialDDNS\bin\$(var.Configuration)\UnofficialDDNS.exe" />
+                <File Id="MainExe" Checksum="yes" KeyPath="yes" Source="$(var.UnofficialDDNS.TargetPath)" />
             </Component>
             <Component Id="QueryDLL" Guid="$(var.GuidQueryDLL)">
-                <File Id="QueryDLL" Checksum="yes" KeyPath="yes"
-                      Source="..\UDDNSQuery\bin\$(var.Configuration)\UDDNSQuery.dll" />
+                <File Id="QueryDLL" Checksum="yes" KeyPath="yes" Source="$(var.UDDNSQuery.TargetPath)" />
             </Component>
             <Component Id="JSONnetDll" Guid="$(var.GuidJSONnetDll)">
-                <File Id="JSONnetDll" Checksum="yes" KeyPath="yes"
-                      Source="..\UDDNSQuery\bin\$(var.Configuration)\Newtonsoft.Json.dll" />
+                <File Id="JSONnetDll" Checksum="yes" KeyPath="yes" Source="$(var.UDDNSQuery.TargetDir)\Newtonsoft.Json.dll" />
             </Component>
         </ComponentGroup>
         <ComponentGroup Id="Registry" Directory="INSTALLDIR">
