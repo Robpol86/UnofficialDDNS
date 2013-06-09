@@ -145,15 +145,39 @@ namespace UDDNSQuery {
     }
 
     [Serializable]
-    class QueryAPIException : Exception {
+    public class QueryAPIException : Exception {
         protected int _code; // Error code.
         protected string _details; // Additional details about the error (error messages from API for example).
         protected string _resxMessage; // String from Errors.resx.
         protected string _url; // URL to project wiki for more information about the error.
 
+        /// <summary>
+        /// The numerical code for this error.
+        /// </summary>
+        /// <value>
+        /// Error code.
+        /// </value>
         public int Code { get { return _code; } }
+        /// <summary>
+        /// Additional information about the error, not in the strings resource.
+        /// </summary>
+        /// <value>
+        /// Details text.
+        /// </value>
         public string Details { get { return _details; } }
+        /// <summary>
+        /// The default message in the strings resource correlating to the error code.
+        /// </summary>
+        /// <value>
+        /// Strings resource text.
+        /// </value>
         public string RMessage { get { return _resxMessage; } }
+        /// <summary>
+        /// URL about this error code if avaiable for more information.
+        /// </summary>
+        /// <value>
+        /// The URL.
+        /// </value>
         public string Url { get { return _url; } }
 
         public QueryAPIException( int code ) : this( code, null ) { }

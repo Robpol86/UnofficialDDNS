@@ -90,7 +90,7 @@
                     <Condition Action="enable">RegistrarValidated = "1"</Condition>
                     <Condition Action="disable"><![CDATA[RegistrarValidated <> "1"]]></Condition>
                     <Publish Event="ReinstallMode" Value="amu"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
-                    <Publish Event="Reinstall" Value="Registry"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
+                    <Publish Event="Reinstall" Value="Registry,Service"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
                     <Publish Event="EndDialog" Value="Return"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
                     <Publish Event="SpawnDialog" Value="OutOfRbDiskDlg">OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 0 AND (PROMPTROLLBACKCOST="P" OR NOT PROMPTROLLBACKCOST)</Publish>
                     <Publish Event="EndDialog" Value="Return">OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 0 AND PROMPTROLLBACKCOST="D"</Publish>
@@ -102,7 +102,7 @@
                     <Condition Action="enable">RegistrarValidated = "1"</Condition>
                     <Condition Action="disable"><![CDATA[RegistrarValidated <> "1"]]></Condition>
                     <Publish Event="ReinstallMode" Value="amu"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
-                    <Publish Event="Reinstall" Value="Registry"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
+                    <Publish Event="Reinstall" Value="Registry,Service"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
                     <Publish Event="EndDialog" Value="Return"><![CDATA[OutOfDiskSpace <> 1]]></Publish>
                     <Publish Event="SpawnDialog" Value="OutOfRbDiskDlg">OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 0 AND (PROMPTROLLBACKCOST="P" OR NOT PROMPTROLLBACKCOST)</Publish>
                     <Publish Event="EndDialog" Value="Return">OutOfDiskSpace = 1 AND OutOfNoRbDiskSpace = 0 AND PROMPTROLLBACKCOST="D"</Publish>

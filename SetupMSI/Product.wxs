@@ -16,6 +16,7 @@
         <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
         <Feature Id="Files" Title="Files"><ComponentGroupRef Id="Files" /></Feature>
         <Feature Id="Registry" Title="Registry"><ComponentGroupRef Id="Registry" /></Feature>
+        <Feature Id="Service" Title="Service"><ComponentGroupRef Id="Service" /></Feature>
         <UIRef Id="CustomDialogSet" />
 
         <!-- Properties and Variables. -->
@@ -51,9 +52,6 @@
 
     <Fragment>
         <ComponentGroup Id="Files" Directory="INSTALLDIR">
-            <Component Id="MainExe" Guid="$(var.GuidMainExe)">
-                <File Id="MainExe" Checksum="yes" KeyPath="yes" Source="$(var.UnofficialDDNS.TargetPath)" />
-            </Component>
             <Component Id="QueryDLL" Guid="$(var.GuidQueryDLL)">
                 <File Id="QueryDLL" Checksum="yes" KeyPath="yes" Source="$(var.UDDNSQuery.TargetPath)" />
             </Component>
@@ -68,6 +66,19 @@
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Username" Value="[REGISTRAR_USER]" />
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="ApiToken" Value="[REGISTRAR_TOKEN]" />
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Domain" Value="[REGISTRAR_DOMAIN]" />
+                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Interval" Value="1400" />
+                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Debug" Value="1" /> <!-- TODO set to 0. -->
+            </Component>
+        </ComponentGroup>
+        <ComponentGroup Id="Service" Directory="INSTALLDIR">
+            <Component Id="Service" Guid="$(var.GuidService)">
+                <File Id="MainExe" Checksum="yes" KeyPath="yes" Source="$(var.UnofficialDDNS.TargetPath)" />
+                <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Account="[SERVICEACCOUNT]"
+                                Password="[SERVICEPASSWORD]" Description="$(var.AssemblyDescription)"
+                                DisplayName="$(var.AssemblyProduct) $(var.VersionNumber)" ErrorControl="normal"
+                                Name="$(var.AssemblyProduct)" Vital="yes" Start="auto" />
+                <ServiceControl Id="ServiceStart" Name="$(var.AssemblyProduct)" Remove="uninstall" Start="install"
+                                Stop="both" Wait="yes" />
             </Component>
         </ComponentGroup>
     </Fragment>

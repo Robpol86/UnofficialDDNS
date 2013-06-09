@@ -7,7 +7,7 @@
     <?define GuidPackage="90CD994A-E726-4B9C-BE4E-9EE3AF0A8491" ?> <!-- Change if new VersionNumber (anything). -->
     <?define GuidProduct="86CDBE4A-A47E-44EE-A78B-2F2E8B38CEF5" ?> <!-- Change if new MinorVersion or MajorVersion. -->
     <?define GuidUpgrade="44bb546a-51c5-460e-bedc-29087856fa14" ?>
-    <?define GuidMainExe="6B35D256-4E15-4BEC-8C8D-130A91E8D12A" ?>
+    <?define GuidService="64FC22B7-256D-426A-83A2-28449D86761C" ?>
     <?define GuidQueryDLL="DE604E70-986D-4246-B979-1DB49DEB57AB" ?>
     <?define GuidJSONnetDll="8E258E91-AC73-4533-9BAE-23A18BCB5E33" ?>
     <?define GuidRegistryEntries="0B6EDE44-4C6D-4CB0-AA2D-C302476BE1E7" ?>

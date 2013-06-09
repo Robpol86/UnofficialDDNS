@@ -13,53 +13,42 @@ using System.Threading.Tasks;
 
 namespace UnofficialDDNS {
     public sealed class LogSingleton {
-        private EventLog oEventLog = null; // Holds the application's Event Log object.
-        
-        /// <summary>
-        /// Setup the singleton class.
-        /// </summary>
-        private static readonly LogSingleton instance = new LogSingleton();
-        private LogSingleton() { }
-        public static LogSingleton Instance { get { return instance; } }
+        private EventLog _eventLog = new EventLog();
+        private static LogSingleton _instance = null;
+        private static readonly object _padlock = new object();
 
         /// <summary>
-        /// Sets the Event Log object only once.
+        /// Singleton instance.
         /// </summary>
-        /// <param name="oEventLog">The application's EventLog object.</param>
-        public void SetEventLog( EventLog oEventLog ) {
-            if ( this.oEventLog == null ) this.oEventLog = oEventLog;
-        }
+        /// <value>
+        /// The instance object.
+        /// </value>
+        public static LogSingleton Instance { get { lock ( _padlock ) { if ( _instance == null ) _instance = new LogSingleton(); return _instance; } } }
 
-        /// <summary>
-        /// Write an error to the Event Log with the specified event ID and the message inside the Strings resource.
-        /// </summary>
-        /// <param name="iCode">Event ID with correlating message.</param>
-        public void Log( int iCode ) {
-            string message = Strings.ResourceManager.GetString( "Event" + iCode.ToString() );
-            this.oEventLog.WriteEntry( message, EventLogEntryType.Error, iCode );
-        }
-
-        /// <summary>
-        /// Write an error to Event Log with an additional message.
-        /// </summary>
-        /// <param name="iCode">Event ID with correlating message.</param>
-        /// <param name="sAdditional">Additional message text after a new line.</param>
-        public void Log( int iCode, string sAdditional ) {
-            string message = Strings.ResourceManager.GetString( "Event" + iCode.ToString() );
-            if ( sAdditional != null ) message += System.Environment.NewLine + sAdditional;
-            this.oEventLog.WriteEntry( message, EventLogEntryType.Error, iCode );
+        private LogSingleton() {
+            ((System.ComponentModel.ISupportInitialize)(_eventLog)).BeginInit();
+            _eventLog.Log = "Application";
+            _eventLog.Source = "UnofficialDDNS";
+            ((System.ComponentModel.ISupportInitialize)(_eventLog)).EndInit();
         }
 
         /// <summary>
         /// Write an event to the Event Log using a specific event type.
         /// </summary>
-        /// <param name="iCode">Event ID with correlating message.</param>
-        /// <param name="sAdditional">Additional message text after a new line.</param>
-        /// <param name="oType">Event type (error, warning, or information).</param>
-        public void Log( int iCode, string sAdditional, EventLogEntryType oType ) {
-            string message = Strings.ResourceManager.GetString( "Event" + iCode.ToString() );
-            if ( sAdditional != null ) message += System.Environment.NewLine + sAdditional;
-            this.oEventLog.WriteEntry( message, oType, iCode );
+        /// <param name="code">Event ID.</param>
+        /// <param name="details">Details about the error.</param>
+        /// <param name="type">Event type (error, warning, or information).</param>
+        public void Log( int code, string details, EventLogEntryType type ) {
+            _eventLog.WriteEntry( details, type, code );
+        }
+        
+        /// <summary>
+        /// Write an error to Event Log with an additional message.
+        /// </summary>
+        /// <param name="code">Event ID.</param>
+        /// <param name="details">Details about the error.</param>
+        public void Log( int code, string details ) {
+            Log( code, details, EventLogEntryType.Error );
         }
     }
 }

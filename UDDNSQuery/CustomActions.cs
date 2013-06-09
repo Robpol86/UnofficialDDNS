@@ -1,10 +1,10 @@
-﻿using System;
-using System.Text;
-using Microsoft.Deployment.WindowsInstaller;
-using System.Threading;
+﻿using Microsoft.Deployment.WindowsInstaller;
+using System;
 using System.IO;
-using System.Windows.Forms;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace UDDNSQuery {
     public class CustomActions {

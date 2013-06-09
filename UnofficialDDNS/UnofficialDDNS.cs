@@ -4,71 +4,113 @@
  * be found in the LICENSE.txt file.
  */
 
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using UDDNSQuery;
 
 namespace UnofficialDDNS {
+    // TODO
+    // remove as many using statements everywhere.
+    // test wrong url scenarios.
+    // enable Optimized code.
+    // copyright statement all files.
     public partial class UnofficialDDNS : ServiceBase {
-        private Thread m_oMainThread = null;
-
+        private CancellationTokenSource _cts;
+        private Thread _pollingThread;
+        
         public UnofficialDDNS() {
-            InitializeComponent();
-            LogSingleton.Instance.SetEventLog( eventLog );
+            CanPauseAndContinue = false;
+            ServiceName = "UnofficialDDNS";
+            AutoLog = true;
         }
 
-        protected override void OnStart( string[] saArgs ) {
-            // DEBUG
-            //byte[] input = ProtectedData.Protect(Encoding.ASCII.GetBytes("ABCD1234"), null, DataProtectionScope.LocalMachine);
-            //RegistryKey reg = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\AutomaticDDNS", true);
-            //reg.SetValue("namedotcom_apitoken", input);
-            //reg.Close();
-            //System.Threading.Thread.Sleep(10000);
-            // TODO
-            // remove as many using statements everywhere.
-            // test wrong url scenarios.
-            // enable Optimized code.
-            
+        protected override void OnStart( string[] args ) {
             // Read data from registry..
-            RegistryRead oConfig;
-            try {
-                oConfig = new RegistryRead();
-            } catch ( RegistryException e ) {
-                this.AutoLog = false;
-                this.ExitCode = 2611;
-                LogSingleton.Instance.Log( e.m_iCode, RegistryRead.RegPath );
-                throw;
-            }
-
-            // Verify data from registry.
-            int iThrow = 0;
-            if ( oConfig.Interval < 1 ) iThrow = 10100;
-            if ( oConfig.IntervalError < 1 ) iThrow = 10101;
-            if ( oConfig.Registrar != "namedotcom" ) iThrow = 10102;
-            if ( oConfig.UserName == null || oConfig.UserName.Length < 1 ) iThrow = 10103;
-            if ( oConfig.Domain == null || oConfig.Domain.Length < 1 ) iThrow = 10104;
-            if ( iThrow != 0 ) {
-                this.AutoLog = false;
-                this.ExitCode = 2611;
-                LogSingleton.Instance.Log( iThrow, RegistryRead.RegPath );
-                throw new RegistryException( iThrow );
-            }
+            string regBase = @"HKEY_LOCAL_MACHINE\SOFTWARE\UnofficialDDNS";
+            IDictionary<string, string> regPack = new Dictionary<string, string>();
+            regPack.Add( "registrar", (string) Registry.GetValue( regBase, "Registrar", "" ) );
+            regPack.Add( "userName", (string) Registry.GetValue( regBase, "Username", "" ) );
+            regPack.Add( "apiToken", (string) Registry.GetValue( regBase, "ApiToken", "" ) );
+            regPack.Add( "domain", (string) Registry.GetValue( regBase, "Domain", "" ) );
+            regPack.Add( "interval", ((int) Registry.GetValue( regBase, "Interval", "" )).ToString() );
+            regPack.Add( "debug", ((int) Registry.GetValue( regBase, "Debug", "0" )).ToString() );
 
             // Start main thread.
-            MainPollingThread oMainThread = new MainPollingThread( oConfig );
-            if ( m_oMainThread == null ) m_oMainThread = new Thread( oMainThread.TheThread );
-            if ( !m_oMainThread.IsAlive ) m_oMainThread.Start();
+            if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Initializing polling thread.", EventLogEntryType.Information );
+            _cts = new CancellationTokenSource();
+            _pollingThread = new Thread( (ThreadStart) delegate { PollingThreadWorker( _cts, regPack ); } );
+            _pollingThread.Start();
+            if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Polling thread started.", EventLogEntryType.Information );
         }
 
         protected override void OnStop() {
-            m_oMainThread.Abort();
+            _cts.Cancel();
+            Thread.Sleep( 1000 );
+            _pollingThread.Abort();
+        }
+
+        private async static void PollingThreadWorker( CancellationTokenSource cts, IDictionary<string, string> regPack ) {
+            while ( true ) {
+                int sleep = Convert.ToInt32( regPack["interval"] ) * 60 * 1000;
+                if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, String.Format( "Sleep set to {0} seconds.", sleep ), EventLogEntryType.Information );
+
+                try {
+                    if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Initializing QueryAPI object.", EventLogEntryType.Information );
+                    using ( IQueryAPI api = QueryAPIIndex.Instance.Factory( regPack["registrar"] ) ) {
+                        // Pass credentials to class instance.
+                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Setting registrar credentials to object instance.", EventLogEntryType.Information );
+                        api.Credentials( regPack["userName"], regPack["apiToken"].Replace( "ENCRYPTED:", "" ),
+                            regPack["domain"]
+                            );
+
+                        // Basic checks.
+                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Checking for zero-length strings.", EventLogEntryType.Information );
+                        if ( api.UserLength == 0 ) throw new QueryAPIException( 100 );
+                        if ( api.TokenLength == 0 ) throw new QueryAPIException( 101 );
+                        if ( api.DomainLength == 0 ) throw new QueryAPIException( 102 );
+
+                        // Read only.
+                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing GetCurrentIPAsync()", EventLogEntryType.Information );
+                        await api.GetCurrentIPAsync( cts.Token );
+                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing AuthenticateAsync()", EventLogEntryType.Information );
+                        await api.AuthenticateAsync( cts.Token );
+                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing ValidateDomainAsync()", EventLogEntryType.Information );
+                        await api.ValidateDomainAsync( cts.Token );
+                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing GetRecordsAsync()", EventLogEntryType.Information );
+                        await api.GetRecordsAsync( cts.Token );
+
+                        // Check if DNS is outdated.
+                        if ( api.RecordedIP.Count != 1 || api.RecordedIP.Values.First() != api.CurrentIP ) {
+                            // DNS is outdated, will update DNS record.
+
+                        }
+
+                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing LogoutAsync()", EventLogEntryType.Information );
+                        await api.LogoutAsync( cts.Token );
+
+                        //TODO
+                    }
+                } catch ( QueryAPIException err ) {
+                    string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
+                    if ( err.Details != null ) text += "\n\n" + err.Details;
+                    if ( err.Url != null ) text += "\n\n" + err.Url;
+                    LogSingleton.Instance.Log( err.Code, text );
+                    sleep /= 4;
+                    if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, String.Format( "Sleep set to {0} seconds.", sleep ), EventLogEntryType.Information );
+                } catch ( OperationCanceledException ) {
+                    // Service is stopping.
+                    if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Caught OperationCanceledException", EventLogEntryType.Information );
+                    break;
+                }
+
+                if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, String.Format( "Sleeping {0} seconds.", sleep ), EventLogEntryType.Information );
+                Thread.Sleep( sleep );
+            }
         }
     }
 }
