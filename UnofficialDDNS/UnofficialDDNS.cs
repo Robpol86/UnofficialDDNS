@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using UDDNSQuery;
@@ -19,13 +20,14 @@ namespace UnofficialDDNS {
     // test wrong url scenarios.
     // enable Optimized code.
     // copyright statement all files.
+    [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
         private CancellationTokenSource _cts;
         private Thread _pollingThread;
         
         public UnofficialDDNS() {
             CanPauseAndContinue = false;
-            ServiceName = "UnofficialDDNS";
+            ServiceName = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyProductAttribute>().Product;
             AutoLog = true;
         }
 
