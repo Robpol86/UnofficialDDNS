@@ -92,6 +92,11 @@ namespace UnofficialDDNS {
                         // Check if DNS is outdated.
                         LogSingleton.I.Debug( "Recorded IP(s): " + string.Join( ",", api.RecordedIP.Values ) );
                         if ( api.RecordedIP.Count != 1 || api.RecordedIP.Values.First() != api.CurrentIP ) {
+                            LogSingleton.I.Log(
+                                999,
+                                String.Format( "Updating {0} with the current IP address of {1}.", regPack["domain"], api.CurrentIP ),
+                                EventLogEntryType.Information
+                                );
                             LogSingleton.I.Debug( "Executing UpdateRecordAsync()" );
                             await api.UpdateRecordAsync( cts.Token );
                         }

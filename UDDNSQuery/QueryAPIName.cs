@@ -40,7 +40,6 @@ namespace UDDNSQuery {
 
         public override async Task GetCurrentIPAsync( CancellationToken ct ) {
             JObject json = await RequestJSONAsync( _urlGetCurrentIP, null, ct );
-            // Get public IP.
             if ( (string) json.SelectToken( "client_ip" ) == null ) throw new QueryAPIException( 302 );
             string client_ip = (string) json.SelectToken( "client_ip" );
             if ( !Regex.Match( client_ip, @"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$" ).Success ) {
@@ -102,32 +101,22 @@ namespace UDDNSQuery {
         }
 
         /// <summary>
-        /// Removes all records for the domain and adds an A record with the current public IP address.
+        /// Creates an A record with the current IP if one does not exist, then deletes all non-matching A records.
         /// </summary>
         /// <exception cref="QueryAPIException" />
         public override async Task UpdateRecordAsync( CancellationToken ct ) {
-            /*// Create record.
-            JObject oJson;
-            byte[] baData;
-            string sSubDomain = m_sDomain.Substring( 0, m_sDomain.Length - m_sPriDomain.Length - 1 );
-            string s = "{\"hostname\":\"{0}\",\"type\":\"A\",\"content\":\"{1}\",\"ttl\":\"300\",\"priority\":\"10\"}";
-            baData = Encoding.ASCII.GetBytes( String.Format( s, sSubDomain, m_sCurrentIP ) );
-            oJson = RequestJSON( m_sUrlCreateRecordPrefix + m_sPriDomain, baData );
-            if ( (string) oJson.SelectToken( "result.code" ) == null ||
-                (string) oJson.SelectToken( "result.message" ) == null
-                ) throw new QueryAPIException( 702 );
-            if ( (string) oJson.SelectToken( "result.code" ) != "100" )
-                throw new QueryAPIException( 703, (string) oJson.SelectToken( "result.message" ) );
-            // Delete all previous records for this FQDN.
-            foreach ( string sRecord_id in m_dRecordedIP.Keys ) {
-                baData = Encoding.ASCII.GetBytes( String.Format( "{\"record_id\":\"{0}\"}", sRecord_id ) );
-                oJson = RequestJSON( m_sUrlDeleteRecordPrefix + m_sPriDomain, baData );
-                if ( (string) oJson.SelectToken( "result.code" ) == null ||
-                (string) oJson.SelectToken( "result.message" ) == null
-                ) throw new QueryAPIException( 700 );
-                if ( (string) oJson.SelectToken( "result.code" ) != "100" )
-                    throw new QueryAPIException( 701, (string) oJson.SelectToken( "result.message" ) );
-            } */
+            if ( !_recordedIP.Values.Contains( _currentIP ) ) {
+                byte[] data = Encoding.ASCII.GetBytes( String.Format(
+                    "{{\"hostname\":\"{0}\",\"type\":\"A\",\"content\":\"{1}\",\"ttl\":\"300\",\"priority\":\"10\"}}",
+                    _domain.Replace( _mainDomain, "" ),
+                    _currentIP
+                    ) );
+                JObject json = await RequestJSONAsync( _urlCreateRecordPrefix + _mainDomain, data, ct );
+            }
+            foreach ( string id in _recordedIP.Where( s => (string) s.Value != _currentIP ).Select( s => s.Key ).ToList<string>() ) {
+                byte[] data = Encoding.ASCII.GetBytes( String.Format( "{{\"record_id\":\"{0}\"}}", id ) );
+                JObject json = await RequestJSONAsync( _urlDeleteRecordPrefix + _mainDomain, data, ct );
+            }
         }
 
         /// <summary>
