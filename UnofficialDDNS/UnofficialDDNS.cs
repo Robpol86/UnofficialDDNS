@@ -40,14 +40,14 @@ namespace UnofficialDDNS {
             regPack.Add( "apiToken", (string) Registry.GetValue( regBase, "ApiToken", "" ) );
             regPack.Add( "domain", (string) Registry.GetValue( regBase, "Domain", "" ) );
             regPack.Add( "interval", ((int) Registry.GetValue( regBase, "Interval", "" )).ToString() );
-            regPack.Add( "debug", ((int) Registry.GetValue( regBase, "Debug", "0" )).ToString() );
+            if ( (int) Registry.GetValue( regBase, "Debug", "0" ) == 1 ) LogSingleton.I.EnableDebug = true;
 
             // Start main thread.
-            if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Initializing polling thread.", EventLogEntryType.Information );
+            LogSingleton.I.Debug( "Initializing polling thread." );
             _cts = new CancellationTokenSource();
             _pollingThread = new Thread( (ThreadStart) delegate { PollingThreadWorker( _cts, regPack ); } );
             _pollingThread.Start();
-            if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Polling thread started.", EventLogEntryType.Information );
+            LogSingleton.I.Debug( "Polling thread started." );
         }
 
         protected override void OnStop() {
@@ -59,58 +59,60 @@ namespace UnofficialDDNS {
         private async static void PollingThreadWorker( CancellationTokenSource cts, IDictionary<string, string> regPack ) {
             while ( true ) {
                 int sleep = Convert.ToInt32( regPack["interval"] ) * 60 * 1000;
-                if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, String.Format( "Sleep set to {0} seconds.", sleep ), EventLogEntryType.Information );
+                LogSingleton.I.Debug( String.Format( "Sleep set to {0} seconds.", sleep ) );
 
                 try {
-                    if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Initializing QueryAPI object.", EventLogEntryType.Information );
+                    LogSingleton.I.Debug( "Initializing QueryAPI object." );
                     using ( IQueryAPI api = QueryAPIIndex.Instance.Factory( regPack["registrar"] ) ) {
                         // Pass credentials to class instance.
-                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Setting registrar credentials to object instance.", EventLogEntryType.Information );
+                        LogSingleton.I.Debug( "Setting registrar credentials to object instance." );
                         api.Credentials( regPack["userName"], regPack["apiToken"].Replace( "ENCRYPTED:", "" ),
                             regPack["domain"]
                             );
 
                         // Basic checks.
-                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Checking for zero-length strings.", EventLogEntryType.Information );
+                        LogSingleton.I.Debug( "Checking for zero-length strings." );
                         if ( api.UserLength == 0 ) throw new QueryAPIException( 100 );
                         if ( api.TokenLength == 0 ) throw new QueryAPIException( 101 );
                         if ( api.DomainLength == 0 ) throw new QueryAPIException( 102 );
 
                         // Read only.
-                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing GetCurrentIPAsync()", EventLogEntryType.Information );
+                        LogSingleton.I.Debug( "Executing GetCurrentIPAsync()" );
                         await api.GetCurrentIPAsync( cts.Token );
-                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing AuthenticateAsync()", EventLogEntryType.Information );
+                        LogSingleton.I.Debug( "Executing AuthenticateAsync()" );
                         await api.AuthenticateAsync( cts.Token );
-                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing ValidateDomainAsync()", EventLogEntryType.Information );
+                        LogSingleton.I.Debug( "Executing ValidateDomainAsync()" );
                         await api.ValidateDomainAsync( cts.Token );
-                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing GetRecordsAsync()", EventLogEntryType.Information );
+                        LogSingleton.I.Debug( "Executing GetRecordsAsync()" );
                         await api.GetRecordsAsync( cts.Token );
 
-                        // Check if DNS is outdated.
-                        if ( api.RecordedIP.Count != 1 || api.RecordedIP.Values.First() != api.CurrentIP ) {
-                            // DNS is outdated, will update DNS record.
+                        // Check for A records.
+                        if ( api.RecordedIP.Count == 0 ) throw new QueryAPIException( 600 );
 
+                        // Check if DNS is outdated.
+                        LogSingleton.I.Debug( "Recorded IP(s): " + string.Join( ",", api.RecordedIP.Values ) );
+                        if ( api.RecordedIP.Count != 1 || api.RecordedIP.Values.First() != api.CurrentIP ) {
+                            LogSingleton.I.Debug( "Executing UpdateRecordAsync()" );
+                            await api.UpdateRecordAsync( cts.Token );
                         }
 
-                        if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Executing LogoutAsync()", EventLogEntryType.Information );
+                        LogSingleton.I.Debug( "Executing LogoutAsync()" );
                         await api.LogoutAsync( cts.Token );
-
-                        //TODO
                     }
                 } catch ( QueryAPIException err ) {
                     string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
                     if ( err.Details != null ) text += "\n\n" + err.Details;
                     if ( err.Url != null ) text += "\n\n" + err.Url;
-                    LogSingleton.Instance.Log( err.Code, text );
+                    LogSingleton.I.Log( err.Code, text );
                     sleep /= 4;
-                    if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, String.Format( "Sleep set to {0} seconds.", sleep ), EventLogEntryType.Information );
+                    LogSingleton.I.Debug( String.Format( "Sleep set to {0} seconds.", sleep ) );
                 } catch ( OperationCanceledException ) {
                     // Service is stopping.
-                    if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, "Caught OperationCanceledException", EventLogEntryType.Information );
+                    LogSingleton.I.Debug( "Caught OperationCanceledException" );
                     break;
                 }
 
-                if ( regPack["debug"] == "1" ) LogSingleton.Instance.Log( 999, String.Format( "Sleeping {0} seconds.", sleep ), EventLogEntryType.Information );
+                LogSingleton.I.Debug( String.Format( "Sleeping {0} seconds.", sleep ) );
                 Thread.Sleep( sleep );
             }
         }

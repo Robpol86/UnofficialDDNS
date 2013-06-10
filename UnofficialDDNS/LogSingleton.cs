@@ -16,6 +16,7 @@ namespace UnofficialDDNS {
         private EventLog _eventLog = new EventLog();
         private static LogSingleton _instance = null;
         private static readonly object _padlock = new object();
+        private bool _debug = false;
 
         /// <summary>
         /// Singleton instance.
@@ -23,7 +24,15 @@ namespace UnofficialDDNS {
         /// <value>
         /// The instance object.
         /// </value>
-        public static LogSingleton Instance { get { lock ( _padlock ) { if ( _instance == null ) _instance = new LogSingleton(); return _instance; } } }
+        public static LogSingleton I { get { lock ( _padlock ) { if ( _instance == null ) _instance = new LogSingleton(); return _instance; } } }
+
+        /// <summary>
+        /// Enables debug logging.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [debug enabled]; otherwise, <c>false</c>.
+        /// </value>
+        public bool EnableDebug { get { return _debug; } set { _debug = true; } }
 
         private LogSingleton() {
             ((System.ComponentModel.ISupportInitialize)(_eventLog)).BeginInit();
@@ -49,6 +58,14 @@ namespace UnofficialDDNS {
         /// <param name="details">Details about the error.</param>
         public void Log( int code, string details ) {
             Log( code, details, EventLogEntryType.Error );
+        }
+
+        /// <summary>
+        /// Writes debug messages (as Information) to the event log, only if EnableDebug is true.
+        /// </summary>
+        /// <param name="details">Details about the error.</param>
+        public void Debug( string details ) {
+            if ( _debug ) Log( 999, details, EventLogEntryType.Information );
         }
     }
 }
