@@ -108,7 +108,7 @@ namespace UDDNSQuery {
             if ( !_recordedIP.Values.Contains( _currentIP ) ) {
                 byte[] data = Encoding.ASCII.GetBytes( String.Format(
                     "{{\"hostname\":\"{0}\",\"type\":\"A\",\"content\":\"{1}\",\"ttl\":\"300\",\"priority\":\"10\"}}",
-                    _domain.Replace( _mainDomain, "" ),
+                    _domain.Replace( "." + _mainDomain, "" ),
                     _currentIP
                     ) );
                 JObject json = await RequestJSONAsync( _urlCreateRecordPrefix + _mainDomain, data, ct );
