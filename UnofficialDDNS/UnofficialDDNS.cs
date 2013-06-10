@@ -20,6 +20,7 @@ namespace UnofficialDDNS {
     // test wrong url scenarios.
     // enable Optimized code.
     // copyright statement all files.
+    // delete reg key and try installer Change button.
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
         private CancellationTokenSource _cts;
@@ -33,15 +34,20 @@ namespace UnofficialDDNS {
 
         protected override void OnStart( string[] args ) {
             // Read data from registry..
-            string regBase = @"HKEY_LOCAL_MACHINE\SOFTWARE\UnofficialDDNS";
+            RegistryKey regKey = Registry.LocalMachine.OpenSubKey( @"SOFTWARE\UnofficialDDNS" );
+            try {
+                if ( (int) regKey.GetValue( "Debug", 0 ) == 1 ) LogSingleton.I.EnableDebug = true;
+            } catch ( NullReferenceException ) { // Key doesn't exist.
+                ExitCode = 1012;
+                throw;
+            }
             IDictionary<string, string> regPack = new Dictionary<string, string>();
-            regPack.Add( "registrar", (string) Registry.GetValue( regBase, "Registrar", "" ) );
-            regPack.Add( "userName", (string) Registry.GetValue( regBase, "Username", "" ) );
-            regPack.Add( "apiToken", (string) Registry.GetValue( regBase, "ApiToken", "" ) );
-            regPack.Add( "domain", (string) Registry.GetValue( regBase, "Domain", "" ) );
-            regPack.Add( "interval", ((int) Registry.GetValue( regBase, "Interval", "" )).ToString() );
-            if ( (int) Registry.GetValue( regBase, "Debug", "0" ) == 1 ) LogSingleton.I.EnableDebug = true;
-
+            regPack.Add( "registrar", (string) regKey.GetValue( "Registrar", "Name.com" ) );
+            regPack.Add( "userName", (string) regKey.GetValue( "Username", "" ) );
+            regPack.Add( "apiToken", (string) regKey.GetValue( "ApiToken", "" ) );
+            regPack.Add( "domain", (string) regKey.GetValue( "Domain", "" ) );
+            regPack.Add( "interval", ((int) regKey.GetValue( "Interval", "" )).ToString() );
+            
             // Start main thread.
             LogSingleton.I.Debug( "Initializing polling thread." );
             _cts = new CancellationTokenSource();

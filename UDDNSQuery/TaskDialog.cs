@@ -204,7 +204,7 @@ namespace UDDNSQuery {
             public int MainIcon { get { return mainIcon; } }
         }
 
-        private int SendMessageHelper( TaskDialogMessage message, int wparam, long lparam ) { //TODO make private
+        private int SendMessageHelper( TaskDialogMessage message, int wparam, long lparam ) {
             return (int) SendMessage( hWndDialog, (uint) message, (IntPtr) wparam, new IntPtr( lparam ) );
         }
 

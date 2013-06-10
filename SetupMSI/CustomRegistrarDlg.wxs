@@ -7,18 +7,8 @@
   </copyright>
   
   <todo>
-        * Validate button uses CancelDlg. Make new dialog for validation. Or send everythign to the DLL and validate there.
-        * Maybe use checkmarks and x icons for authentication?
-        * Status messages besids Validate button. With red/green.
-        * Change button text to "Validate/Update Record".
-        * DLL will have a discover feature (check if domain exists and if it has something other than one A record) and an apply feature. Installer will do both. App does one.
-        * Have each field publish set property to "". Test if it disables Next when trying to click on it if user changes something after validation.
-        * Validate button disabed while DLL is working.
-        //  Set checkmarks/crosses for each field from Windows icon files.
         * Check how DLL works with welcome dialog when .net 4.5 isnt installed.
         * In welcome dialog error messages, maybe use license text field to allow users to copy/paste?
-        ***** Use HideTarget for credentials being passed to custom action.
-        * Fix keyboard navigation.
   </todo>
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">

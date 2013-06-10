@@ -67,7 +67,7 @@
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="ApiToken" Value="[REGISTRAR_TOKEN]" />
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Domain" Value="[REGISTRAR_DOMAIN]" />
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Interval" Value="1400" />
-                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Debug" Value="1" /> <!-- TODO set to 0. -->
+                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Debug" Value="0" />
             </Component>
         </ComponentGroup>
         <ComponentGroup Id="Service" Directory="INSTALLDIR">
