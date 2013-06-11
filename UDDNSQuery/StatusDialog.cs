@@ -30,7 +30,7 @@ namespace UDDNSQuery {
             // Initialize.
             _api = api;
             _cts = new CancellationTokenSource();
-            _progressMax = 40;
+            _progressMax = 30;
 
             // Setup dialog/progressbar.
             Caption = Strings.StatusDialogTitle;
@@ -86,10 +86,6 @@ namespace UDDNSQuery {
                 Text = Strings.StatusDialogTextDomain;
                 await _api.ValidateDomainAsync( _cts.Token ); // Check if user owns the domain.
                 ProgressBarValue = 20;
-
-                Text = Strings.StatusDialogTextRecords;
-                await _api.GetRecordsAsync( _cts.Token ); // Make sure domain doesn't have anything other than 0 or 1 A record.
-                ProgressBarValue = 30;
 
                 Text = Strings.StatusDialogTextLogout;
                 await _api.LogoutAsync( _cts.Token );

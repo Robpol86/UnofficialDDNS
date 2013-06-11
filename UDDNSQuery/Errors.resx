@@ -173,10 +173,6 @@
     <value>No access to the domain.</value>
     <comment>QueryAPIName.ValidateDomain</comment>
   </data>
-  <data name="Error600" xml:space="preserve">
-    <value>Domain does not exist or has no A records.</value>
-    <comment>QueryAPIName.GetRecords</comment>
-  </data>
   <data name="Error700" xml:space="preserve">
     <value>UpdateDNSRecord (delete): Missing result code and/or message in JSON from API.</value>
     <comment>QueryAPIName</comment>

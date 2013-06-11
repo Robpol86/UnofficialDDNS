@@ -187,15 +187,6 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Domain does not exist or has no A records..
-        /// </summary>
-        internal static string Error600 {
-            get {
-                return ResourceManager.GetString("Error600", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to UpdateDNSRecord (delete): Missing result code and/or message in JSON from API..
         /// </summary>
         internal static string Error700 {

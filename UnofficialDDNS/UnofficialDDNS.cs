@@ -94,9 +94,6 @@ namespace UnofficialDDNS {
                         LogSingleton.I.Debug( "Executing GetRecordsAsync()" );
                         await api.GetRecordsAsync( cts.Token );
 
-                        // Check for A records.
-                        if ( api.RecordedIP.Count == 0 ) throw new QueryAPIException( 600 );
-
                         // Check if DNS is outdated.
                         LogSingleton.I.Debug( "Recorded IP(s): " + string.Join( ",", api.RecordedIP.Values ) );
                         if ( api.RecordedIP.Count != 1 || api.RecordedIP.Values.First() != api.CurrentIP ) {

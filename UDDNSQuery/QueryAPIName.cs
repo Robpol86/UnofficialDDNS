@@ -89,12 +89,11 @@ namespace UDDNSQuery {
             try {
                 _recordedIP = json["records"]
                     .Where( s => (string) s["name"] == _domain )
-                    .Where( s => (string) s["type"] == "A" )
+                    .Where( s => (new string[] { "A", "CNAME" }).Contains( (string) s["type"] ) )
                     .ToDictionary( i => (string) i["record_id"], s => (string) s["content"] );
-                if ( _recordedIP.Count == 0 ) throw new ArgumentNullException();
             } catch ( Exception e ) {
                 if ( e is NullReferenceException || e is ArgumentNullException || e is ArgumentException ) {
-                    throw new QueryAPIException( 600 );
+                    //throw new QueryAPIException( 600 );
                 }
                 throw;
             }
