@@ -34,18 +34,21 @@ namespace UnofficialDDNS {
         protected override void OnStart( string[] args ) {
             // Read data from registry..
             RegistryKey regKey = Registry.LocalMachine.OpenSubKey( @"SOFTWARE\UnofficialDDNS" );
+            IDictionary<string, string> regPack = new Dictionary<string, string>();
             try {
                 if ( (int) regKey.GetValue( "Debug", 0 ) == 1 ) LogSingleton.I.EnableDebug = true;
+                regPack.Add( "interval", ((int) regKey.GetValue( "Interval", "" )).ToString() );
             } catch ( NullReferenceException ) { // Key doesn't exist.
                 ExitCode = 1012;
                 throw;
+            } catch ( InvalidCastException ) { // Integer keys aren't integers.
+                ExitCode = 1010;
+                throw;
             }
-            IDictionary<string, string> regPack = new Dictionary<string, string>();
             regPack.Add( "registrar", (string) regKey.GetValue( "Registrar", "Name.com" ) );
             regPack.Add( "userName", (string) regKey.GetValue( "Username", "" ) );
             regPack.Add( "apiToken", (string) regKey.GetValue( "ApiToken", "" ) );
             regPack.Add( "domain", (string) regKey.GetValue( "Domain", "" ) );
-            regPack.Add( "interval", ((int) regKey.GetValue( "Interval", "" )).ToString() );
             
             // Start main thread.
             LogSingleton.I.Debug( "Initializing polling thread." );
