@@ -20,7 +20,6 @@ namespace UnofficialDDNS {
     // test wrong url scenarios.
     // enable Optimized code.
     // copyright statement all files.
-    // delete reg key and try installer Change button.
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
         private CancellationTokenSource _cts;

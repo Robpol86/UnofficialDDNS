@@ -13,7 +13,6 @@
             <Dialog Id="CustomMaintenanceTypeDlg" Width="370" Height="270" Title="!(loc.MaintenanceTypeDlg_Title)">
                 <Control Id="ChangeButton" Type="PushButton" X="40" Y="65" Width="80" Height="17" ToolTip="!(loc.MaintenanceTypeDlgChangeButtonTooltip)" Default="yes" Text="!(loc.MaintenanceTypeDlgChangeButton)">
                     <Publish Property="WixUI_InstallMode" Value="Change">1</Publish>
-                    <Publish Property="ADDLOCAL" Value="Registry,Service">1</Publish>
                     <Condition Action="disable">ARPNOMODIFY</Condition>
                 </Control>
                 <Control Id="ChangeText" Type="Text" X="60" Y="85" Width="280" Height="20" Text="!(loc.MaintenanceTypeDlgChangeText)">
