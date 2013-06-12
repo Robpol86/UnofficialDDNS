@@ -67,7 +67,8 @@ Patch dialog sequence:
             <Publish Dialog="CustomWelcomeDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Back" Event="NewDialog" Value="CustomWelcomeDlg">1</Publish>
-            <Publish Dialog="CustomLicenseAgreementDlg" Control="Next" Event="NewDialog" Value="CustomRegistrarDlg">LicenseAccepted = "1"</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Next" Property="REGISTRAR_DOMAIN" Value="exampleserver.mydomain.com" Order="1">REGISTRAR_DOMAIN = ""</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Next" Event="NewDialog" Value="CustomRegistrarDlg" Order="2">LicenseAccepted = "1"</Publish>
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
