@@ -121,6 +121,10 @@
     <value>Empty Field</value>
     <comment>MessageBox title.</comment>
   </data>
+  <data name="ErrorDialogTitle" xml:space="preserve">
+    <value>Invalid Field Entry</value>
+    <comment>TaskDialog title.</comment>
+  </data>
   <data name="StatusDialogHeading" xml:space="preserve">
     <value>Please wait while your settings are validated</value>
     <comment>TaskDialog heading.</comment>

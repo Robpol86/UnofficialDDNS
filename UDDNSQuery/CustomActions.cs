@@ -54,9 +54,9 @@ namespace UDDNSQuery {
             int i = 0;
             Record comboBoxItem;
             string entry;
-            foreach ( string name in QueryAPIIndex.Instance.Registrars.Keys ) {
+            foreach ( string name in QueryAPIIndex.I.Registrars.Keys ) {
                 i++;
-                entry = String.Format( "{0} ({1})", name, QueryAPIIndex.Instance.Registrars[name] );
+                entry = String.Format( "{0} ({1})", name, QueryAPIIndex.I.Registrars[name] );
                 comboBoxItem = session.Database.CreateRecord( 4 );
                 comboBoxItem.SetString( 1, wixProperty ); // Property name.
                 comboBoxItem.SetInteger( 2, i ); // Order.
@@ -94,8 +94,32 @@ namespace UDDNSQuery {
                     ) );
             }
 
+            // Validate dialog fields.
+            try {
+                if ( session["REGISTRAR_REGISTRAR"].Length == 0 ) throw new QueryAPIException( 103 );
+                using ( IQueryAPI api = QueryAPIIndex.I.Factory( session["REGISTRAR_REGISTRAR"] ) ) {
+                    // Testing for Error98 in the above using statement.
+                    api.Credentials( session["REGISTRAR_USER"], session["REGISTRAR_TOKEN"].Replace( "ENCRYPTED:", "" ),
+                        session["REGISTRAR_DOMAIN"]
+                        );
+                    if ( api.UserLength == 0 ) throw new QueryAPIException( 100 );
+                    if ( api.TokenLength == 0 ) throw new QueryAPIException( 101 );
+                    if ( api.DomainLength == 0 ) throw new QueryAPIException( 102 );
+                }
+            } catch ( QueryAPIException err ) {
+                using ( TaskDialog dialog = new TaskDialog() ) {
+                    // Launch the dialog and get result.
+                    Thread thread = new Thread( (ThreadStart) delegate { dialog.ShowError( Strings.ErrorDialogTitle, err.RMessage + "\n" ); } );
+                    thread.SetApartmentState( ApartmentState.STA );
+                    thread.Start();
+                    thread.Join();
+                    session["_RegistrarValidated"] = "0";
+                    return ActionResult.NotExecuted;
+                }
+            }
+
             // Validate with status dialog.
-            using ( IQueryAPI api = QueryAPIIndex.Instance.Factory( session["REGISTRAR_REGISTRAR"] ) )
+            using ( IQueryAPI api = QueryAPIIndex.I.Factory( session["REGISTRAR_REGISTRAR"] ) )
             using ( StatusDialog dialog = new StatusDialog( api ) ) {
                 // Pass credentials to class instance.
                 api.Credentials( session["REGISTRAR_USER"], session["REGISTRAR_TOKEN"].Replace( "ENCRYPTED:", "" ),

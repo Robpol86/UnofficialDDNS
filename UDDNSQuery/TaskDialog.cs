@@ -429,6 +429,47 @@ namespace UDDNSQuery {
             return result;
         }
 
+        public TaskDialogResult ShowError( string title, string text ) {
+            result = TaskDialogResult.No;
+            TaskDialogConfiguration nativeConfig = new TaskDialogConfiguration();
+            Icon = TaskDialogStandardIcon.Error;
+
+            nativeConfig.size = (uint) Marshal.SizeOf( nativeConfig );
+            nativeConfig.parentHandle = hWndOwner;
+            nativeConfig.commonButtons = TaskDialogResult.Ok;
+            nativeConfig.content = text;
+            nativeConfig.windowTitle = title;
+            nativeConfig.mainInstruction = instructionText;
+            nativeConfig.taskDialogFlags = TaskDialogOptions.AllowCancel | TaskDialogOptions.PositionRelativeToWindow;
+            nativeConfig.callback = new TaskDialogCallback( DialogProc );
+
+            showState = TaskDialogShowState.Showing;
+            using ( new EnableThemingInScope( true ) ) { // Here is the way we use "vanilla" P/Invoke to call TaskDialogIndirect().
+                TaskDialogIndirect(
+                    nativeConfig,
+                    out selectedButtonId,
+                    IntPtr.Zero,
+                    IntPtr.Zero );
+            }
+            showState = TaskDialogShowState.Closed;
+
+            if ( (TaskDialogCommonButtonReturnId) selectedButtonId == TaskDialogCommonButtonReturnId.Ok ) {
+                result = TaskDialogResult.Ok;
+            }
+
+            // Free up strings.
+            if ( updatedStrings != null ) {
+                for ( int i = 0; i < updatedStrings.Length; i++ ) {
+                    if ( updatedStrings[i] != IntPtr.Zero ) {
+                        Marshal.FreeHGlobal( updatedStrings[i] );
+                        updatedStrings[i] = IntPtr.Zero;
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public TaskDialogResult Show() {
             result = TaskDialogResult.Cancel;
             TaskDialogConfiguration nativeConfig = new TaskDialogConfiguration();

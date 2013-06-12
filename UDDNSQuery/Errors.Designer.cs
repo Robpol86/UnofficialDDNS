@@ -88,6 +88,24 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Registrar field is empty..
+        /// </summary>
+        internal static string Error103 {
+            get {
+                return ResourceManager.GetString("Error103", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Registrar is not supported..
+        /// </summary>
+        internal static string Error104 {
+            get {
+                return ResourceManager.GetString("Error104", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to API responded with non-200 HTTP code..
         /// </summary>
         internal static string Error200 {

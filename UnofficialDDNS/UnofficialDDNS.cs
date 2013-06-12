@@ -45,10 +45,26 @@ namespace UnofficialDDNS {
                 ExitCode = 1010;
                 throw;
             }
-            regPack.Add( "registrar", (string) regKey.GetValue( "Registrar", "Name.com" ) );
-            regPack.Add( "userName", (string) regKey.GetValue( "Username", "" ) );
-            regPack.Add( "apiToken", (string) regKey.GetValue( "ApiToken", "" ) );
-            regPack.Add( "domain", (string) regKey.GetValue( "Domain", "" ) );
+            try {
+                regPack.Add( "registrar", (string) regKey.GetValue( "Registrar", "" ) );
+                regPack.Add( "userName", (string) regKey.GetValue( "Username", "" ) );
+                regPack.Add( "apiToken", (string) regKey.GetValue( "ApiToken", "" ) );
+                regPack.Add( "domain", (string) regKey.GetValue( "Domain", "" ) );
+                if ( regPack["registrar"].Length == 0 ) throw new QueryAPIException( 103 );
+                if ( regPack["userName"].Length == 0 ) throw new QueryAPIException( 100 );
+                if ( regPack["apiToken"].Length == 0 ) throw new QueryAPIException( 101 );
+                if ( regPack["domain"].Length == 0 ) throw new QueryAPIException( 102 );
+                using ( IQueryAPI api = QueryAPIIndex.I.Factory( regPack["registrar"] ) ) {
+                    // Just testing for Error104.
+                }
+            } catch ( QueryAPIException err ) {
+                string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
+                if ( err.Details != null ) text += "\n\n" + err.Details;
+                if ( err.Url != null ) text += "\n\n" + err.Url;
+                LogSingleton.I.Error( err.Code, text );
+                ExitCode = 1011;
+                throw;
+            }
             
             // Start main thread.
             LogSingleton.I.Debug( "Initializing polling thread." );
@@ -71,18 +87,12 @@ namespace UnofficialDDNS {
 
                 try {
                     LogSingleton.I.Debug( "Initializing QueryAPI object." );
-                    using ( IQueryAPI api = QueryAPIIndex.Instance.Factory( regPack["registrar"] ) ) {
+                    using ( IQueryAPI api = QueryAPIIndex.I.Factory( regPack["registrar"] ) ) {
                         // Pass credentials to class instance.
                         LogSingleton.I.Debug( "Setting registrar credentials to object instance." );
                         api.Credentials( regPack["userName"], regPack["apiToken"].Replace( "ENCRYPTED:", "" ),
                             regPack["domain"]
                             );
-
-                        // Basic checks.
-                        LogSingleton.I.Debug( "Checking for zero-length strings." );
-                        if ( api.UserLength == 0 ) throw new QueryAPIException( 100 );
-                        if ( api.TokenLength == 0 ) throw new QueryAPIException( 101 );
-                        if ( api.DomainLength == 0 ) throw new QueryAPIException( 102 );
 
                         // Read only.
                         LogSingleton.I.Debug( "Executing GetCurrentIPAsync()" );
@@ -97,10 +107,9 @@ namespace UnofficialDDNS {
                         // Check if DNS is outdated.
                         LogSingleton.I.Debug( "Recorded IP(s): " + string.Join( ",", api.RecordedIP.Values ) );
                         if ( api.RecordedIP.Count != 1 || api.RecordedIP.Values.First() != api.CurrentIP ) {
-                            LogSingleton.I.Log(
+                            LogSingleton.I.Info(
                                 999,
-                                String.Format( "Updating {0} with the current IP address of {1}.", regPack["domain"], api.CurrentIP ),
-                                EventLogEntryType.Information
+                                String.Format( "Updating {0} with the current IP address of {1}.", regPack["domain"], api.CurrentIP )
                                 );
                             LogSingleton.I.Debug( "Executing UpdateRecordAsync()" );
                             await api.UpdateRecordAsync( cts.Token );
@@ -113,7 +122,7 @@ namespace UnofficialDDNS {
                     string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
                     if ( err.Details != null ) text += "\n\n" + err.Details;
                     if ( err.Url != null ) text += "\n\n" + err.Url;
-                    LogSingleton.I.Log( err.Code, text );
+                    LogSingleton.I.Error( err.Code, text );
                     sleep /= 4;
                     LogSingleton.I.Debug( String.Format( "Sleep set to {0} seconds.", sleep ) );
                 } catch ( OperationCanceledException ) {

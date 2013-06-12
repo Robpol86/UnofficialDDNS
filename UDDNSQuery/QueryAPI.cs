@@ -27,7 +27,7 @@ namespace UDDNSQuery {
         /// <value>
         /// The instance object.
         /// </value>
-        public static QueryAPIIndex Instance { get { lock ( _padlock ) { if ( _instance == null ) _instance = new QueryAPIIndex(); return _instance; } } }
+        public static QueryAPIIndex I { get { lock ( _padlock ) { if ( _instance == null ) _instance = new QueryAPIIndex(); return _instance; } } }
         /// <summary>
         /// Collection of supported registrars.
         /// </summary>
@@ -48,7 +48,7 @@ namespace UDDNSQuery {
         public IQueryAPI Factory( string registrar ) {
             switch ( registrar ) {
                 case "Name.com": return new QueryAPIName();
-                default: return null;
+                default: throw new QueryAPIException( 104 );
             }
         }
     }

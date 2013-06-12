@@ -129,6 +129,14 @@
     <value>Domain name field is empty.</value>
     <comment>Used by the installer.</comment>
   </data>
+  <data name="Error103" xml:space="preserve">
+    <value>Registrar field is empty.</value>
+    <comment>Used by the installer.</comment>
+  </data>
+  <data name="Error104" xml:space="preserve">
+    <value>Registrar is not supported.</value>
+    <comment>QueryAPI</comment>
+  </data>
   <data name="Error200" xml:space="preserve">
     <value>API responded with non-200 HTTP code.</value>
     <comment>QueryAPI.RequestJSON</comment>

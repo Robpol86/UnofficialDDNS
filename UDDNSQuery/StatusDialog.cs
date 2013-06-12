@@ -68,16 +68,6 @@ namespace UDDNSQuery {
 
             // Do async work and catch errors/cancelation.
             try {
-                if ( _api.UserLength == 0 ) {
-                    await Task.Delay( 700, _cts.Token ); throw new QueryAPIException( 100 );
-                }
-                if ( _api.TokenLength == 0 ) {
-                    await Task.Delay( 700, _cts.Token ); throw new QueryAPIException( 101 );
-                }
-                if ( _api.DomainLength == 0 ) {
-                    await Task.Delay( 700, _cts.Token ); throw new QueryAPIException( 102 );
-                }
-
                 Text = Strings.StatusDialogTextAuth;
                 await Task.Delay( 700, _cts.Token ); // Wait for UI to catch up.
                 await _api.AuthenticateAsync( _cts.Token ); // Login to API to validate user/token.

@@ -32,7 +32,7 @@ namespace UnofficialDDNS {
         /// <value>
         ///   <c>true</c> if [debug enabled]; otherwise, <c>false</c>.
         /// </value>
-        public bool EnableDebug { get { return _debug; } set { _debug = true; } }
+        public bool EnableDebug { get { return _debug; } set { _debug = value; } }
 
         private LogSingleton() {
             ((System.ComponentModel.ISupportInitialize)(_eventLog)).BeginInit();
@@ -56,16 +56,34 @@ namespace UnofficialDDNS {
         /// </summary>
         /// <param name="code">Event ID.</param>
         /// <param name="details">Details about the error.</param>
-        public void Log( int code, string details ) {
+        public void Error( int code, string details ) {
             Log( code, details, EventLogEntryType.Error );
         }
 
+        /// <summary>
+        /// Write a warning to Event Log with an additional message.
+        /// </summary>
+        /// <param name="code">Event ID.</param>
+        /// <param name="details">Details about the error.</param>
+        public void Warning( int code, string details ) {
+            Log( code, details, EventLogEntryType.Warning );
+        }
+
+        /// <summary>
+        /// Write information to Event Log with an additional message.
+        /// </summary>
+        /// <param name="code">Event ID.</param>
+        /// <param name="details">Details about the error.</param>
+        public void Info( int code, string details ) {
+            Log( code, details, EventLogEntryType.Information );
+        }
+        
         /// <summary>
         /// Writes debug messages (as Information) to the event log, only if EnableDebug is true.
         /// </summary>
         /// <param name="details">Details about the error.</param>
         public void Debug( string details ) {
-            if ( _debug ) Log( 999, details, EventLogEntryType.Information );
+            if ( _debug ) Info( 999, details );
         }
     }
 }

@@ -70,6 +70,15 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Field Entry.
+        /// </summary>
+        internal static string ErrorDialogTitle {
+            get {
+                return ResourceManager.GetString("ErrorDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please wait while your settings are validated.
         /// </summary>
         internal static string StatusDialogHeading {
