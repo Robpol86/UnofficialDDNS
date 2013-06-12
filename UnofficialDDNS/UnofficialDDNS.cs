@@ -17,7 +17,6 @@ using UDDNSQuery;
 namespace UnofficialDDNS {
     // TODO
     // remove as many using statements everywhere.
-    // test wrong url scenarios.
     // enable Optimized code.
     // copyright statement all files.
     [System.ComponentModel.DesignerCategory( "Code" )]

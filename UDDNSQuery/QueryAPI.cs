@@ -212,16 +212,22 @@ namespace UDDNSQuery {
 
         public virtual async Task<JObject> RequestJSONAsync( string url, byte[] postData, CancellationToken ct ) {
             // Setup HTTP request.
-            HttpWebRequest request = (HttpWebRequest) WebRequest.Create( url );
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.Accept = "application/json";
-            if ( _sessionToken != null ) request.Headers.Add( "Api-Session-Token", _sessionToken );
-            request.Method = postData != null ? "POST" : "GET";
-            if ( postData != null ) {
-                request.ContentLength = postData.Length;
-                Stream stream = request.GetRequestStream();
-                stream.Write( postData, 0, postData.Length );
-                stream.Close();
+            HttpWebRequest request;
+            try {
+                request = (HttpWebRequest) WebRequest.Create( url );
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.Accept = "application/json";
+                if ( _sessionToken != null ) request.Headers.Add( "Api-Session-Token", _sessionToken );
+                request.Method = postData != null ? "POST" : "GET";
+                if ( postData != null ) {
+                    request.ContentLength = postData.Length;
+                    Stream stream = request.GetRequestStream();
+                    stream.Write( postData, 0, postData.Length );
+                    stream.Close();
+                }
+            } catch ( WebException e ) {
+                string details = String.Format( "URL: {0}\nWebException: {1}", url, e.ToString() );
+                throw new QueryAPIException( 201, details );
             }
             // Setup the cancelation token.
             CancellationTokenRegistration ctReg = ct.Register( () => {
