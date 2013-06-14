@@ -79,6 +79,10 @@ namespace UDDNSQuery {
         /// The IP address currently set at the registrar. Might be more than one incase last update attempt failed.
         /// </summary>
         IDictionary<string, string> RecordedIP { get; }
+        /// <summary>
+        /// Indicates if the user has requested cancellation.
+        /// </summary>
+        bool UserCanceled { get; set; }
 
         /// <summary>
         /// Requests the JSON from a URL.
@@ -197,6 +201,7 @@ namespace UDDNSQuery {
 
     abstract class QueryAPI : IQueryAPI {
         protected Uri _baseUri; // The base URI to query (e.g. http://domain.com:80).
+        protected bool _userCanceled; // Helps differentiate between timeouts and actual user-requested cancellation.
         protected string _userName; // API username.
         protected string _apiTokenEncrypted; // API token, locally encrypted.
         protected string _domain; // Domain which will hold the IP address of this host.
@@ -210,6 +215,7 @@ namespace UDDNSQuery {
         public int DomainLength { get { return _domain.Length; } }
         public string CurrentIP { get { return _currentIP; } }
         public IDictionary<string, string> RecordedIP { get { return _recordedIP; } }
+        public bool UserCanceled { get { return _userCanceled; } set { _userCanceled = value; } }
 
         public QueryAPI( Uri baseUri ) {
             _baseUri = baseUri;
@@ -221,6 +227,7 @@ namespace UDDNSQuery {
             using ( HttpClient client = new HttpClient() ) {
                 // Setup HTTP request.
                 client.BaseAddress = _baseUri;
+                client.Timeout = new TimeSpan( 0, 0, 5 ); // Timeout in 5 seconds.
                 client.DefaultRequestHeaders.Accept.Add( new MediaTypeWithQualityHeaderValue( "application/json" ) );
                 if ( _sessionToken != null ) client.DefaultRequestHeaders.Add( "Api-Session-Token", _sessionToken );
                 HttpRequestMessage request = new HttpRequestMessage( postData != null ? HttpMethod.Post : HttpMethod.Get, uriPath );
@@ -239,6 +246,9 @@ namespace UDDNSQuery {
                 } catch ( HttpRequestException e ) {
                     string details = String.Format( "URL: {0}\nHttpRequestException: {1}", url, e.ToString() );
                     throw new QueryAPIException( 201, details );
+                } catch ( TaskCanceledException ) {
+                    if ( _userCanceled ) throw; // Handled farther up in the stack.
+                    throw new QueryAPIException( 205, "URL: " + url );
                 }
             }
             // Parse JSON.

@@ -157,6 +157,10 @@
     <value>Missing result code and/or message in JSON from API.</value>
     <comment>QueryAPIName.RequestJSON</comment>
   </data>
+  <data name="Error205" xml:space="preserve">
+    <value>Request timed out.</value>
+    <comment>QueryAPI</comment>
+  </data>
   <data name="Error302" xml:space="preserve">
     <value>Invalid JSON from API, missing client_ip.</value>
     <comment>QueryAPIName.GetCurrentIP</comment>

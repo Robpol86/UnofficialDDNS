@@ -151,6 +151,15 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Request timed out..
+        /// </summary>
+        internal static string Error205 {
+            get {
+                return ResourceManager.GetString("Error205", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid JSON from API, missing client_ip..
         /// </summary>
         internal static string Error302 {

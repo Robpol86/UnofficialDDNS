@@ -25,6 +25,7 @@ namespace UnofficialDDNS {
     // test network timeouts.
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
+        private IQueryAPI _api; // API object.
         private CancellationTokenSource _cts;
         private Thread _pollingThread;
         
@@ -59,9 +60,8 @@ namespace UnofficialDDNS {
                 if ( regPack["userName"].Length == 0 ) throw new QueryAPIException( 100 );
                 if ( regPack["apiToken"].Length == 0 ) throw new QueryAPIException( 101 );
                 if ( regPack["domain"].Length == 0 ) throw new QueryAPIException( 102 );
-                using ( IQueryAPI api = QueryAPIIndex.I.Factory( regPack["registrar"] ) ) {
-                    // Just testing for Error104.
-                }
+                _api = QueryAPIIndex.I.Factory( regPack["registrar"] ); // Testing for Error104.
+                    
             } catch ( QueryAPIException err ) {
                 string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
                 if ( err.Details != null ) text += "\n\n" + err.Details;
@@ -74,56 +74,54 @@ namespace UnofficialDDNS {
             // Start main thread.
             LogSingleton.I.Debug( "Initializing polling thread." );
             _cts = new CancellationTokenSource();
-            _pollingThread = new Thread( (ThreadStart) delegate { PollingThreadWorker( _cts, regPack ); } );
+            _pollingThread = new Thread( (ThreadStart) delegate { PollingThreadWorker( _api, regPack, _cts ); } );
             _pollingThread.Start();
             LogSingleton.I.Debug( "Polling thread started." );
         }
 
         protected override void OnStop() {
+            _api.UserCanceled = true;
             _cts.Cancel();
             Task.WaitAll();
             _pollingThread.Abort();
         }
 
-        private async static void PollingThreadWorker( CancellationTokenSource cts, IDictionary<string, string> regPack ) {
+        private async static void PollingThreadWorker( IQueryAPI api, IDictionary<string, string> regPack, CancellationTokenSource cts ) {
             if ( LogSingleton.I.EnableDebug ) Thread.Sleep( 1000 ); // Bring order to the event log.
             while ( !cts.IsCancellationRequested ) {
                 int sleep = Convert.ToInt32( regPack["interval"] ) * 60 * 1000;
                 LogSingleton.I.Debug( String.Format( "Sleep set to {0} seconds.", sleep ) );
 
                 try {
-                    LogSingleton.I.Debug( "Initializing QueryAPI object." );
-                    using ( IQueryAPI api = QueryAPIIndex.I.Factory( regPack["registrar"] ) ) {
-                        // Pass credentials to class instance.
-                        LogSingleton.I.Debug( "Setting registrar credentials to object instance." );
-                        api.Credentials( regPack["userName"], regPack["apiToken"].Replace( "ENCRYPTED:", "" ),
-                            regPack["domain"]
+                    // Pass credentials to class instance.
+                    LogSingleton.I.Debug( "Setting registrar credentials to object instance." );
+                    api.Credentials( regPack["userName"], regPack["apiToken"].Replace( "ENCRYPTED:", "" ),
+                        regPack["domain"]
+                        );
+
+                    // Read only.
+                    LogSingleton.I.Debug( "Executing GetCurrentIPAsync()" );
+                    await api.GetCurrentIPAsync( cts.Token );
+                    LogSingleton.I.Debug( "Executing AuthenticateAsync()" );
+                    await api.AuthenticateAsync( cts.Token );
+                    LogSingleton.I.Debug( "Executing ValidateDomainAsync()" );
+                    await api.ValidateDomainAsync( cts.Token );
+                    LogSingleton.I.Debug( "Executing GetRecordsAsync()" );
+                    await api.GetRecordsAsync( cts.Token );
+
+                    // Check if DNS is outdated.
+                    LogSingleton.I.Debug( "Recorded IP(s): " + string.Join( ",", api.RecordedIP.Values ) );
+                    if ( api.RecordedIP.Count != 1 || api.RecordedIP.Values.First() != api.CurrentIP ) {
+                        LogSingleton.I.Info(
+                            999,
+                            String.Format( "Updating {0} with the current IP address of {1}.", regPack["domain"], api.CurrentIP )
                             );
-
-                        // Read only.
-                        LogSingleton.I.Debug( "Executing GetCurrentIPAsync()" );
-                        await api.GetCurrentIPAsync( cts.Token );
-                        LogSingleton.I.Debug( "Executing AuthenticateAsync()" );
-                        await api.AuthenticateAsync( cts.Token );
-                        LogSingleton.I.Debug( "Executing ValidateDomainAsync()" );
-                        await api.ValidateDomainAsync( cts.Token );
-                        LogSingleton.I.Debug( "Executing GetRecordsAsync()" );
-                        await api.GetRecordsAsync( cts.Token );
-
-                        // Check if DNS is outdated.
-                        LogSingleton.I.Debug( "Recorded IP(s): " + string.Join( ",", api.RecordedIP.Values ) );
-                        if ( api.RecordedIP.Count != 1 || api.RecordedIP.Values.First() != api.CurrentIP ) {
-                            LogSingleton.I.Info(
-                                999,
-                                String.Format( "Updating {0} with the current IP address of {1}.", regPack["domain"], api.CurrentIP )
-                                );
-                            LogSingleton.I.Debug( "Executing UpdateRecordAsync()" );
-                            await api.UpdateRecordAsync( cts.Token );
-                        }
-
-                        LogSingleton.I.Debug( "Executing LogoutAsync()" );
-                        await api.LogoutAsync( cts.Token );
+                        LogSingleton.I.Debug( "Executing UpdateRecordAsync()" );
+                        await api.UpdateRecordAsync( cts.Token );
                     }
+
+                    LogSingleton.I.Debug( "Executing LogoutAsync()" );
+                    await api.LogoutAsync( cts.Token );
                 } catch ( QueryAPIException err ) {
                     string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
                     if ( err.Details != null ) text += "\n\n" + err.Details;

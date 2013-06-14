@@ -59,6 +59,7 @@ namespace UDDNSQuery {
         }
 
         private void StatusDialog_Canceled( object sender, EventArgs e ) {
+            _api.UserCanceled = true;
             if ( _cts != null ) _cts.Cancel();
             Task.WaitAll();
         }
