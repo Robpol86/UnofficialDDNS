@@ -53,10 +53,10 @@
     <Fragment>
         <ComponentGroup Id="Files" Directory="INSTALLDIR">
             <Component Id="QueryDLL" Guid="$(var.GuidQueryDLL)">
-                <File Id="QueryDLL" Checksum="yes" KeyPath="yes" Source="$(var.UDDNSQuery.TargetPath)" />
+                <File Id="QueryDLL" Checksum="yes" KeyPath="yes" Source="$(var.UnofficialDDNS.TargetDir)\UDDNSQuery.dll" />
             </Component>
             <Component Id="JSONnetDll" Guid="$(var.GuidJSONnetDll)">
-                <File Id="JSONnetDll" Checksum="yes" KeyPath="yes" Source="$(var.UDDNSQuery.TargetDir)\Newtonsoft.Json.dll" />
+                <File Id="JSONnetDll" Checksum="yes" KeyPath="yes" Source="$(var.UnofficialDDNS.TargetDir)\Newtonsoft.Json.dll" />
             </Component>
         </ComponentGroup>
         <ComponentGroup Id="Registry" Directory="INSTALLDIR">

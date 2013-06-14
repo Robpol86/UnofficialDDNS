@@ -4,12 +4,7 @@
  * be found in the LICENSE.txt file.
  */
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnofficialDDNS {
     public sealed class LogSingleton {
@@ -17,6 +12,7 @@ namespace UnofficialDDNS {
         private static LogSingleton _instance = null;
         private static readonly object _padlock = new object();
         private bool _debug = false;
+        private int _debugcount = 0;
 
         /// <summary>
         /// Singleton instance.
@@ -83,7 +79,11 @@ namespace UnofficialDDNS {
         /// </summary>
         /// <param name="details">Details about the error.</param>
         public void Debug( string details ) {
-            if ( _debug ) Info( 999, details );
+            if ( !_debug ) return;
+            lock ( _padlock ) {
+                _debugcount++;
+                Info( _debugcount, details );
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,19 +11,19 @@ using System.Threading.Tasks;
 
 namespace UDDNSQuery {
     class QueryAPIName : QueryAPI {
-        private static readonly string _urlPrefix = "https://api.name.com";
-        private static readonly string _urlGetCurrentIP = _urlPrefix + "/api/hello";
-        private static readonly string _urlAuthenticate = _urlPrefix + "/api/login";
-        private static readonly string _urlGetMainDomain = _urlPrefix + "/api/domain/list";
-        private static readonly string _urlGetRecordsPrefix = _urlPrefix + "/api/dns/list/";
-        private static readonly string _urlDeleteRecordPrefix = _urlPrefix + "/api/dns/delete/";
-        private static readonly string _urlCreateRecordPrefix = _urlPrefix + "/api/dns/create/";
-        private static readonly string _urlLogout = _urlPrefix + "/api/logout";
+        private static readonly string _uriGetCurrentIP = "/api/hello";
+        private static readonly string _uriAuthenticate = "/api/login";
+        private static readonly string _uriGetMainDomain = "/api/domain/list";
+        private static readonly string _uriGetRecordsPrefix = "/api/dns/list/";
+        private static readonly string _uriDeleteRecordPrefix = "/api/dns/delete/";
+        private static readonly string _uriCreateRecordPrefix = "/api/dns/create/";
+        private static readonly string _uriLogout = "/api/logout";
 
-        public QueryAPIName() : base() { }
+        public QueryAPIName() : base( new Uri( "https://api.name.com" ) ) { }
 
-        public override async Task<JObject> RequestJSONAsync( string url, byte[] postData, CancellationToken ct ) {
-            JObject json = await base.RequestJSONAsync( url, postData, ct );
+        public override async Task<JObject> RequestJSONAsync( string uriPath, StringContent postData, CancellationToken ct ) {
+            string url = new Uri( _baseUri, uriPath ).AbsoluteUri;
+            JObject json = await base.RequestJSONAsync( uriPath, postData, ct );
             try {
                 int apiCode = (int) json["result"]["code"];
                 string apiMessage = (string) json["result"]["message"];
@@ -39,7 +40,7 @@ namespace UDDNSQuery {
         }
 
         public override async Task GetCurrentIPAsync( CancellationToken ct ) {
-            JObject json = await RequestJSONAsync( _urlGetCurrentIP, null, ct );
+            JObject json = await RequestJSONAsync( _uriGetCurrentIP, null, ct );
             if ( (string) json.SelectToken( "client_ip" ) == null ) throw new QueryAPIException( 302 );
             string client_ip = (string) json.SelectToken( "client_ip" );
             if ( !Regex.Match( client_ip, @"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$" ).Success ) {
@@ -50,10 +51,11 @@ namespace UDDNSQuery {
 
         public override async Task AuthenticateAsync( CancellationToken ct ) {
             // Decrypt API token and setup API query for session token.
-            byte[] data = Encoding.ASCII.GetBytes( String.Format( "{{\"username\":\"{0}\",\"api_token\":\"{1}\"}}",
+            StringContent data = new StringContent( String.Format( "{{\"username\":\"{0}\",\"api_token\":\"{1}\"}}",
                 _userName, Encoding.ASCII.GetString( ProtectedData.Unprotect( Convert.FromBase64String(
-                _apiTokenEncrypted ), null, DataProtectionScope.LocalMachine ) ) ) );
-            JObject json = await RequestJSONAsync( _urlAuthenticate, data, ct );
+                _apiTokenEncrypted ), null, DataProtectionScope.LocalMachine ) ) ), System.Text.Encoding.UTF8,
+                "application/x-www-form-urlencoded" );
+            JObject json = await RequestJSONAsync( _uriAuthenticate, data, ct );
             data = null; // Remove clear-text API token from memory.
             if ( (string) json.SelectToken( "session_token" ) == null ) throw new QueryAPIException( 402 );
             string session_token = (string) json.SelectToken( "session_token" );
@@ -64,7 +66,7 @@ namespace UDDNSQuery {
         }
 
         public override async Task ValidateDomainAsync( CancellationToken ct ) {
-            JObject json = await RequestJSONAsync( _urlGetMainDomain, null, ct );
+            JObject json = await RequestJSONAsync( _uriGetMainDomain, null, ct );
             IList<string> domains = json.SelectToken( "domains" ).Select( p => ((JProperty) p).Name ).ToList();
             if ( domains.Count == 0 ) throw new QueryAPIException( 502 );
             if ( domains.Contains( _domain ) ) {
@@ -85,7 +87,7 @@ namespace UDDNSQuery {
         }
         
         public override async Task GetRecordsAsync( CancellationToken ct ) {
-            JObject json = await RequestJSONAsync( _urlGetRecordsPrefix + _mainDomain, null, ct );
+            JObject json = await RequestJSONAsync( _uriGetRecordsPrefix + _mainDomain, null, ct );
             try {
                 _recordedIP = json["records"]
                     .Where( s => (string) s["name"] == _domain )
@@ -105,16 +107,16 @@ namespace UDDNSQuery {
         /// <exception cref="QueryAPIException" />
         public override async Task UpdateRecordAsync( CancellationToken ct ) {
             if ( !_recordedIP.Values.Contains( _currentIP ) ) {
-                byte[] data = Encoding.ASCII.GetBytes( String.Format(
+                StringContent data = new StringContent( String.Format(
                     "{{\"hostname\":\"{0}\",\"type\":\"A\",\"content\":\"{1}\",\"ttl\":\"300\",\"priority\":\"10\"}}",
-                    _domain.Replace( _mainDomain, "" ).Trim( '.' ),
-                    _currentIP
-                    ) );
-                JObject json = await RequestJSONAsync( _urlCreateRecordPrefix + _mainDomain, data, ct );
+                    _domain.Replace( _mainDomain, "" ).Trim( '.' ), _currentIP ), System.Text.Encoding.UTF8,
+                    "application/x-www-form-urlencoded" );
+                JObject json = await RequestJSONAsync( _uriCreateRecordPrefix + _mainDomain, data, ct );
             }
             foreach ( string id in _recordedIP.Where( s => (string) s.Value != _currentIP ).Select( s => s.Key ).ToList<string>() ) {
-                byte[] data = Encoding.ASCII.GetBytes( String.Format( "{{\"record_id\":\"{0}\"}}", id ) );
-                JObject json = await RequestJSONAsync( _urlDeleteRecordPrefix + _mainDomain, data, ct );
+                StringContent data = new StringContent( String.Format( "{{\"record_id\":\"{0}\"}}", id ),
+                    System.Text.Encoding.UTF8, "application/x-www-form-urlencoded" );
+                JObject json = await RequestJSONAsync( _uriDeleteRecordPrefix + _mainDomain, data, ct );
             }
         }
 
@@ -122,7 +124,7 @@ namespace UDDNSQuery {
         /// De-authenticate from the API.
         /// </summary>
         public override async Task LogoutAsync( CancellationToken ct ) {
-            await RequestJSONAsync( _urlLogout, null, ct );
+            await RequestJSONAsync( _uriLogout, null, ct );
             _sessionToken = null;
         }
     }

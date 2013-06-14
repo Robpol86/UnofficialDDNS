@@ -60,6 +60,7 @@ namespace UDDNSQuery {
 
         private void StatusDialog_Canceled( object sender, EventArgs e ) {
             if ( _cts != null ) _cts.Cancel();
+            Task.WaitAll();
         }
 
         private async void StatusDialog_Opened( object sender, EventArgs e ) {
@@ -95,7 +96,7 @@ namespace UDDNSQuery {
             }
 
             // No errors, this must mean validation was successfull.
-            Close( TaskDialogResult.Ok );
+            try { Close( TaskDialogResult.Ok ); } catch ( InvalidOperationException ) { }
         }
     }
 }

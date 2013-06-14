@@ -7,11 +7,11 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
+using System.Threading.Tasks;
 using UDDNSQuery;
 
 namespace UnofficialDDNS {
@@ -19,6 +19,10 @@ namespace UnofficialDDNS {
     // remove as many using statements everywhere.
     // enable Optimized code.
     // copyright statement all files.
+    // test invalid url again.
+    // fix cancelling with DNS stalling the cancellationtoken.
+    // test start and quickly stopping the service.
+    // test network timeouts.
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
         private CancellationTokenSource _cts;
@@ -77,12 +81,13 @@ namespace UnofficialDDNS {
 
         protected override void OnStop() {
             _cts.Cancel();
-            Thread.Sleep( 1000 );
+            Task.WaitAll();
             _pollingThread.Abort();
         }
 
         private async static void PollingThreadWorker( CancellationTokenSource cts, IDictionary<string, string> regPack ) {
-            while ( true ) {
+            if ( LogSingleton.I.EnableDebug ) Thread.Sleep( 1000 ); // Bring order to the event log.
+            while ( !cts.IsCancellationRequested ) {
                 int sleep = Convert.ToInt32( regPack["interval"] ) * 60 * 1000;
                 LogSingleton.I.Debug( String.Format( "Sleep set to {0} seconds.", sleep ) );
 
@@ -124,14 +129,15 @@ namespace UnofficialDDNS {
                     if ( err.Details != null ) text += "\n\n" + err.Details;
                     if ( err.Url != null ) text += "\n\n" + err.Url;
                     LogSingleton.I.Error( err.Code, text );
+                    if ( cts.IsCancellationRequested ) break;
                     sleep /= 4;
                     LogSingleton.I.Debug( String.Format( "Sleep set to {0} seconds.", sleep ) );
                 } catch ( OperationCanceledException ) {
-                    // Service is stopping.
                     LogSingleton.I.Debug( "Caught OperationCanceledException" );
-                    break;
                 }
 
+                Thread.Sleep( 1000 ); // Gives OnStop a chance to Abort thread before logging the below statement.
+                if ( cts.IsCancellationRequested ) break;
                 LogSingleton.I.Debug( String.Format( "Sleeping {0} seconds.", sleep ) );
                 Thread.Sleep( sleep );
             }

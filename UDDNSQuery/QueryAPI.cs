@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -81,13 +83,13 @@ namespace UDDNSQuery {
         /// <summary>
         /// Requests the JSON from a URL.
         /// </summary>
-        /// <param name="url">The URL to query.</param>
+        /// <param name="uriPath">The remainder of the URL to query (e.g. /index.html)</param>
         /// <param name="postData">HTTP POST data to send.</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>JSON.net JObject</returns>
         /// <exception cref="QueryAPIException" />
         /// <exception cref="OperationCancelledException" />
-        Task<JObject> RequestJSONAsync( string url, byte[] postData, CancellationToken ct );
+        Task<JObject> RequestJSONAsync( string uriPath, StringContent postData, CancellationToken ct );
         
         /// <summary>
         /// Pass credentials and the target domain to class instance.
@@ -194,6 +196,7 @@ namespace UDDNSQuery {
     #endregion
 
     abstract class QueryAPI : IQueryAPI {
+        protected Uri _baseUri; // The base URI to query (e.g. http://domain.com:80).
         protected string _userName; // API username.
         protected string _apiTokenEncrypted; // API token, locally encrypted.
         protected string _domain; // Domain which will hold the IP address of this host.
@@ -201,55 +204,42 @@ namespace UDDNSQuery {
         protected string _currentIP; // Current public IP of this host.
         protected IDictionary<string, string> _recordedIP; // A record(s) associated with this domain.
         protected string _sessionToken; // Session token to insert in HTTP header.
-
+        
         public int UserLength { get { return _userName.Length; } }
         public int TokenLength { get { return _apiTokenEncrypted.Length; } }
         public int DomainLength { get { return _domain.Length; } }
         public string CurrentIP { get { return _currentIP; } }
         public IDictionary<string, string> RecordedIP { get { return _recordedIP; } }
 
-        public QueryAPI() { }
+        public QueryAPI( Uri baseUri ) {
+            _baseUri = baseUri;
+        }
 
-        public virtual async Task<JObject> RequestJSONAsync( string url, byte[] postData, CancellationToken ct ) {
-            // Setup HTTP request.
-            HttpWebRequest request;
-            try {
-                request = (HttpWebRequest) WebRequest.Create( url );
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.Accept = "application/json";
-                if ( _sessionToken != null ) request.Headers.Add( "Api-Session-Token", _sessionToken );
-                request.Method = postData != null ? "POST" : "GET";
-                if ( postData != null ) {
-                    request.ContentLength = postData.Length;
-                    Stream stream = request.GetRequestStream();
-                    stream.Write( postData, 0, postData.Length );
-                    stream.Close();
-                }
-            } catch ( WebException e ) {
-                string details = String.Format( "URL: {0}\nWebException: {1}", url, e.ToString() );
-                throw new QueryAPIException( 201, details );
-            }
-            // Setup the cancelation token.
-            CancellationTokenRegistration ctReg = ct.Register( () => {
-                try { if ( request != null ) request.Abort(); ct.ThrowIfCancellationRequested(); } catch { }
-            } );
-            // Execute request.
-            string serializedJson;
-            try {
-                using ( HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync() ) {
-                    if ( response.StatusCode != HttpStatusCode.OK ) {
+        public virtual async Task<JObject> RequestJSONAsync( string uriPath, StringContent postData, CancellationToken ct ) {
+            string url = new Uri( _baseUri, uriPath ).AbsoluteUri;
+            string serializedJson = null;
+            using ( HttpClient client = new HttpClient() ) {
+                // Setup HTTP request.
+                client.BaseAddress = _baseUri;
+                client.DefaultRequestHeaders.Accept.Add( new MediaTypeWithQualityHeaderValue( "application/json" ) );
+                if ( _sessionToken != null ) client.DefaultRequestHeaders.Add( "Api-Session-Token", _sessionToken );
+                HttpRequestMessage request = new HttpRequestMessage( postData != null ? HttpMethod.Post : HttpMethod.Get, uriPath );
+                if ( postData != null ) request.Content = postData;
+                // Execute request.
+                HttpResponseMessage response;
+                try {
+                    response = await client.SendAsync( request, HttpCompletionOption.ResponseContentRead, ct );
+                    if ( !response.IsSuccessStatusCode ) {
                         string details = String.Format( "HTTP {0}; URL: {1}", response.StatusCode.ToString(), url );
                         throw new QueryAPIException( 200, details );
                     }
-                    using ( StreamReader stream = new StreamReader( response.GetResponseStream(), true ) ) {
-                        serializedJson = stream.ReadToEnd();
+                    using ( StreamReader stream = new StreamReader( await response.Content.ReadAsStreamAsync(), true ) ) {
+                        serializedJson = await stream.ReadToEndAsync();
                     }
+                } catch ( HttpRequestException e ) {
+                    string details = String.Format( "URL: {0}\nHttpRequestException: {1}", url, e.ToString() );
+                    throw new QueryAPIException( 201, details );
                 }
-            } catch ( WebException e ) {
-                string details = String.Format( "URL: {0}\nWebException: {1}", url, e.ToString() );
-                throw new QueryAPIException( 201, details );
-            } finally {
-                ctReg.Dispose();
             }
             // Parse JSON.
             JObject json;
