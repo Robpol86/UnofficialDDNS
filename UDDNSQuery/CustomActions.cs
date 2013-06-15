@@ -1,4 +1,10 @@
-﻿using Microsoft.Deployment.WindowsInstaller;
+﻿/**
+ * Copyright (c) 2013, Robpol86
+ * This software is made available under the terms of the MIT License that can
+ * be found in the LICENSE.txt file.
+ */
+
+using Microsoft.Deployment.WindowsInstaller;
 using System;
 using System.IO;
 using System.Security.Cryptography;

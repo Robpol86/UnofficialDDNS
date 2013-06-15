@@ -17,7 +17,6 @@ using UDDNSQuery;
 namespace UnofficialDDNS {
     // TODO
     // enable Optimized code.
-    // copyright statement all files.
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
         private IQueryAPI _api;

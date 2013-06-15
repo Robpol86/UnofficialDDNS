@@ -13,26 +13,6 @@
   </copyright>
 -->
 
-<!--
-First-time install dialog sequence:
- - WixUI_WelcomeDlg
- - WixUI_LicenseAgreementDlg
- - WixUI_InstallDirDlg
- - WixUI_VerifyReadyDlg
- - WixUI_DiskCostDlg
-
-Maintenance dialog sequence:
- - WixUI_MaintenanceWelcomeDlg
- - WixUI_MaintenanceTypeDlg
- - WixUI_InstallDirDlg
- - WixUI_VerifyReadyDlg
-
-Patch dialog sequence:
- - WixUI_WelcomeDlg
- - WixUI_VerifyReadyDlg
-
--->
-
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <Binary Id="UDDNSQuery.CA.dll" SourceFile="..\UDDNSQuery\bin\$(var.Configuration)\UDDNSQuery.CA.dll" />

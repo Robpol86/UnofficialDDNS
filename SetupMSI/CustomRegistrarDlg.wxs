@@ -11,6 +11,7 @@
         * In welcome dialog error messages, maybe use license text field to allow users to copy/paste?
   </todo>
 -->
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <CustomAction Id="PopulateRegistrarList" BinaryKey="UDDNSQuery.CA.dll" DllEntry="PopulateRegistrarList" Execute="immediate" />

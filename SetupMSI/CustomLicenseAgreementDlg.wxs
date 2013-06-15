@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  <copyright file="LicenseAgreementDlg.wxs" company="Outercurve Foundation">
-    Copyright (c) 2004, Outercurve Foundation.
-    This software is released under Microsoft Reciprocal License (MS-RL).
-    The license and further copyright text can be found in the file
-    LICENSE.TXT at the root directory of the distribution.
+  <copyright file="CustomLicenseAgreementDlg.wxs" company="Robpol86">
+    Copyright (c) 2013, Robpol86
+    This software is made available under the terms of the MIT License that can
+    be found in the LICENSE.rtf file.
+     
+    Based on LicenseAgreementDlg.wxs from Outercurve Foundation. Their copyright: 
+        Copyright (c) 2004, Outercurve Foundation.
+        This software is released under Microsoft Reciprocal License (MS-RL).
+        The license and further copyright text can be found in the file
+        WIXUILICENSE.TXT at the root directory of the distribution.
   </copyright>
 -->
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <UI>

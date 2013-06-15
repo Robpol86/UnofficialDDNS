@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  <copyright file="Definitions.wxi" company="Robpol86">
+    Copyright (c) 2013, Robpol86
+    This software is made available under the terms of the MIT License that can
+    be found in the LICENSE.rtf file.
+  </copyright>
+-->
+
 <Include>
     <?define MajorVersion="$(var.AssemblyVersionMajor)" ?>
     <?define MinorVersion="$(var.AssemblyVersionMinor)" ?>

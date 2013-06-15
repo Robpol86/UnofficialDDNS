@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  <copyright file="Strings.wxl" company="Robpol86">
+    Copyright (c) 2013, Robpol86
+    This software is made available under the terms of the MIT License that can
+    be found in the LICENSE.rtf file.
+  </copyright>
+-->
+
 <WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
     <String Id="LANG" Overridable="yes">1033</String>
     <String Id="Keywords" Overridable="yes">DDNS</String>

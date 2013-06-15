@@ -1,4 +1,10 @@
-﻿using System.ComponentModel;
+﻿/**
+ * Copyright (c) 2013, Robpol86
+ * This software is made available under the terms of the MIT License that can
+ * be found in the LICENSE.txt file.
+ */
+
+using System.ComponentModel;
 using System.Reflection;
 
 namespace UnofficialDDNS {
