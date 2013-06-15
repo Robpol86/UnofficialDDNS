@@ -79,6 +79,15 @@ namespace UDDNSQuery {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancelling....
+        /// </summary>
+        internal static string StatusDialogCancellingTitle {
+            get {
+                return ResourceManager.GetString("StatusDialogCancellingTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please wait while your settings are validated.
         /// </summary>
         internal static string StatusDialogHeading {

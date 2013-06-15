@@ -125,6 +125,9 @@
     <value>Invalid Field Entry</value>
     <comment>TaskDialog title.</comment>
   </data>
+  <data name="StatusDialogCancellingTitle" xml:space="preserve">
+    <value>Cancelling...</value>
+  </data>
   <data name="StatusDialogHeading" xml:space="preserve">
     <value>Please wait while your settings are validated</value>
     <comment>TaskDialog heading.</comment>

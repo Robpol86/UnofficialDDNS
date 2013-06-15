@@ -21,6 +21,7 @@ namespace UDDNSQuery {
         private IQueryAPI _api; // API object.
         private CancellationTokenSource _cts; // Cancellation for all API tasks.
         private int _progressMax; // The maximum value for progress bars.
+        private bool _isWorking; // Is StatusDialog_Opened() busy or is it done?
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StatusDialog"/> class.
@@ -58,14 +59,16 @@ namespace UDDNSQuery {
             Process.Start( e.LinkText );
         }
 
-        private void StatusDialog_Canceled( object sender, EventArgs e ) {
+        private async void StatusDialog_Canceled( object sender, EventArgs e ) {
             _api.UserCanceled = true;
+            InstructionText = Strings.StatusDialogCancellingTitle;
             if ( _cts != null ) _cts.Cancel();
-            Task.WaitAll();
+            while ( _isWorking ) await Task.Delay( 100 ); // Wait for StatusDialog_Opened() to finish.
         }
 
         private async void StatusDialog_Opened( object sender, EventArgs e ) {
             // Finish drawing dialog.
+            _isWorking = true;
             Application.DoEvents();
 
             // Do async work and catch errors/cancelation.
@@ -91,13 +94,16 @@ namespace UDDNSQuery {
                 if ( err.Details != null ) text += "\n\n" + err.Details;
                 if ( err.Url != null ) text += "\n\n" + String.Format( Strings.StatusDialogMoreInfo, err.Url );
                 Text = text;
+                _isWorking = false;
                 return;
             } catch ( OperationCanceledException ) {
-                // Nothing.
+                _isWorking = false;
+                return;
             }
+            _isWorking = false;
 
             // No errors, this must mean validation was successfull.
-            try { Close( TaskDialogResult.Ok ); } catch ( InvalidOperationException ) { }
+            Close( TaskDialogResult.Ok );
         }
     }
 }
