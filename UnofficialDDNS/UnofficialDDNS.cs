@@ -16,10 +16,8 @@ using UDDNSQuery;
 
 namespace UnofficialDDNS {
     // TODO
-    // remove as many using statements everywhere.
     // enable Optimized code.
     // copyright statement all files.
-    // test invalid url again.
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
         private IQueryAPI _api;

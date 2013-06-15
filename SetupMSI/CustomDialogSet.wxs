@@ -68,7 +68,8 @@ Patch dialog sequence:
 
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Back" Event="NewDialog" Value="CustomWelcomeDlg">1</Publish>
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Next" Property="REGISTRAR_DOMAIN" Value="exampleserver.mydomain.com" Order="1">REGISTRAR_DOMAIN = ""</Publish>
-            <Publish Dialog="CustomLicenseAgreementDlg" Control="Next" Event="NewDialog" Value="CustomRegistrarDlg" Order="2">LicenseAccepted = "1"</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Next" Event="DoAction" Value="PopulateRegistrarList" Order="2">1</Publish>
+            <Publish Dialog="CustomLicenseAgreementDlg" Control="Next" Event="NewDialog" Value="CustomRegistrarDlg" Order="3">LicenseAccepted = "1"</Publish>
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>
             <Publish Dialog="CustomLicenseAgreementDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
@@ -110,7 +111,8 @@ Patch dialog sequence:
             <Publish Dialog="CustomVerifyReadyDlg" Control="Cancel" Event="DoAction" Value="CancelDialog" Order="3">1</Publish>
             <Publish Dialog="CustomVerifyReadyDlg" Control="Cancel" Event="EndDialog" Value="Exit" Order="4">_UserWantsOut = 1</Publish>
 
-            <Publish Dialog="CustomMaintenanceTypeDlg" Control="ChangeButton" Event="NewDialog" Value="CustomRegistrarDlg">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="ChangeButton" Event="DoAction" Value="PopulateRegistrarList" Order="1">1</Publish>
+            <Publish Dialog="CustomMaintenanceTypeDlg" Control="ChangeButton" Event="NewDialog" Value="CustomRegistrarDlg" Order="2">1</Publish>
             <Publish Dialog="CustomMaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="CustomVerifyReadyDlg">1</Publish>
             <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Property="_CancelDlgTitle" Value="!(loc.CancelDlg_Title)" Order="1">1</Publish>
             <Publish Dialog="CustomMaintenanceTypeDlg" Control="Cancel" Property="_CancelDlgText" Value="!(loc.CancelDlgText)" Order="2">1</Publish>

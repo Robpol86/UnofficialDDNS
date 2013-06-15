@@ -4,7 +4,6 @@
         * Test:
         ** Everythign with combos 32/64bit, xp, vista, 7, 8, 2003, 2003r2, 2008, 2008r2, 2012.
         ** Admin user, user with admin powers, normal user.
-        ** No network, network stops during validation.
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <?include Definitions.wxi ?>

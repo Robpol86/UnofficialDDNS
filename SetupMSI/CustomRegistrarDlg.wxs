@@ -15,13 +15,6 @@
     <Fragment>
         <CustomAction Id="PopulateRegistrarList" BinaryKey="UDDNSQuery.CA.dll" DllEntry="PopulateRegistrarList" Execute="immediate" />
         <CustomAction Id="ValidateCredentials" BinaryKey="UDDNSQuery.CA.dll" DllEntry="ValidateCredentials" Execute="immediate" />
-        
-        <InstallExecuteSequence>
-            <Custom Action='PopulateRegistrarList' After='CostFinalize' />
-        </InstallExecuteSequence>
-        <InstallUISequence>
-            <Custom Action='PopulateRegistrarList' After='CostFinalize' />
-        </InstallUISequence>
 
         <Property Id="RegistrarValidated" Value="0" />
         <PropertyRef Id="REGISTRAR_USER" />
