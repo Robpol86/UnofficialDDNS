@@ -232,7 +232,7 @@ namespace UDDNSQuery {
             using ( HttpClient client = new HttpClient() ) {
                 // Setup HTTP request.
                 client.BaseAddress = _baseUri;
-                client.Timeout = new TimeSpan( 0, 0, 5 ); // Timeout in 5 seconds.
+                client.Timeout = new TimeSpan( 0, 0, 10 ); // Timeout in 10 seconds.
                 client.DefaultRequestHeaders.Accept.Add( new MediaTypeWithQualityHeaderValue( "application/json" ) );
                 if ( _sessionToken != null ) client.DefaultRequestHeaders.Add( "Api-Session-Token", _sessionToken );
                 HttpRequestMessage request = new HttpRequestMessage( postData != null ? HttpMethod.Post : HttpMethod.Get, uriPath );
