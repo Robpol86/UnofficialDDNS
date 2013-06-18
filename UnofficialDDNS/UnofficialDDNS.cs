@@ -15,8 +15,6 @@ using System.Threading.Tasks;
 using UDDNSQuery;
 
 namespace UnofficialDDNS {
-    // TODO
-    // enable Optimized code.
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
         private IQueryAPI _api;

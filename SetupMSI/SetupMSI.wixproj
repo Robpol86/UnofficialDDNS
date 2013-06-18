@@ -34,6 +34,7 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>AssemblyVersionMajor=$(AssemblyVersionMajor);AssemblyVersionMinor=$(AssemblyVersionMinor);AssemblyVersionBuild=$(AssemblyVersionBuild);AssemblyDescription=$(AssemblyDescription);AssemblyProduct=$(AssemblyProduct);AssemblyCompany=$(AssemblyCompany)</DefineConstants>
+    <SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CustomDialogSet.wxs" />
