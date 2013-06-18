@@ -13,8 +13,10 @@
     
     <String Id="WelcomeDlgTitle_OSError" Overridable="yes">{\WixUI_Font_Bigger}ERROR: Unsupported OS</String>
     <String Id="WelcomeDlgDescription_OSError" Overridable="yes">[ProductName] requires at least Windows Vista SP2 or Server 2008 SP2. Supported operating systems are:&#13;&#10;&#13;&#10;        &#8226; Windows Vista&#13;&#10;        &#8226; Windows 7&#13;&#10;        &#8226; Windows 8&#13;&#10;        &#8226; Windows Server 2008&#13;&#10;        &#8226; Windows Server 2008 R2&#13;&#10;        &#8226; Windows Server 2012</String>
-    <String Id="WelcomeDlgTitle_NETError" Overridable="yes">{\WixUI_Font_Bigger}ERROR: .NET Framework 4.5 Not Installed</String>
-    <String Id="WelcomeDlgDescription_NETError" Overridable="yes">[ProductName] uses the .NET Framework version 4.5, install it and re-run this installer. You can type the following in a browser. Sorry, no links :(&#13;&#10;&#13;&#10;http://microsoft.com/download/details.aspx?id=30653</String>
+    <String Id="WelcomeDlgTitle_NETError" Overridable="yes">{\WixUI_Font_Bigger}ERROR: Missing .NET Framework 4.5</String>
+    <String Id="WelcomeDlgDescription_NETError" Overridable="yes">[ProductName] requires the .NET Framework 4.5. Install it and re-run this installer.&#13;&#10;&#13;&#10;</String>
+    <String Id="WelcomeDlg_NETURL" Overridable="yes">http://microsoft.com/download/details.aspx?id=30653</String>
+    <String Id="WelcomeDlg_URLButton" Overridable="yes">Open URL</String>
 
     <String Id="LicenseRtf" Overridable="yes">LICENSE_en-us.rtf</String>
 

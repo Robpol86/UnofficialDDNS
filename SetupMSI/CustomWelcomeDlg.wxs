@@ -15,6 +15,9 @@
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
+        <Property Id="WixShellExecTarget" Value="!(loc.WelcomeDlg_NETURL)" />
+        <CustomAction Id="OpenURL" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" Return="ignore" />
+        
         <PropertyRef Id="NETFRAMEWORK45" />
         <UI>
             <Dialog Id="CustomWelcomeDlg" Width="370" Height="270" Title="!(loc.WelcomeDlg_Title)">
@@ -42,7 +45,7 @@
                 <Control Id="OSErrorDescription" Type="Text" X="135" Y="80" Width="220" Height="90" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgDescription_OSError)" Hidden="yes">
                     <Condition Action="show">(NOT Installed OR NOT PATCH) AND <![CDATA[(VersionNT < 600)]]></Condition>
                 </Control>
-                <Control Id="NETErrorDescription" Type="Text" X="135" Y="80" Width="220" Height="90" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgDescription_NETError)" Hidden="yes">
+                <Control Id="NETErrorDescription" Type="Text" X="135" Y="80" Width="220" Height="90" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgDescription_NETError)!(loc.WelcomeDlg_NETURL)" Hidden="yes">
                     <Condition Action="show">(NOT Installed OR NOT PATCH) AND NOT NETFRAMEWORK45 AND NOT <![CDATA[(VersionNT < 600)]]></Condition>
                 </Control>
                 <Control Id="PatchDescription" Type="Text" X="135" Y="80" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeUpdateDlgDescriptionUpdate)" Hidden="yes">
@@ -50,6 +53,10 @@
                 </Control>
                 
                 <!-- Buttons -->
+                <Control Id="Url" Type="PushButton" X="88" Y="243" Width="80" Height="17" Hidden="yes" Text="!(loc.WelcomeDlg_URLButton)">
+                    <Condition Action="show">(NOT Installed OR NOT PATCH) AND NOT NETFRAMEWORK45 AND NOT <![CDATA[(VersionNT < 600)]]></Condition>
+                    <Publish Event="DoAction" Value="OpenURL" />
+                </Control>
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Disabled="yes" Text="!(loc.WixUIBack)" />
                 <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" >
                     <Publish Property="WixUI_InstallMode" Value="Update">Installed AND PATCH</Publish>
