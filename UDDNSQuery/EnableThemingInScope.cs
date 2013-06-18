@@ -110,11 +110,11 @@ namespace UDDNSQuery {
         }
 
         // All the pinvoke goo...
-        [DllImport( "Kernel32.dll" )]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass" ), DllImport( "Kernel32.dll" )]
         private extern static IntPtr CreateActCtx( ref ACTCTX actctx );
-        [DllImport( "Kernel32.dll" )]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass" ), DllImport( "Kernel32.dll" )]
         private extern static bool ActivateActCtx( IntPtr hActCtx, out uint lpCookie );
-        [DllImport( "Kernel32.dll" )]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass" ), DllImport( "Kernel32.dll" )]
         private extern static bool DeactivateActCtx( uint dwFlags, uint lpCookie );
 
         private const int ACTCTX_FLAG_ASSEMBLY_DIRECTORY_VALID = 0x004;

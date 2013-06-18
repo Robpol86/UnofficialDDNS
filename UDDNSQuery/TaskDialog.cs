@@ -140,8 +140,8 @@ namespace UDDNSQuery {
             IntPtr lparam
         );
 
-        [DllImport( "user32.dll" )]
-        public static extern IntPtr FindWindow( string strClassName, int nptWindowName );
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Portability", "CA1901:PInvokeDeclarationsShouldBePortable", MessageId = "1" ), System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass" ), DllImport( "user32.dll", CharSet = CharSet.Unicode )]
+        internal static extern IntPtr FindWindow( string strClassName, int nptWindowName );
 
         // Main task dialog configuration struct.
         // NOTE: Packing must be set to 4 to make this work on 64-bit platforms.
@@ -546,6 +546,7 @@ namespace UDDNSQuery {
         /// <summary>
         /// Dispose TaskDialog Resources
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1063:ImplementIDisposableCorrectly" )]
         public virtual void Dispose() {
             Dispose( true );
             GC.SuppressFinalize( this );

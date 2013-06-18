@@ -5,6 +5,7 @@ using System.Windows.Forms;
 namespace UDDNSQuery {
     // http://stackoverflow.com/questions/15368771/show-detailed-folder-browser-from-a-propertygrid
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1063:ImplementIDisposableCorrectly" )]
     public class FolderBrowser2 : IDisposable {
         public string DirectoryPath { get; set; }
 
@@ -41,17 +42,18 @@ namespace UDDNSQuery {
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1063:ImplementIDisposableCorrectly" )]
         public void Dispose() {
         }
 
-        [DllImport( "shell32.dll" )]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass" ), DllImport( "shell32.dll" )]
         private static extern int SHILCreateFromPath( [MarshalAs( UnmanagedType.LPWStr )] string pszPath, out IntPtr ppIdl, ref uint rgflnOut );
 
-        [DllImport( "shell32.dll" )]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass" ), DllImport( "shell32.dll" )]
         private static extern int SHCreateShellItem( IntPtr pidlParent, IntPtr psfParent, IntPtr pidl, out IShellItem ppsi );
 
-        [DllImport( "user32.dll" )]
-        public static extern IntPtr FindWindow( string strClassName, int nptWindowName );
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Portability", "CA1901:PInvokeDeclarationsShouldBePortable", MessageId = "1" ), System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass" ), DllImport( "user32.dll", CharSet = CharSet.Unicode )]
+        internal static extern IntPtr FindWindow( string strClassName, int nptWindowName );
 
         private const uint ERROR_CANCELLED = 0x800704C7;
 

@@ -4,10 +4,11 @@
  * be found in the LICENSE.txt file.
  */
 
+using System;
 using System.Diagnostics;
 
 namespace UnofficialDDNS {
-    public sealed class LogSingleton {
+    public sealed class LogSingleton : IDisposable {
         private EventLog _eventLog = new EventLog();
         private static LogSingleton _instance = null;
         private static readonly object _padlock = new object();
@@ -84,6 +85,10 @@ namespace UnofficialDDNS {
                 _debugcount++;
                 Info( _debugcount, details );
             }
+        }
+
+        public void Dispose() {
+            _eventLog.Dispose();
         }
     }
 }

@@ -12,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -199,6 +201,13 @@ namespace UDDNSQuery {
             _resxMessage = Errors.ResourceManager.GetString( "Error" + code );
             int[] moreInfo = { 100, 1 }; // TODO real errors instead of these placeholders.
             if ( moreInfo.Contains( code ) ) _url = "https://github.com/Robpol86/UnofficialDDNS/wiki/Errors#error-" + code.ToString();
+        }
+
+        protected QueryAPIException( SerializationInfo info, StreamingContext context ) : base(info, context) { }
+
+        [SecurityPermission( SecurityAction.Demand, SerializationFormatter = true )]
+        public override void GetObjectData( SerializationInfo info, StreamingContext context ) {
+            base.GetObjectData( info, context );
         }
     }
 

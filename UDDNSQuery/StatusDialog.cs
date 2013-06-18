@@ -55,6 +55,7 @@ namespace UDDNSQuery {
         /// <summary>
         /// Dispose the CancellationTokenSource and TaskDialog resources.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1063:ImplementIDisposableCorrectly" )]
         public override void Dispose() {
             _cts.Dispose();
             base.Dispose();
