@@ -1,8 +1,21 @@
-﻿/**
- * Copyright (c) 2013, Robpol86
- * This software is made available under the terms of the MIT License that can
- * be found in the LICENSE.txt file.
- */
+﻿// ***********************************************************************
+// Assembly         : UnofficialDDNS
+// Author           : Robpol86
+// Created          : 04-20-2013
+//
+// Last Modified By : Robpol86
+// Last Modified On : 06-18-2013
+// ***********************************************************************
+// <copyright file="UnofficialDDNS.cs" company="Robpol86">
+//      Copyright (c) 2013 All rights reserved.
+//      This software is made available under the terms of the MIT License
+//      that can be found in the LICENSE.txt file.
+// </copyright>
+// <summary>
+//      Holds the service OnStart, OnStop, and worker thread. Main code
+//      for the service.
+// </summary>
+// ***********************************************************************
 
 using Microsoft.Win32;
 using System;
@@ -15,21 +28,40 @@ using System.Threading.Tasks;
 using UDDNSQuery;
 
 namespace UnofficialDDNS {
-    //TODO:
-    //  Test MSI updating.
-    //  Get rid of build warnings (document public methods/properties).
+    /// <summary>
+    /// UnofficialDDNS service class with OnStart/OnStop methods and the worker thread that periodically queries the
+    /// registrar's API through an external DLL.
+    /// </summary>
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
+        /// <summary>
+        /// QueryAPI instance from UDDNSQuery.dll.
+        /// </summary>
         private IQueryAPI _api;
+        /// <summary>
+        /// Cancellation Token source used by OnStop.
+        /// </summary>
         private CancellationTokenSource _cts;
+        /// <summary>
+        /// Holds the current polling thread, which executes PollingThreadWorker().
+        /// </summary>
         private Thread _pollingThread;
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnofficialDDNS" /> class.
+        /// </summary>
         public UnofficialDDNS() {
             CanPauseAndContinue = false;
             ServiceName = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyProductAttribute>().Product;
             AutoLog = true;
         }
 
+        /// <summary>
+        /// Implementation of OnStart. Executes when a Start command is sent to the service by the Service Control
+        /// Manager (SCM) or when the operating system starts. Specifies actions to take when the service starts.
+        /// </summary>
+        /// <param name="args">Data passed by the start command.</param>
+        /// <exception cref="QueryAPIException" />
         protected override void OnStart( string[] args ) {
             // Read data from registry.
             RegistryKey regKey = Registry.LocalMachine.OpenSubKey( @"SOFTWARE\UnofficialDDNS" );
@@ -75,6 +107,10 @@ namespace UnofficialDDNS {
             LogSingleton.I.Debug( "Polling thread started." );
         }
 
+        /// <summary>
+        /// Implemented of OnStop. Executes when a Stop command is sent to the service by the Service Control Manager
+        /// (SCM). Specifies actions to take when a service stops running.
+        /// </summary>
         protected override void OnStop() {
             try { _api.UserCanceled = true; } catch ( NullReferenceException ) { }
             _cts.Cancel();
@@ -82,6 +118,11 @@ namespace UnofficialDDNS {
             _pollingThread.Abort();
         }
 
+        /// <summary>
+        /// Called from a thread delegate. Does the actual work by querying the registrar's API through UDDNSQuery.dll
+        /// and then sleeps according to the interval set in the registry.
+        /// </summary>
+        /// <param name="regPack">The reg pack.</param>
         private async void PollingThreadWorker( IDictionary<string, string> regPack ) {
             while ( !_cts.IsCancellationRequested ) {
                 int sleep = Convert.ToInt32( regPack["interval"] ) * 60 * 1000; // [minutes] * seconds * milliseconds
