@@ -14,11 +14,21 @@
         <Package Id="$(var.GuidPackage)" InstallerVersion="301" Compressed="yes" InstallScope="perMachine"
                  Keywords="!(loc.Keywords)" Description="$(var.AssemblyProduct)" Comments="$(var.AssemblyDescription)" />
         <MediaTemplate EmbedCab="yes" />
-        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+        <Upgrade Id="$(var.GuidUpgrade)">
+            <UpgradeVersion Minimum="0.0.0" IncludeMinimum="yes" Maximum="$(var.VersionNumber)" IncludeMaximum="no"
+                            OnlyDetect="yes" Property="PREVIOUSFOUND" />
+            <UpgradeVersion Minimum="$(var.VersionNumber)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERFOUND" />
+        </Upgrade>
         <Feature Id="Files" Title="Files"><ComponentGroupRef Id="Files" /></Feature>
         <Feature Id="Registry" Title="Registry"><ComponentGroupRef Id="Registry" /></Feature>
         <Feature Id="Service" Title="Service"><ComponentGroupRef Id="Service" /></Feature>
         <UIRef Id="CustomDialogSet" />
+
+        <CustomAction Id="NoDowngrade" Error="$(loc.NoDowngrade)" />
+
+        <InstallExecuteSequence>
+            <Custom Action="NoDowngrade" After="FindRelatedProducts">NEWERFOUND</Custom>
+        </InstallExecuteSequence>
 
         <!-- Properties and Variables. -->
         <Property Id="ARPCOMMENTS" Value="$(var.AssemblyDescription)" />

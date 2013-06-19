@@ -10,6 +10,8 @@
 <WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
     <String Id="LANG" Overridable="yes">1033</String>
     <String Id="Keywords" Overridable="yes">DDNS</String>
+
+    <String Id="NoDowngrade" Overridable="yes">A newer version is already installed.</String>
     
     <String Id="WelcomeDlgTitle_OSError" Overridable="yes">{\WixUI_Font_Bigger}ERROR: Unsupported OS</String>
     <String Id="WelcomeDlgDescription_OSError" Overridable="yes">[ProductName] requires at least Windows Vista SP2 or Server 2008 SP2. Supported operating systems are:&#13;&#10;&#13;&#10;        &#8226; Windows Vista&#13;&#10;        &#8226; Windows 7&#13;&#10;        &#8226; Windows 8&#13;&#10;        &#8226; Windows Server 2008&#13;&#10;        &#8226; Windows Server 2008 R2&#13;&#10;        &#8226; Windows Server 2012</String>

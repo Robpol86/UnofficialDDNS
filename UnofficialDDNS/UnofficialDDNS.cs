@@ -15,6 +15,9 @@ using System.Threading.Tasks;
 using UDDNSQuery;
 
 namespace UnofficialDDNS {
+    //TODO:
+    //  Test MSI updating.
+    //  Get rid of build warnings (document public methods/properties).
     [System.ComponentModel.DesignerCategory( "Code" )]
     public partial class UnofficialDDNS : ServiceBase {
         private IQueryAPI _api;
