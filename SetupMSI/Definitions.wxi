@@ -13,7 +13,7 @@
     <?define BuildVersion="$(var.AssemblyVersionBuild)" ?>
     <?define VersionNumber="$(var.MajorVersion).$(var.MinorVersion).$(var.BuildVersion)" ?>
     <?define GuidPackage="90CD994A-E726-4B9C-BE4E-9EE3AF0A8491" ?> <!-- Change if new VersionNumber (anything). -->
-    <?define GuidProduct="86CDBE4A-A47E-44EE-A78B-2F2E8B38CEF5" ?> <!-- Change if new MinorVersion or MajorVersion. -->
+    <?define GuidProduct="86CDBE4A-A47E-44EE-A78B-2F2E8B38CEF5" ?> <!-- Change if new VersionNumber (anything). -->
     <?define GuidUpgrade="44bb546a-51c5-460e-bedc-29087856fa14" ?> <!-- Change if new MajorVersion. -->
     <?define GuidService="64FC22B7-256D-426A-83A2-28449D86761C" ?>
     <?define GuidQueryDLL="DE604E70-986D-4246-B979-1DB49DEB57AB" ?>

@@ -16,7 +16,7 @@
         <MediaTemplate EmbedCab="yes" />
         <Upgrade Id="$(var.GuidUpgrade)">
             <UpgradeVersion Minimum="0.0.0" IncludeMinimum="yes" Maximum="$(var.VersionNumber)" IncludeMaximum="no"
-                            OnlyDetect="yes" Property="PREVIOUSFOUND" />
+                            OnlyDetect="no" Property="PREVIOUSFOUND" />
             <UpgradeVersion Minimum="$(var.VersionNumber)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERFOUND" />
         </Upgrade>
         <Feature Id="Files" Title="Files"><ComponentGroupRef Id="Files" /></Feature>
@@ -28,9 +28,16 @@
 
         <InstallExecuteSequence>
             <Custom Action="NoDowngrade" After="FindRelatedProducts">NEWERFOUND</Custom>
+            <RemoveExistingProducts After="InstallInitialize"/>
         </InstallExecuteSequence>
+        <InstallUISequence>
+            <Custom Action="NoDowngrade" After="FindRelatedProducts">NEWERFOUND</Custom>
+        </InstallUISequence>
 
         <!-- Properties and Variables. -->
+        <Property Id="INSTALLDIR">
+            <RegistrySearch Id="InstallDir" Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="raw" Name="InstallDir" />
+        </Property>
         <Property Id="ARPCOMMENTS" Value="$(var.AssemblyDescription)" />
         <Property Id="ARPHELPLINK" Value="https://github.com/Robpol86/UnofficialDDNS/wiki/" />
         <Property Id="ARPNOREPAIR" Value="1" /> <!-- Repair won't restore custom registry values. -->
@@ -73,6 +80,7 @@
         <ComponentGroup Id="Registry" Directory="INSTALLDIR">
             <Component Id="RegistryEntries" Guid="$(var.GuidRegistryEntries)">
                 <RegistryKey Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Action="createAndRemoveOnUninstall" />
+                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="InstallDir" Value="[INSTALLDIR]" />
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Registrar" Value="[REGISTRAR_REGISTRAR]" />
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Username" Value="[REGISTRAR_USER]" />
                 <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="ApiToken" Value="[REGISTRAR_TOKEN]" />
