@@ -1,8 +1,18 @@
-﻿/**
- * Copyright (c) 2013, Robpol86
- * This software is made available under the terms of the MIT License that can
- * be found in the LICENSE.txt file.
- */
+﻿// ***********************************************************************
+// Assembly         : UDDNSQuery
+// Author           : Robpol86
+// Created          : 04-22-2013
+//
+// Last Modified By : Robpol86
+// Last Modified On : 06-15-2013
+// ***********************************************************************
+// <copyright file="CustomActions.cs" company="">
+//      Copyright (c) 2013 All rights reserved.
+//      This software is made available under the terms of the MIT License
+//      that can be found in the LICENSE.txt file.
+// </copyright>
+// <summary></summary>
+// ***********************************************************************
 
 using Microsoft.Deployment.WindowsInstaller;
 using System;
@@ -13,20 +23,20 @@ using System.Threading;
 using System.Windows.Forms;
 
 namespace UDDNSQuery {
+    /// <summary>
+    /// All CustomAction DLL entry points.
+    /// </summary>
     public class CustomActions {
+        /// <summary>
+        /// Uses the Vista-style directory browse dialog.
+        /// </summary>
+        /// <param name="session">CustomAction session.</param>
+        /// <returns>ActionResult.</returns>
         [CustomAction]
         public static ActionResult BrowseDirectoryButton( Session session ) {
             Thread thread = new Thread( (ThreadStart) delegate {
                 using ( FolderBrowser2 dialog = new FolderBrowser2() ) {
                     dialog.DirectoryPath = session["INSTALLDIR"];
-                    /*while ( !Directory.Exists( oDialog.DirectoryPath ) ) {
-                        try {
-                            oDialog.DirectoryPath = Path.GetDirectoryName( oDialog.DirectoryPath );
-                        } catch ( System.ArgumentException ) {
-                            oDialog.DirectoryPath = null;
-                            break;
-                        }
-                    }*/
                     if ( dialog.ShowDialog() == DialogResult.OK ) {
                         session["INSTALLDIR"] =
                             Path.Combine( dialog.DirectoryPath, "UnofficialDDNS" ) + Path.DirectorySeparatorChar;
@@ -40,6 +50,11 @@ namespace UDDNSQuery {
             return ActionResult.Success;
         }
 
+        /// <summary>
+        /// Populates the registrar list.
+        /// </summary>
+        /// <param name="session">CustomAction session.</param>
+        /// <returns>ActionResult.</returns>
         [CustomAction]
         public static ActionResult PopulateRegistrarList( Session session ) {
             string wixProperty = "REGISTRAR_REGISTRAR";
@@ -76,6 +91,11 @@ namespace UDDNSQuery {
             return ActionResult.Success;
         }
 
+        /// <summary>
+        /// TaskDialog-based cancel dialog.
+        /// </summary>
+        /// <param name="session">CustomAction session.</param>
+        /// <returns>ActionResult.</returns>
         [CustomAction]
         public static ActionResult CancelDialog( Session session ) {
             using ( TaskDialog dialog = new TaskDialog() ) {
@@ -90,6 +110,12 @@ namespace UDDNSQuery {
             }
         }
 
+        /// <summary>
+        /// Validates the user's registrar credentials and displays the validation status in a TaskDialog.
+        /// </summary>
+        /// <param name="session">CustomAction session.</param>
+        /// <returns>ActionResult.</returns>
+        /// <exception cref="QueryAPIException" />
         [CustomAction]
         public static ActionResult ValidateCredentials( Session session ) {
             // Encrypt token.

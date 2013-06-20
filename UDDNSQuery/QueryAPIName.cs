@@ -1,8 +1,18 @@
-﻿/**
- * Copyright (c) 2013, Robpol86
- * This software is made available under the terms of the MIT License that can
- * be found in the LICENSE.txt file.
- */
+﻿// ***********************************************************************
+// Assembly         : UDDNSQuery
+// Author           : Robpol86
+// Created          : 04-24-2013
+//
+// Last Modified By : Robpol86
+// Last Modified On : 06-15-2013
+// ***********************************************************************
+// <copyright file="QueryAPIName.cs" company="">
+//      Copyright (c) 2013 All rights reserved.
+//      This software is made available under the terms of the MIT License
+//      that can be found in the LICENSE.txt file.
+// </copyright>
+// <summary></summary>
+// ***********************************************************************
 
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,6 +26,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace UDDNSQuery {
+    /// <summary>
+    /// QueryAPI implementation for Name.com.
+    /// </summary>
     class QueryAPIName : QueryAPI {
         private static readonly string _uriGetCurrentIP = "/api/hello";
         private static readonly string _uriAuthenticate = "/api/login";
@@ -25,8 +38,19 @@ namespace UDDNSQuery {
         private static readonly string _uriCreateRecordPrefix = "/api/dns/create/";
         private static readonly string _uriLogout = "/api/logout";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryAPIName"/> class with a hard-coded base URI.
+        /// </summary>
         public QueryAPIName() : base( new Uri( "https://api.name.com" ) ) { }
 
+        /// <summary>
+        /// Requests the JSON from a URL.
+        /// </summary>
+        /// <param name="uriPath">The remainder of the URL to query (e.g. /index.html)</param>
+        /// <param name="postData">HTTP POST data to send.</param>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns>JSON.net JObject</returns>
+        /// <exception cref="UDDNSQuery.QueryAPIException" />
         public override async Task<JObject> RequestJSONAsync( string uriPath, StringContent postData, CancellationToken ct ) {
             string url = new Uri( _baseUri, uriPath ).AbsoluteUri;
             JObject json = await base.RequestJSONAsync( uriPath, postData, ct );
@@ -45,6 +69,12 @@ namespace UDDNSQuery {
             return json;
         }
 
+        /// <summary>
+        /// Gets the current public IP.
+        /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns>Task.</returns>
+        /// <exception cref="UDDNSQuery.QueryAPIException" />
         public override async Task GetCurrentIPAsync( CancellationToken ct ) {
             JObject json = await RequestJSONAsync( _uriGetCurrentIP, null, ct );
             if ( (string) json.SelectToken( "client_ip" ) == null ) throw new QueryAPIException( 302 );
@@ -55,6 +85,12 @@ namespace UDDNSQuery {
             _currentIP = client_ip;
         }
 
+        /// <summary>
+        /// Authenticates to the API.
+        /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns>Task.</returns>
+        /// <exception cref="UDDNSQuery.QueryAPIException" />
         public override async Task AuthenticateAsync( CancellationToken ct ) {
             // Decrypt API token and setup API query for session token.
             StringContent data = new StringContent( String.Format( "{{\"username\":\"{0}\",\"api_token\":\"{1}\"}}",
@@ -71,6 +107,12 @@ namespace UDDNSQuery {
             _sessionToken = session_token;
         }
 
+        /// <summary>
+        /// Makes sure the user owns this domain. Responsible for _mainDomain.
+        /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns>Task.</returns>
+        /// <exception cref="UDDNSQuery.QueryAPIException" />
         public override async Task ValidateDomainAsync( CancellationToken ct ) {
             JObject json = await RequestJSONAsync( _uriGetMainDomain, null, ct );
             IList<string> domains = json.SelectToken( "domains" ).Select( p => ((JProperty) p).Name ).ToList();
@@ -91,7 +133,12 @@ namespace UDDNSQuery {
             }
             throw new QueryAPIException( 503 );
         }
-        
+
+        /// <summary>
+        /// Gets all records related to the domain. Responsible for _recordedIP.
+        /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns>Task.</returns>
         public override async Task GetRecordsAsync( CancellationToken ct ) {
             JObject json = await RequestJSONAsync( _uriGetRecordsPrefix + _mainDomain, null, ct );
             try {
@@ -110,6 +157,8 @@ namespace UDDNSQuery {
         /// <summary>
         /// Creates an A record with the current IP if one does not exist, then deletes all non-matching A records.
         /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns>Task.</returns>
         /// <exception cref="QueryAPIException" />
         public override async Task UpdateRecordAsync( CancellationToken ct ) {
             if ( !_recordedIP.Values.Contains( _currentIP ) ) {
@@ -129,6 +178,8 @@ namespace UDDNSQuery {
         /// <summary>
         /// De-authenticate from the API.
         /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        /// <returns>Task.</returns>
         public override async Task LogoutAsync( CancellationToken ct ) {
             await RequestJSONAsync( _uriLogout, null, ct );
             _sessionToken = null;

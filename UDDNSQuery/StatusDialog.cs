@@ -1,8 +1,20 @@
-﻿/**
- * Copyright (c) 2013, Robpol86
- * This software is made available under the terms of the MIT License that can
- * be found in the LICENSE.txt file.
- */
+﻿// ***********************************************************************
+// Assembly         : UDDNSQuery
+// Author           : Robpol86
+// Created          : 05-03-2013
+//
+// Last Modified By : Robpol86
+// Last Modified On : 06-17-2013
+// ***********************************************************************
+// <copyright file="StatusDialog.cs" company="">
+//      Copyright (c) 2013 All rights reserved.
+//      This software is made available under the terms of the MIT License
+//      that can be found in the LICENSE.txt file.
+// </copyright>
+// <summary>
+//      Launches a TaskDialog showing the status of validation.
+// </summary>
+// ***********************************************************************
 
 using System;
 using System.ComponentModel;
@@ -30,16 +42,16 @@ namespace UDDNSQuery {
         private bool _isWorking; // Is StatusDialog_Opened() busy or is it done?
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StatusDialog"/> class.
+        /// Initializes a new instance of the <see cref="StatusDialog" /> class.
         /// </summary>
-        /// <param name="api">The API.</param>
+        /// <param name="api">The instantiated IQueryAPI object.</param>
         public StatusDialog( IQueryAPI api ) {
             // Initialize.
             _api = api;
             _cts = new CancellationTokenSource();
             _progressMax = 30;
 
-            // Setup dialog/progressbar.
+            // Setup dialog/progress bar.
             Caption = Strings.StatusDialogTitle;
             InstructionText = Strings.StatusDialogHeading;
             ProgressBarRange = new int[2] { 0, _progressMax };
@@ -62,10 +74,20 @@ namespace UDDNSQuery {
             GC.SuppressFinalize( this );
         }
 
+        /// <summary>
+        /// Handles the Hyperlink event of the TaskDialog control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void StatusDialog_Hyperlink( object sender, HyperlinkEventArgs e ) {
             Process.Start( e.LinkText );
         }
 
+        /// <summary>
+        /// Handles the Canceled event of the TaskDialog control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private async void StatusDialog_Canceled( object sender, EventArgs e ) {
             _api.UserCanceled = true;
             InstructionText = Strings.StatusDialogCancellingTitle;
@@ -73,12 +95,17 @@ namespace UDDNSQuery {
             while ( _isWorking ) await Task.Delay( 100 ); // Wait for StatusDialog_Opened() to finish.
         }
 
+        /// <summary>
+        /// Handles the Opened event of the TaskDialog control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private async void StatusDialog_Opened( object sender, EventArgs e ) {
             // Finish drawing dialog.
             _isWorking = true;
             Application.DoEvents();
 
-            // Do async work and catch errors/cancelation.
+            // Do async work and catch errors/cancellation.
             try {
                 Text = Strings.StatusDialogTextAuth;
                 await Task.Delay( 700, _cts.Token ); // Wait for UI to catch up.
@@ -109,7 +136,7 @@ namespace UDDNSQuery {
             }
             _isWorking = false;
 
-            // No errors, this must mean validation was successfull.
+            // No errors, this must mean validation was successful.
             Close( TaskDialogResult.Ok );
         }
     }
