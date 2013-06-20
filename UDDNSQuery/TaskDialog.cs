@@ -8,6 +8,9 @@ namespace UDDNSQuery {
      * specific use case. This class is not designed to be used for anything other than StatusDialog.cs.
      */
 
+    /// <summary>
+    /// Displays a TaskDialog through user32.dll P/Invoke.
+    /// </summary>
     public class TaskDialog : IDisposable {
         internal const int UserMessage = 0x0400; // Various important window messages.
         private int selectedButtonId;
@@ -26,20 +29,65 @@ namespace UDDNSQuery {
         private TaskDialogProgressBarState progressBarState;
         private ITaskbarList4 taskbarList;
 
+        /// <summary>
+        /// Raised when dialog is opened/shown.
+        /// </summary>
         public event EventHandler Opened;
+        /// <summary>
+        /// Raised when dialog is closing.
+        /// </summary>
         public event EventHandler<CancelEventArgs> Closing;
+        /// <summary>
+        /// Raised when a hyperlink in the dialog is clicked.
+        /// </summary>
         public event EventHandler<HyperlinkEventArgs> HyperlinkClick;
+        /// <summary>
+        /// Dialog window title.
+        /// </summary>
+        /// <exception cref="System.NotSupportedException"></exception>
         public string Caption { get { return caption; } set { if ( NativeDialogShowing ) throw new NotSupportedException(); caption = value; } }
+        /// <summary>
+        /// Dialog instruction text (blue "heading" text).
+        /// </summary>
         public string InstructionText { get { return instructionText; } set { instructionText = value; if ( NativeDialogShowing ) UpdateInstruction( value ); } }
+        /// <summary>
+        /// Regular text in the dialog.
+        /// </summary>
         public string Text { get { return text; } set { text = value; if ( NativeDialogShowing ) { UpdateText( value ); } } }
+        /// <summary>
+        /// Gets or sets the icon in the dialog.
+        /// </summary>
         public TaskDialogStandardIcon Icon { get { return icon; } set { icon = value; if ( NativeDialogShowing ) { UpdateMainIcon( value ); } } }
+        /// <summary>
+        /// Gets or sets the progress bar range (minimum, maximum).
+        /// </summary>
         public int[] ProgressBarRange { get { return new int[2] { progressBarMinimum, progressBarMaximum }; } set { UpdateProgressBarRange( value ); progressBarMinimum = value[0]; ; progressBarMaximum = value[1]; } }
+        /// <summary>
+        /// Gets or sets the progress bar current value.
+        /// </summary>
         public int ProgressBarValue { get { return progressBarValue; } set { UpdateProgressBarValue( value ); progressBarValue = value; } }
+        /// <summary>
+        /// Gets a value indicating whether the dialog is showing.
+        /// </summary>
+        /// <value><c>true</c> if [native dialog showing]; otherwise, <c>false</c>.</value>
         public bool NativeDialogShowing { get { return (showState == TaskDialogShowState.Showing || showState == TaskDialogShowState.Closing); } }
+        /// <summary>
+        /// Gets a value indicating whether taskbar progress bars are supported on the platform (Windows 7 and up).
+        /// </summary>
+        /// <value><c>true</c> if [supports taskbar progress]; otherwise, <c>false</c>.</value>
         public static bool SupportsTaskbarProgress { get { return (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.CompareTo( new Version( 6, 1 ) ) >= 0); } }
+        /// <summary>
+        /// Gets the TaskDialog result.
+        /// </summary>
         public TaskDialogResult Result { get { return result; } }
+        /// <summary>
+        /// Gets or sets the state of the progress bar.
+        /// </summary>
         public TaskDialogProgressBarState ProgressBarState { get { return progressBarState; } set { progressBarState = value; UpdateProgressBarState( progressBarState ); } }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskDialog"/> class.
+        /// </summary>
         public TaskDialog() {
             progressBarMinimum = 0;
             progressBarMaximum = 100;
@@ -54,53 +102,250 @@ namespace UDDNSQuery {
         /// <summary>
         /// HRESULT Wrapper    
         /// </summary>    
-        public enum HResult { Ok = 0x0000, False = 0x0001 }
+        public enum HResult {
+            /// <summary>
+            /// Result OK.
+            /// </summary>
+            Ok = 0x0000,
+            /// <summary>
+            /// Result false.
+            /// </summary>
+            False = 0x0001
+        }
 
-        public enum TaskDialogShowState { PreShow, Showing, Closing, Closed }
+        /// <summary>
+        /// Current showing state of the TaskDialog.
+        /// </summary>
+        public enum TaskDialogShowState {
+            /// <summary>
+            /// Dialog isn't showing yet.
+            /// </summary>
+            PreShow,
+            /// <summary>
+            /// Dialog currently showing.
+            /// </summary>
+            Showing,
+            /// <summary>
+            /// Dialog is about to close.
+            /// </summary>
+            Closing,
+            /// <summary>
+            /// Dialog has closed and is no longer displayed.
+            /// </summary>
+            Closed
+        }
 
-        public enum TaskDialogStandardIcon { None = 0, Error = 65534, Information = 65533 }
+        /// <summary>
+        /// Standard icon to display in the dialog.
+        /// </summary>
+        public enum TaskDialogStandardIcon {
+            /// <summary>
+            /// No icon.
+            /// </summary>
+            None = 0,
+            /// <summary>
+            /// Red error icon.
+            /// </summary>
+            Error = 65534,
+            /// <summary>
+            /// Blue information icon.
+            /// </summary>
+            Information = 65533
+        }
 
-        public enum TaskDialogIconElement { Main, Footer }
+        /// <summary>
+        /// Where to display the icon.
+        /// </summary>
+        public enum TaskDialogIconElement {
+            /// <summary>
+            /// Icon to display in the dialog next to InstructionText and Text.
+            /// </summary>
+            Main,
+            /// <summary>
+            /// Icon to display in the footer below the standard buttons.
+            /// </summary>
+            Footer
+        }
 
+        /// <summary>
+        /// Dialog progress bar state.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
-        public enum TaskDialogProgressBarState { Normal = 0x0001, Error = 0x0002 }
+        public enum TaskDialogProgressBarState {
+            /// <summary>
+            /// Normal green progress bar.
+            /// </summary>
+            Normal = 0x0001,
+            /// <summary>
+            /// Red progress bar.
+            /// </summary>
+            Error = 0x0002
+        }
 
         /// <summary>
         /// Represents the thumbnail progress bar state.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1027:MarkEnumsWithFlags" ), System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
-        public enum TaskbarProgressBarState { Normal = 0x2, Error = 0x4 }
+        public enum TaskbarProgressBarState {
+            /// <summary>
+            /// Normal green progress bar.
+            /// </summary>
+            Normal = 0x2,
+            /// <summary>
+            /// Red progress bar.
+            /// </summary>
+            Error = 0x4
+        }
 
         /// <summary>
         /// Task Dialog - flags
         /// </summary>
         [Flags]
-        public enum TaskDialogOptions { EnableHyperlinks = 0x0001, AllowCancel = 0x0008, ShowProgressBar = 0x0200, PositionRelativeToWindow = 0x1000, }
+        public enum TaskDialogOptions {
+            /// <summary>
+            /// Enable dialog hyperlink support.
+            /// </summary>
+            EnableHyperlinks = 0x0001,
+            /// <summary>
+            /// Allow dialog to be canceled.
+            /// </summary>
+            AllowCancel = 0x0008,
+            /// <summary>
+            /// Show a progress bar in the dialog.
+            /// </summary>
+            ShowProgressBar = 0x0200,
+            /// <summary>
+            /// Position the dialog over the parent window.
+            /// </summary>
+            PositionRelativeToWindow = 0x1000
+        }
 
-        public enum TaskDialogElement { Content, ExpandedInformation, Footer, MainInstruction }
+        /// <summary>
+        /// Which text in the dialog to update.
+        /// </summary>
+        public enum TaskDialogElement {
+            /// <summary>
+            /// Dialog regular text.
+            /// </summary>
+            Content,
+            /// <summary>
+            /// Expanded area text.
+            /// </summary>
+            ExpandedInformation,
+            /// <summary>
+            /// Footer area text.
+            /// </summary>
+            Footer,
+            /// <summary>
+            /// Dialog instruction text (blue "heading" text).
+            /// </summary>
+            MainInstruction
+        }
 
-        public enum TaskDialogNotification { Created = 0, ButtonClicked = 2, HyperlinkClicked = 3, Destroyed = 5 }
+        /// <summary>
+        /// Task Dialog event notifications from the DLL.
+        /// </summary>
+        public enum TaskDialogNotification {
+            /// <summary>
+            /// Dialog was created.
+            /// </summary>
+            Created = 0,
+            /// <summary>
+            /// A button was clicked in the dialog.
+            /// </summary>
+            ButtonClicked = 2,
+            /// <summary>
+            /// A link was clicked in the dialog.
+            /// </summary>
+            HyperlinkClicked = 3,
+            /// <summary>
+            /// The dialog has been destroyed (unmanaged resources freed).
+            /// </summary>
+            Destroyed = 5
+        }
 
         /// <summary>
         /// Indicates the various buttons and options clicked by the user on the task dialog and identifies common buttons.
         /// </summary>        
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1027:MarkEnumsWithFlags" ), System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
-        public enum TaskDialogResult { Ok = 0x0001, Yes = 0x0002, No = 0x0004, Cancel = 0x0008 }
+        public enum TaskDialogResult {
+            /// <summary>
+            /// The ok button.
+            /// </summary>
+            Ok = 0x0001,
+            /// <summary>
+            /// The yes button.
+            /// </summary>
+            Yes = 0x0002,
+            /// <summary>
+            /// The no button.
+            /// </summary>
+            No = 0x0004,
+            /// <summary>
+            /// The cancel button.
+            /// </summary>
+            Cancel = 0x0008
+        }
 
         /// <summary>
         /// Identify button *return values* - note that, unfortunately, these are different from the inbound button values.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1027:MarkEnumsWithFlags" ), System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
-        public enum TaskDialogCommonButtonReturnId { Ok = 1, Cancel = 2, Yes = 6, No = 7, Close = 8 }
+        public enum TaskDialogCommonButtonReturnId {
+            /// <summary>
+            /// The ok button.
+            /// </summary>
+            Ok = 1,
+            /// <summary>
+            /// The cancel button.
+            /// </summary>
+            Cancel = 2,
+            /// <summary>
+            /// The yes button.
+            /// </summary>
+            Yes = 6,
+            /// <summary>
+            /// The no button.
+            /// </summary>
+            No = 7,
+            /// <summary>
+            /// The close button.
+            /// </summary>
+            Close = 8
+        }
 
+        /// <summary>
+        /// Send message to the DLL.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue" )]
         public enum TaskDialogMessage {
+            /// <summary>
+            /// Programmatically click a button.
+            /// </summary>
             ClickButton = UserMessage + 102, // wParam = Button ID
+            /// <summary>
+            /// The set progress bar state.
+            /// </summary>
             SetProgressBarState = UserMessage + 104, // wParam = new progress state
+            /// <summary>
+            /// The set progress bar range.
+            /// </summary>
             SetProgressBarRange = UserMessage + 105, // lParam = MAKELPARAM(nMinRange, nMaxRange)
+            /// <summary>
+            /// The set progress bar position in the dialog.
+            /// </summary>
             SetProgressBarPosition = UserMessage + 106, // wParam = new position
+            /// <summary>
+            /// The set element text (caption/maininstruction/content).
+            /// </summary>
             SetElementText = UserMessage + 108, // wParam = element (TASKDIALOG_ELEMENTS), lParam = new element text (LPCWSTR)
+            /// <summary>
+            /// Enable/disable a button.
+            /// </summary>
             EnableButton = UserMessage + 111, // lParam = 0 (disable), lParam != 0 (enable), wParam = Button ID
+            /// <summary>
+            /// Change the icon in the dialog.
+            /// </summary>
             UpdateIcon = UserMessage + 116  // wParam = icon element (TASKDIALOG_ICON_ELEMENTS), lParam = new icon (hIcon if TDF_USE_HICON_* was set, PCWSTR otherwise)
         }
 
@@ -382,6 +627,15 @@ namespace UDDNSQuery {
         private void UpdateMainIcon( TaskDialogStandardIcon icon ) {
             TaskDialogIconElement element = TaskDialogIconElement.Main;
             SendMessageHelper( TaskDialogMessage.UpdateIcon, (int) element, (long) icon );
+        }
+
+        /// <summary>
+        /// Enabled/disables a button in the dialog.
+        /// </summary>
+        /// <param name="buttonID">The button ID.</param>
+        /// <param name="enabled">if set to <c>true</c> [enabled].</param>
+        public void UpdateButtonEnabled( TaskDialogCommonButtonReturnId buttonID, bool enabled ) {
+            SendMessageHelper( TaskDialogMessage.EnableButton, (int) buttonID, enabled == true ? 1 : 0 );
         }
 
         #endregion

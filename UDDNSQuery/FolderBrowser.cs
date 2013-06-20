@@ -5,10 +5,20 @@ using System.Windows.Forms;
 namespace UDDNSQuery {
     // http://stackoverflow.com/questions/15368771/show-detailed-folder-browser-from-a-propertygrid
 
+    /// <summary>
+    /// Displays a Vista-style directory browse dialog (IFileOpenDialog).
+    /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1063:ImplementIDisposableCorrectly" )]
     public class FolderBrowser2 : IDisposable {
+        /// <summary>
+        /// The default and user-selected directory path.
+        /// </summary>
         public string DirectoryPath { get; set; }
 
+        /// <summary>
+        /// Shows the dialog.
+        /// </summary>
+        /// <returns>DialogResult.</returns>
         public DialogResult ShowDialog() {
             IntPtr hwndOwner = FindWindow( "MsiDialogCloseClass", 0 );
 
@@ -42,6 +52,9 @@ namespace UDDNSQuery {
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1063:ImplementIDisposableCorrectly" )]
         public void Dispose() {
         }

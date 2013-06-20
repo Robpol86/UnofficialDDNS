@@ -91,6 +91,7 @@ namespace UDDNSQuery {
         private async void StatusDialog_Canceled( object sender, EventArgs e ) {
             _api.UserCanceled = true;
             InstructionText = Strings.StatusDialogCancellingTitle;
+            UpdateButtonEnabled( TaskDialogCommonButtonReturnId.Cancel, false );
             if ( _cts != null ) _cts.Cancel();
             while ( _isWorking ) await Task.Delay( 100 ); // Wait for StatusDialog_Opened() to finish.
         }
