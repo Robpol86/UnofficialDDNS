@@ -1,13 +1,26 @@
-﻿/**
- * Copyright (c) 2013, Robpol86
- * This software is made available under the terms of the MIT License that can
- * be found in the LICENSE.txt file.
- */
+﻿// ***********************************************************************
+// Assembly         : UnofficialDDNS
+// Author           : Robpol86
+// Created          : 04-20-2013
+//
+// Last Modified By : Robpol86
+// Last Modified On : 06-17-2013
+// ***********************************************************************
+// <copyright file="LogSingleton.cs" company="">
+//      Copyright (c) 2013 All rights reserved.
+//      This software is made available under the terms of the MIT License
+//      that can be found in the LICENSE.txt file.
+// </copyright>
+// <summary></summary>
+// ***********************************************************************
 
 using System;
 using System.Diagnostics;
 
 namespace UnofficialDDNS {
+    /// <summary>
+    /// Singleton class which writes to the event log.
+    /// </summary>
     public sealed class LogSingleton : IDisposable {
         private EventLog _eventLog = new EventLog();
         private static LogSingleton _instance = null;
@@ -18,19 +31,18 @@ namespace UnofficialDDNS {
         /// <summary>
         /// Singleton instance.
         /// </summary>
-        /// <value>
-        /// The instance object.
-        /// </value>
+        /// <value>The instance object.</value>
         public static LogSingleton I { get { lock ( _padlock ) { if ( _instance == null ) _instance = new LogSingleton(); return _instance; } } }
 
         /// <summary>
         /// Enables debug logging.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if [debug enabled]; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if [debug enabled]; otherwise, <c>false</c>.</value>
         public bool EnableDebug { get { return _debug; } set { _debug = value; } }
 
+        /// <summary>
+        /// Initializes the event log source.
+        /// </summary>
         private LogSingleton() {
             ((System.ComponentModel.ISupportInitialize)(_eventLog)).BeginInit();
             _eventLog.Log = "Application";
@@ -47,7 +59,7 @@ namespace UnofficialDDNS {
         public void Log( int code, string details, EventLogEntryType type ) {
             _eventLog.WriteEntry( details, type, code );
         }
-        
+
         /// <summary>
         /// Write an error to Event Log with an additional message.
         /// </summary>
@@ -74,7 +86,7 @@ namespace UnofficialDDNS {
         public void Info( int code, string details ) {
             Log( code, details, EventLogEntryType.Information );
         }
-        
+
         /// <summary>
         /// Writes debug messages (as Information) to the event log, only if EnableDebug is true.
         /// </summary>
@@ -87,6 +99,9 @@ namespace UnofficialDDNS {
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose() {
             _eventLog.Dispose();
         }

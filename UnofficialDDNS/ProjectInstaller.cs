@@ -1,19 +1,35 @@
-﻿/**
- * Copyright (c) 2013, Robpol86
- * This software is made available under the terms of the MIT License that can
- * be found in the LICENSE.txt file.
- */
+﻿// ***********************************************************************
+// Assembly         : UnofficialDDNS
+// Author           : Robpol86
+// Created          : 04-20-2013
+//
+// Last Modified By : Robpol86
+// Last Modified On : 06-15-2013
+// ***********************************************************************
+// <copyright file="ProjectInstaller.cs" company="">
+//      Copyright (c) 2013 All rights reserved.
+//      This software is made available under the terms of the MIT License
+//      that can be found in the LICENSE.txt file.
+// </copyright>
+// <summary>Installs the service.</summary>
+// ***********************************************************************
 
 using System.ComponentModel;
 using System.Reflection;
 
 namespace UnofficialDDNS {
+    /// <summary>
+    /// Installs the service.
+    /// </summary>
     [System.ComponentModel.DesignerCategory( "Code" )]
     [RunInstaller( true )]
     public partial class ProjectInstaller : System.Configuration.Install.Installer {
         private System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
         private System.ServiceProcess.ServiceInstaller serviceInstaller1;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectInstaller"/> class.
+        /// </summary>
         public ProjectInstaller() {
             this.serviceProcessInstaller1 = new System.ServiceProcess.ServiceProcessInstaller();
             this.serviceInstaller1 = new System.ServiceProcess.ServiceInstaller();
