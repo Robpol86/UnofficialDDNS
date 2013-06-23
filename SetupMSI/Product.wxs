@@ -11,7 +11,7 @@
     <?include Definitions.wxi ?>
     <Product Id="$(var.GuidProduct)" Name="$(var.AssemblyProduct) $(var.VersionNumber)" Language="!(loc.LANG)"
              Version="$(var.VersionNumber)" Manufacturer="$(var.AssemblyCompany)" UpgradeCode="$(var.GuidUpgrade)">
-        <Package Id="$(var.GuidPackage)" InstallerVersion="301" Compressed="yes" InstallScope="perMachine"
+        <Package Id="*" InstallerVersion="301" Compressed="yes" InstallScope="perMachine"
                  Keywords="!(loc.Keywords)" Description="$(var.AssemblyProduct)" Comments="$(var.AssemblyDescription)" />
         <MediaTemplate EmbedCab="yes" />
         <Upgrade Id="$(var.GuidUpgrade)">
@@ -24,7 +24,7 @@
         <Feature Id="Service" Title="Service"><ComponentGroupRef Id="Service" /></Feature>
         <UIRef Id="CustomDialogSet" />
 
-        <CustomAction Id="NoDowngrade" Error="$(loc.NoDowngrade)" />
+        <CustomAction Id="NoDowngrade" Error="!(loc.NoDowngrade)" />
 
         <InstallExecuteSequence>
             <Custom Action="NoDowngrade" After="FindRelatedProducts">NEWERFOUND</Custom>
@@ -79,14 +79,14 @@
         </ComponentGroup>
         <ComponentGroup Id="Registry" Directory="INSTALLDIR">
             <Component Id="RegistryEntries" Guid="$(var.GuidRegistryEntries)">
-                <RegistryKey Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Action="createAndRemoveOnUninstall" />
-                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="InstallDir" Value="[INSTALLDIR]" />
-                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Registrar" Value="[REGISTRAR_REGISTRAR]" />
-                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Username" Value="[REGISTRAR_USER]" />
-                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="ApiToken" Value="[REGISTRAR_TOKEN]" />
-                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Domain" Value="[REGISTRAR_DOMAIN]" />
-                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Interval" Value="60" />
-                <Registry Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Debug" Value="0" />
+                <RegistryKey Root="HKLM" Key="SOFTWARE\UnofficialDDNS" ForceDeleteOnUninstall="yes" />
+                <RegistryValue Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="InstallDir" Value="[INSTALLDIR]" />
+                <RegistryValue Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Registrar" Value="[REGISTRAR_REGISTRAR]" />
+                <RegistryValue Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Username" Value="[REGISTRAR_USER]" />
+                <RegistryValue Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="ApiToken" Value="[REGISTRAR_TOKEN]" />
+                <RegistryValue Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="string" Name="Domain" Value="[REGISTRAR_DOMAIN]" />
+                <RegistryValue Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Interval" Value="60" />
+                <RegistryValue Root="HKLM" Key="SOFTWARE\UnofficialDDNS" Type="integer" Name="Debug" Value="0" />
             </Component>
         </ComponentGroup>
         <ComponentGroup Id="Service" Directory="INSTALLDIR">
