@@ -40,6 +40,7 @@ namespace UDDNSQuery {
         private CancellationTokenSource _cts; // Cancellation for all API tasks.
         private int _progressMax; // The maximum value for progress bars.
         private bool _isWorking; // Is StatusDialog_Opened() busy or is it done?
+        private static readonly object _padlock = new object();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StatusDialog" /> class.
@@ -87,13 +88,17 @@ namespace UDDNSQuery {
         /// Handles the Canceled event of the TaskDialog control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        private async void StatusDialog_Canceled( object sender, EventArgs e ) {
-            _api.UserCanceled = true;
-            InstructionText = Strings.StatusDialogCancellingTitle;
-            UpdateButtonEnabled( TaskDialogCommonButtonReturnId.Cancel, false );
-            if ( _cts != null ) _cts.Cancel();
-            while ( _isWorking ) await Task.Delay( 100 ); // Wait for StatusDialog_Opened() to finish.
+        /// <param name="e">The <see cref="CancelEventArgs"/> instance containing the event data.</param>
+        private void StatusDialog_Canceled( object sender, CancelEventArgs e ) {
+            if ( !_isWorking ) return;
+            lock ( _padlock ) {
+                if ( !_isWorking ) return;
+                _api.UserCanceled = true;
+                InstructionText = Strings.StatusDialogCancellingTitle;
+                UpdateButtonEnabled( TaskDialogCommonButtonReturnId.Cancel, false );
+                if ( _cts != null ) _cts.Cancel();
+                e.Cancel = true; // Wait for StatusDialog_Opened() to time out.
+            }
         }
 
         /// <summary>
@@ -122,23 +127,29 @@ namespace UDDNSQuery {
                 ProgressBarValue = _progressMax;
                 await Task.Delay( 700, _cts.Token );
             } catch ( QueryAPIException err ) {
-                Icon = TaskDialogStandardIcon.Error;
-                ProgressBarState = TaskDialogProgressBarState.Error;
-                InstructionText = Strings.StatusDialogHeadingError;
-                string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
-                if ( err.Details != null ) text += "\n\n" + err.Details;
-                if ( err.Url != null ) text += "\n\n" + String.Format( Strings.StatusDialogMoreInfo, err.Url );
-                Text = text;
-                _isWorking = false;
+                lock ( _padlock ) {
+                    Icon = TaskDialogStandardIcon.Error;
+                    ProgressBarState = TaskDialogProgressBarState.Error;
+                    InstructionText = Strings.StatusDialogHeadingError;
+                    string text = String.Format( "Error {0}: {1}", err.Code.ToString(), err.RMessage );
+                    if ( err.Details != null ) text += "\n\n" + err.Details;
+                    if ( err.Url != null ) text += "\n\n" + String.Format( Strings.StatusDialogMoreInfo, err.Url );
+                    Text = text;
+                    _isWorking = false;
+                }
                 return;
             } catch ( OperationCanceledException ) {
-                _isWorking = false;
-                return;
+                lock ( _padlock ) {
+                    _isWorking = false;
+                    Close( TaskDialogResult.Cancel );
+                }
             }
-            _isWorking = false;
 
             // No errors, this must mean validation was successful.
-            Close( TaskDialogResult.Ok );
+            lock ( _padlock ) {
+                _isWorking = false;
+                Close( TaskDialogResult.Ok );
+            }
         }
     }
 }
