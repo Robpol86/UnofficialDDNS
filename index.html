@@ -1,34 +1,42 @@
 <!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>UnofficialDDNS by Robpol86</title>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>UnofficialDDNS</h1>
-        <p>A dynamic DNS service for regular registrars without native DDNS options.</p>
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
 
-        <p class="view"><a href="https://github.com/Robpol86/UnofficialDDNS">View the Project on GitHub <small>Robpol86/UnofficialDDNS</small></a></p>
+  <title>UnofficialDDNS</title>
+  <meta name="description" content="A dynamic DNS service for regular registrars without native DDNS options.">
 
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
-        <ul>
-          <li><a href="https://github.com/Robpol86/UnofficialDDNS/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/Robpol86/UnofficialDDNS/zipball/master">Download <strong>Source</strong></a></li>
-          <li><a href="https://github.com/Robpol86/UnofficialDDNS">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <p>UnofficialDDNS is a Windows service which provides <em>Dynamic DNS</em> for regular registrars. Instead of signing up with a
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">UnofficialDDNS</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">A dynamic DNS service for regular registrars without native DDNS options.</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/Robpol86/UnofficialDDNS/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/Robpol86/UnofficialDDNS/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/Robpol86/UnofficialDDNS" class="code">View UnofficialDDNS on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <p>UnofficialDDNS is a Windows service which provides <em>Dynamic DNS</em> for regular registrars. Instead of signing up with a
 dynamic DNS provider and creating a CNAME record at your registrar to point to your dynamic DNS (for example:
 homeserver.mydomain.com -&gt; alfred1986.dynamicdnsprovider.info), UnofficialDDNS cuts out the middle man and creates A
 records directly.</p>
@@ -74,14 +82,27 @@ well.</p>
 <td>Windows Server 2012</td>
 </tr>
 </table>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/Robpol86">Robpol86</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+        </article>
+      </div>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/Robpol86" class="avatar"><img src="https://secure.gravatar.com/avatar/2c8ea59a9c707734a836571e6b343184?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="48" height="48"/></a> <a href="https://github.com/Robpol86">Robpol86</a> maintains <a href="https://github.com/Robpol86/UnofficialDDNS">UnofficialDDNS</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/Robpol86/UnofficialDDNS/tarball/master" class="tar">tar</a><a href="https://github.com/Robpol86/UnofficialDDNS/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+            <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
@@ -91,18 +112,6 @@ well.</p>
             pageTracker._trackPageview();
             } catch(err) {}
           </script>
-          <script type="text/javascript">
-            var _gauges = _gauges || [];
-            (function() {
-              var t   = document.createElement('script');
-              t.type  = 'text/javascript';
-              t.async = true;
-              t.id    = 'gauges-tracker';
-              t.setAttribute('data-site-id', '51c6a8ff108d7b2bf8000115');
-              t.src = '//secure.gaug.es/track.js';
-              var s = document.getElementsByTagName('script')[0];
-              s.parentNode.insertBefore(t, s);
-            })();
-          </script>
-  </body>
+
+</body>
 </html>
