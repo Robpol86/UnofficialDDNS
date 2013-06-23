@@ -7,9 +7,11 @@ homeserver.mydomain.com -> alfred1986.dynamicdnsprovider.info), UnofficialDDNS c
 records directly.
 
 When installed, UnofficialDDNS removes all existing A and CNAME records from the domain you specify (for example,
-homeserver.mydomain.com or mydomain.com if you'd like) and adds a new A record which the IP address of the computer
-running UnofficialDDNS. By default the service checks if your IP address changed every hour, and if it fails (no
+homeserver.mydomain.com or mydomain.com if you'd like) and adds a new A record which is the IP address of the computer
+running UnofficialDDNS. By default the service checks if your IP address has changed every hour, and if it fails (no
 internet, etc) it retries in 15 minutes.
+
+Additional information is on the [project's wiki](https://github.com/Robpol86/UnofficialDDNS/wiki).
 
 
 Supported Registrars
@@ -19,7 +21,7 @@ Currently **Name.com** is the only supported registrar. Go to https://www.name.c
 UnofficialDDNS needs the following:
 * Name.com user name.
 * API token.
-* The (sub)domain which will points to your server.
+* The (sub)domain which will point to your server.
 
 It might take a couple of days to get a reply from their customer support with your token.
 
