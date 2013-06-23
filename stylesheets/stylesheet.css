@@ -20,7 +20,6 @@ time, mark, audio, video {
   padding: 0;
   border: 0;
   font-size: 100%;
-  font: inherit;
   vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
@@ -239,11 +238,11 @@ a.zip span {
   -webkit-transition: opacity ease-in-out 0.3s;
 }
 
-a.tar,
-a.tar span {
-  background: transparent url(../images/tar.png) no-repeat 0 0;
-  width: 30px;
-  height: 21px;
+a.msi,
+a.msi span {
+  background: transparent url(../images/msi.png) no-repeat 0 0;
+  width: 23px;
+  height: 23px;
   opacity: 0.8;
   display: inline-block;
   text-indent: -10000px;
@@ -266,7 +265,7 @@ a.code {
 }
 
 a.zip:hover,
-a.tar:hover,
+a.msi:hover,
 a.code:hover {
   opacity: 1;
   -moz-opacity: 1;
