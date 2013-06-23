@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>UnofficialDDNS by Robpol86</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>UnofficialDDNS</h1>
+        <p>A dynamic DNS service for regular registrars without native DDNS options.</p>
+
+        <p class="view"><a href="https://github.com/Robpol86/UnofficialDDNS">View the Project on GitHub <small>Robpol86/UnofficialDDNS</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/Robpol86/UnofficialDDNS/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/Robpol86/UnofficialDDNS/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/Robpol86/UnofficialDDNS">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p>UnofficialDDNS is a Windows service which provides <em>Dynamic DNS</em> for regular registrars. Instead of signing up with a
+dynamic DNS provider and creating a CNAME record at your registrar to point to your dynamic DNS (for example:
+homeserver.mydomain.com -&gt; alfred1986.dynamicdnsprovider.info), UnofficialDDNS cuts out the middle man and creates A
+records directly.</p>
+
+<p>When installed, UnofficialDDNS removes all existing A and CNAME records from the domain you specify (for example,
+homeserver.mydomain.com or mydomain.com if you'd like) and adds a new A record which the IP address of the computer
+running UnofficialDDNS. By default the service checks if your IP address changed every hour, and if it fails (no
+internet, etc) it retries in 15 minutes.</p>
+
+<h2>
+<a name="supported-registrars" class="anchor" href="#supported-registrars"><span class="octicon octicon-link"></span></a>Supported Registrars</h2>
+
+<p>Currently <strong>Name.com</strong> is the only supported registrar. Go to <a href="https://www.name.com/reseller">https://www.name.com/reseller</a> to apply for an API token.
+UnofficialDDNS needs the following:</p>
+
+<ul>
+<li>Name.com user name.</li>
+<li>API token.</li>
+<li>The (sub)domain which will points to your server.</li>
+</ul><p>It might take a couple of days to get a reply from their customer support with your token.</p>
+
+<h2>
+<a name="supported-platforms" class="anchor" href="#supported-platforms"><span class="octicon octicon-link"></span></a>Supported Platforms</h2>
+
+<p>Both 32 and 64-bit versions of the following operating systems are supported. The .NET Framework 4.5 is required as
+well.</p>
+
+<table>
+<tr>
+<th>Desktop OS</th>
+        <th>Server Equivalent</th>
+    </tr>
+<tr>
+<td>Windows Vista</td>
+<td>Windows Server 2008</td>
+</tr>
+<tr>
+<td>Windows 7</td>
+<td>Windows Server 2008 R2</td>
+</tr>
+<tr>
+<td>Windows 8</td>
+<td>Windows Server 2012</td>
+</tr>
+</table>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/Robpol86">Robpol86</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-41955213-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
