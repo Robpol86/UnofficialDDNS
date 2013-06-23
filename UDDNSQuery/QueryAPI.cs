@@ -232,7 +232,7 @@ namespace UDDNSQuery {
             _code = code;
             _details = details;
             _resxMessage = Errors.ResourceManager.GetString( "Error" + code );
-            int[] moreInfo = { 100, 1 }; // TODO real errors instead of these placeholders.
+            int[] moreInfo = { 503 };
             if ( moreInfo.Contains( code ) ) _url = "https://github.com/Robpol86/UnofficialDDNS/wiki/Errors#error-" + code.ToString();
         }
 

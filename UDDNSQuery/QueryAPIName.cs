@@ -93,10 +93,16 @@ namespace UDDNSQuery {
         /// <exception cref="UDDNSQuery.QueryAPIException" />
         public override async Task AuthenticateAsync( CancellationToken ct ) {
             // Decrypt API token and setup API query for session token.
+            string apiToken;
+            try {
+                apiToken = Encoding.ASCII.GetString( ProtectedData.Unprotect( Convert.FromBase64String(
+                _apiTokenEncrypted ), null, DataProtectionScope.LocalMachine ) );
+            } catch ( FormatException ) {
+                apiToken = "";
+            }
             StringContent data = new StringContent( String.Format( "{{\"username\":\"{0}\",\"api_token\":\"{1}\"}}",
-                _userName, Encoding.ASCII.GetString( ProtectedData.Unprotect( Convert.FromBase64String(
-                _apiTokenEncrypted ), null, DataProtectionScope.LocalMachine ) ) ), System.Text.Encoding.UTF8,
-                "application/x-www-form-urlencoded" );
+                _userName, apiToken ), System.Text.Encoding.UTF8, "application/x-www-form-urlencoded" );
+            apiToken = null; // Remove clear-text API token from memory.
             JObject json = await RequestJSONAsync( _uriAuthenticate, data, ct );
             data = null; // Remove clear-text API token from memory.
             if ( (string) json.SelectToken( "session_token" ) == null ) throw new QueryAPIException( 402 );
