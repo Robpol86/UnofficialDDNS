@@ -630,7 +630,7 @@ namespace UDDNSQuery {
         }
 
         /// <summary>
-        /// Enabled/disables a button in the dialog.
+        /// Enables/disables a button in the dialog.
         /// </summary>
         /// <param name="buttonID">The button ID.</param>
         /// <param name="enabled">if set to <c>true</c> [enabled].</param>
@@ -642,6 +642,12 @@ namespace UDDNSQuery {
 
         #region Show and Close
 
+        /// <summary>
+        /// Displays a cancellation TaskDialog asking the user if they're sure they want to cancel their task.
+        /// </summary>
+        /// <param name="title">The dialog's title.</param>
+        /// <param name="text">The dialog's body.</param>
+        /// <returns>TaskDialogResult.</returns>
         public TaskDialogResult ShowCancellation( string title, string text ) {
             result = TaskDialogResult.No;
             TaskDialogConfiguration nativeConfig = new TaskDialogConfiguration();
@@ -683,6 +689,12 @@ namespace UDDNSQuery {
             return result;
         }
 
+        /// <summary>
+        /// Displays a TaskDialog-based error dialog with the error icon.
+        /// </summary>
+        /// <param name="title">The dialog's title.</param>
+        /// <param name="text">The dialog's body.</param>
+        /// <returns>TaskDialogResult.</returns>
         public TaskDialogResult ShowError( string title, string text ) {
             result = TaskDialogResult.No;
             TaskDialogConfiguration nativeConfig = new TaskDialogConfiguration();
@@ -724,6 +736,10 @@ namespace UDDNSQuery {
             return result;
         }
 
+        /// <summary>
+        /// Shows the TaskDialog.
+        /// </summary>
+        /// <returns>TaskDialogResult.</returns>
         public TaskDialogResult Show() {
             result = TaskDialogResult.Cancel;
             TaskDialogConfiguration nativeConfig = new TaskDialogConfiguration();
@@ -741,7 +757,7 @@ namespace UDDNSQuery {
             // NOTE: this is a BLOCKING call; the dialog proc callbacks
             // will be executed by the same thread as the 
             // Show() call before the thread of execution 
-            // contines to the end of this method.
+            // continues to the end of this method.
             showState = TaskDialogShowState.Showing;
             using ( new EnableThemingInScope( true ) ) { // Here is the way we use "vanilla" P/Invoke to call TaskDialogIndirect().
                 TaskDialogIndirect(
