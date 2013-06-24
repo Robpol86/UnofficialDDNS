@@ -1,0 +1,154 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>UnofficialDDNS</title>
+  <meta name="description" content="A dynamic DNS service for regular registrars without native DDNS options.">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">UnofficialDDNS</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">A dynamic DNS service for regular registrars without native DDNS options.</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/Robpol86/UnofficialDDNS/zipball/master" class="download-button zip"><span>Source Code</span></a>
+          <a href="binaries/UnofficialDDNS-1.0.0.msi" class="download-button msi"><span>UnofficialDDNS-1.0.0.msi</span></a>
+          <a href="https://github.com/Robpol86/UnofficialDDNS" class="code">View UnofficialDDNS on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <p>UnofficialDDNS is a Windows service which provides <em>Dynamic DNS</em> for regular registrars. Instead of signing up with a
+dynamic DNS provider and creating a CNAME record at your registrar to point to your dynamic DNS (for example:
+homeserver.mydomain.com -&gt; alfred1986.dynamicdnsprovider.info), UnofficialDDNS cuts out the middle man and creates A
+records directly.</p>
+
+<p>When installed, UnofficialDDNS removes all existing A and CNAME records from the domain you specify (for example,
+homeserver.mydomain.com or mydomain.com if you'd like) and adds a new A record which is the IP address of the computer
+running UnofficialDDNS. By default the service checks if your IP address has changed every hour, and if it fails (no
+internet, etc) it retries in 15 minutes.</p>
+
+<p>Additional information is on the <a href="https://github.com/Robpol86/UnofficialDDNS/wiki">project's wiki</a>.</p>
+
+<h2>
+<a name="supported-registrars" class="anchor" href="#supported-registrars"><span class="octicon octicon-link"></span></a>Supported Registrars</h2>
+
+<p>Currently <strong>Name.com</strong> is the only supported registrar. Go to <a href="https://www.name.com/reseller">https://www.name.com/reseller</a> to apply for an API token.
+UnofficialDDNS needs the following:</p>
+
+<ul>
+<li>Name.com user name.</li>
+<li>API token.</li>
+<li>The (sub)domain which will point to your server.</li>
+</ul><p>It might take a couple of days to get a reply from their customer support with your token.</p>
+
+<h2>
+<a name="supported-platforms" class="anchor" href="#supported-platforms"><span class="octicon octicon-link"></span></a>Supported Platforms</h2>
+
+<p>Both 32 and 64-bit versions of the following operating systems are supported. The .NET Framework 4.5 is required as
+well.</p>
+
+<table>
+<tr>
+<th>Desktop OS</th>
+        <th>Server Equivalent</th>
+    </tr>
+<tr>
+<td>Windows Vista</td>
+<td>Windows Server 2008</td>
+</tr>
+<tr>
+<td>Windows 7</td>
+<td>Windows Server 2008 R2</td>
+</tr>
+<tr>
+<td>Windows 8</td>
+<td>Windows Server 2012</td>
+</tr>
+</table>
+
+<h2>
+<a name="comments" class="anchor" href="#comments"><span class="octicon octicon-link"></span></a>Comments</h2>
+
+<p>
+<div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'unofficialddns'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</p>
+
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/Robpol86" class="avatar"><img src="https://secure.gravatar.com/avatar/5acddd4950fc0a928a39562c62b5da16?s=48" width="48" height="48"/></a> <a href="https://github.com/Robpol86">Robpol86</a> maintains <a href="https://github.com/Robpol86/UnofficialDDNS">UnofficialDDNS</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/Robpol86/UnofficialDDNS/tarball/master" class="tar">tar</a><a href="https://github.com/Robpol86/UnofficialDDNS/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-41955213-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+            <script type="text/javascript">
+              var _gauges = _gauges || [];
+              (function() {
+                var t   = document.createElement('script');
+                t.type  = 'text/javascript';
+                t.async = true;
+                t.id    = 'gauges-tracker';
+                t.setAttribute('data-site-id', '51c6a8ff108d7b2bf8000115');
+                t.src = '//secure.gaug.es/track.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(t, s);
+              })();
+            </script>
+          
+</body>
+</html>
