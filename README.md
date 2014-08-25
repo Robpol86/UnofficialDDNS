@@ -11,7 +11,8 @@ homeserver.mydomain.com or mydomain.com if you'd like) and adds a new A record w
 running UnofficialDDNS. By default the service checks if your IP address has changed every hour, and if it fails (no
 internet, etc) it retries in 15 minutes.
 
-Additional information is on the [project's wiki](https://github.com/Robpol86/UnofficialDDNS/wiki).
+Additional information is on the [project's wiki](https://github.com/Robpol86/UnofficialDDNS/wiki). The Linux/Unix
+version is [UnofficialDDNSnix](https://github.com/Robpol86/UnofficialDDNSnix).
 
 
 Supported Registrars
